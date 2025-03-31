@@ -3,8 +3,8 @@ import React, { memo } from "react";
 const Banners = memo(() => {
   return (
     <div className="mx-auto max-w-7xl grid grid-cols-1 gap-6">
+      {/* Section 1: image left, text right on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8">
-        {/* Left Content */}
         <div className="flex items-center justify-center">
           <img
             src="/img/span (3).png"
@@ -13,7 +13,6 @@ const Banners = memo(() => {
             alt="Financial Insights"
           />
         </div>
-        {/* Right Content */}
         <div className="flex flex-col gap-6 items-start text-left">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
             Smart Spending Insights
@@ -26,9 +25,19 @@ const Banners = memo(() => {
         </div>
       </div>
 
+      {/* Section 2: reverse on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8">
-        {/* Left Content */}
-        <div className="flex flex-col gap-6 items-start text-left">
+        {/* Image becomes second on md */}
+        <div className="flex items-center justify-center md:order-2">
+          <img
+            src="/img/span (2).png"
+            loading="lazy"
+            className="w-[90%] max-w-[400px] drop-shadow-lg"
+            alt="Financial Insights"
+          />
+        </div>
+        {/* Text becomes first on md */}
+        <div className="flex flex-col gap-6 items-start text-left md:order-1">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
             Power Financial Independence
           </h2>
@@ -38,19 +47,10 @@ const Banners = memo(() => {
             their needs.
           </p>
         </div>
-        {/* Right Content */}
-        <div className="flex items-center justify-center">
-          <img
-            src="/img/span (2).png"
-            loading="lazy"
-            className="w-[90%] max-w-[400px] drop-shadow-lg"
-            alt="Financial Insights"
-          />
-        </div>
       </div>
 
+      {/* Section 3: image left, text right on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8">
-        {/* Left Content */}
         <div className="flex items-center justify-center">
           <img
             src="/img/span (1).png"
@@ -59,7 +59,6 @@ const Banners = memo(() => {
             alt="Financial Insights"
           />
         </div>
-        {/* Right Content */}
         <div className="flex flex-col gap-6 items-start text-left">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
             Safety & Connectivity Features
@@ -71,9 +70,19 @@ const Banners = memo(() => {
         </div>
       </div>
 
+      {/* Section 4: reverse on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8">
-        {/* Left Content */}
-        <div className="flex flex-col gap-6 items-start text-left">
+        {/* Image becomes second on md */}
+        <div className="flex items-center justify-center md:order-2">
+          <img
+            src="/img/span.png"
+            loading="lazy"
+            className="w-[90%] max-w-[400px] drop-shadow-lg"
+            alt="Financial Insights"
+          />
+        </div>
+        {/* Text becomes first on md */}
+        <div className="flex flex-col gap-6 items-start text-left md:order-1">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
             Supercharge Savings Goals
           </h2>
@@ -82,19 +91,10 @@ const Banners = memo(() => {
             on savings* while tracking progress together.
           </p>
         </div>
-        {/* Right Content */}
-        <div className="flex items-center justify-center">
-          <img
-            src="/img/span.png"
-            loading="lazy"
-            className="w-[90%] max-w-[400px] drop-shadow-lg"
-            alt="Financial Insights"
-          />
-        </div>
       </div>
 
+      {/* Section 5: image left, text right on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8">
-        {/* Left Content */}
         <div className="flex items-center justify-center">
           <img
             src="/img/group.png"
@@ -103,7 +103,6 @@ const Banners = memo(() => {
             alt="Financial Insights"
           />
         </div>
-        {/* Right Content */}
         <div className="flex flex-col gap-6 items-start text-left">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
             Invest in the Future

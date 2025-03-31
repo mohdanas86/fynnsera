@@ -5,22 +5,33 @@ import { useSession, signOut } from "next-auth/react";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { AlignLeft, Menu, User } from "lucide-react";
+import {
+  AlignLeft,
+  Menu,
+  Home,
+  DollarSign,
+  BadgePoundSterling,
+  Goal,
+  Sparkles,
+  Settings,
+} from "lucide-react";
 import { useMyContext } from "@/context/MyContext";
 
 export default function Header() {
+  const { isLoggedin } = useMyContext();
   const { data: session, status } = useSession();
   const { showSidebar, setShowSidebar } = useMyContext();
 
   return (
     <header className="flex items-center justify-between bg-white border-b shadow-sm px-4 py-3">
       <div className="flex items-center">
-        {/* Mobile sidebar trigger using shadcn's Sheet */}
+        {/* Mobile menu trigger */}
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" className="md:hidden">
@@ -28,8 +39,13 @@ export default function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-4">
-            <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
+            <SheetHeader className="mb-3">
+              <SheetTitle className="text-2xl font-bold text-teal-600">
+                Ai Finance
+              </SheetTitle>
+              <SheetDescription className="text-gray-500 text-sm">
+                Navigation for Smarter Financial Decisions
+              </SheetDescription>
             </SheetHeader>
             <nav className="mt-4">
               <ul className="flex flex-col space-y-3">
@@ -38,7 +54,7 @@ export default function Header() {
                     href="/dashboard"
                     className="flex items-center space-x-2"
                   >
-                    <Menu className="h-4 w-4" />
+                    <Home className="h-5 w-5" />
                     <span>Dashboard</span>
                   </Link>
                 </li>
@@ -47,8 +63,35 @@ export default function Header() {
                     href="/dashboard/transactions"
                     className="flex items-center space-x-2"
                   >
-                    <Menu className="h-4 w-4" />
+                    <DollarSign className="h-5 w-5" />
                     <span>Transactions</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/budget"
+                    className="flex items-center space-x-2"
+                  >
+                    <BadgePoundSterling className="h-5 w-5" />
+                    <span>Budget</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/goal-tracking"
+                    className="flex items-center space-x-2"
+                  >
+                    <Goal className="h-5 w-5" />
+                    <span>Goal Tracking</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/chat"
+                    className="flex items-center space-x-2"
+                  >
+                    <Sparkles className="h-5 w-5" />
+                    <span>Ai Assistant</span>
                   </Link>
                 </li>
                 <li>
@@ -56,22 +99,51 @@ export default function Header() {
                     href="/dashboard/settings"
                     className="flex items-center space-x-2"
                   >
-                    <Menu className="h-4 w-4" />
+                    <Settings className="h-5 w-5" />
                     <span>Settings</span>
                   </Link>
                 </li>
               </ul>
             </nav>
+            <div className="mt-6">
+              {isLoggedin ? (
+                <Button
+                  onClick={() => signOut()}
+                  className="w-full rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+                >
+                  Logout
+                </Button>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <Link href="/signin">
+                    <Button className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-md border-secondary px-4 py-2 text-sm font-medium text-teal-600 transition hover:text-teal-600/75"
+                    >
+                      Register
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </SheetContent>
         </Sheet>
+        {/* Sidebar toggle button for larger screens */}
         <Button
-          className="mr-1 w-[50px]"
+          className="mr-1 w-[50px] hidden md:block"
           onClick={() => setShowSidebar(!showSidebar)}
         >
           <AlignLeft />
         </Button>
         <Link href="/">
-          <h1 className="ml-4 text-2xl font-semibold">AI Finance Assistant</h1>
+          <h1 className="lg:ml-4 lg;text-xl font-semibold">
+            AI Finance Assistant
+          </h1>
         </Link>
       </div>
       <div className="flex items-center space-x-4">
@@ -86,9 +158,21 @@ export default function Header() {
             </Button>
           </>
         ) : (
-          <Button variant="outline" asChild>
-            <Link href="/api/auth/signin">Sign In</Link>
-          </Button>
+          <div className="lg:flex hidden gap-3">
+            <Link href="/signin">
+              <Button className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark">
+                Login
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button
+                variant="outline"
+                className="w-full rounded-md border-secondary px-4 py-2 text-sm font-medium text-teal-600 transition hover:text-teal-600/75"
+              >
+                Register
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
     </header>

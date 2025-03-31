@@ -11,7 +11,6 @@ const ClientLayout = ({ children }) => {
   const [showChatBot, setShowChatBot] = useState(false);
 
   const handleToggleChatBot = () => {
-    // If chat is open, ask for confirmation before closing
     if (showChatBot) {
       const confirmClose = window.confirm(
         "Are you sure you want to close the chat?"
@@ -29,7 +28,10 @@ const ClientLayout = ({ children }) => {
       <div className="h-screen flex flex-col overflow-hidden relative">
         <Header />
         <div className="flex w-full overflow-hidden">
-          <Sidebar />
+          {/* Sidebar hidden on mobile (visible from md and up) */}
+          <div className="hidden md:block">
+            <Sidebar />
+          </div>
           <main className="w-full p-4 md:p-6 overflow-auto scrollable-section">
             <div className="p-4 md:p-0">{children}</div>
           </main>

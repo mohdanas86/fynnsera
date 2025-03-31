@@ -11,11 +11,11 @@ const Hero = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 py-16 px-8 mx-auto max-w-7xl">
       {/* Left Content */}
-      <div className="flex flex-col gap-6 items-start text-left">
-        <h2 className="text-5xl font-extrabold leading-tight text-gray-900">
-          Take Control of Your Finances <br /> with Smart Insights
+      <div className="flex flex-col lg:gap-6 gap-4 items-start text-left">
+        <h2 className="lg:text-5xl text-2xl font-extrabold leading-tight text-gray-900">
+          Take Control of Your Finances with Smart Insights
         </h2>
-        <p className="text-gray-700 text-lg font-medium">
+        <p className="text-gray-700 lg:text-lg text-sm font-medium">
           Learn to save, invest, build credit, and stay safe—together, with the
           power of AI.
         </p>

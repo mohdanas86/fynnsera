@@ -36,9 +36,9 @@ const featuresData = [
 
 const Features = memo(() => {
   return (
-    <div className="py-12 px-6 mx-auto max-w-7xl">
+    <div className="lg:py-12 py-6 px-6 mx-auto max-w-7xl">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-extrabold text-gray-900">
+        <h2 className="lg:text-4xl text-2xl font-extrabold text-gray-900">
           Take Control of Your Finances with Smart Insights
         </h2>
       </div>
