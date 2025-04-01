@@ -77,15 +77,6 @@ export default function Sidebar() {
               <span>Ai Assistant</span>
             </Link>
           </li>
-          <li>
-            <Link
-              href="/dashboard/settings"
-              className={linkClasses("/dashboard/settings")}
-            >
-              <Settings className="h-5 w-5" />
-              <span>Settings</span>
-            </Link>
-          </li>
         </ul>
       </nav>
     </aside>

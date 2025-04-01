@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useMemo } from "react";
 import {
   flexRender,
@@ -43,7 +42,7 @@ export default function TopCategoriesTable({ transactions }) {
   // Ensure transactions is an array; if not, fallback to an empty array.
   const data = Array.isArray(transactions) ? transactions : [];
 
-  // Aggregate transactions by category
+  // Aggregate transactions by category.
   const aggregatedData = useMemo(() => {
     const totals = {};
     data.forEach((tx) => {
@@ -54,7 +53,7 @@ export default function TopCategoriesTable({ transactions }) {
       category,
       total,
     }));
-    // Sort descending by total and take top 5 categories
+    // Sort descending by total and take top 5 categories.
     return dataArray.sort((a, b) => b.total - a.total).slice(0, 5);
   }, [data]);
 
@@ -67,14 +66,17 @@ export default function TopCategoriesTable({ transactions }) {
 
   return (
     <div className="rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Top 5 Categories</h2>
-      <div className="rounded-md border">
+      <h2 className="lg:text-2xl font-bold mb-4">Top 5 Categories</h2>
+      <div className="rounded-md border overflow-x-auto">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-50 sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -91,7 +93,7 @@ export default function TopCategoriesTable({ transactions }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-4 py-2">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

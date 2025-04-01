@@ -13,9 +13,9 @@ const TransactionSummary = ({ transactions }) => {
   const balance = income + expenses;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow mb-6">
+    <div className="bg-white lg:p-6 lg:rounded-lg lg:shadow mb-6">
       <h2 className="text-2xl font-bold mb-4">Transaction Summary</h2>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid lg:grid-cols-3 grid-cols-1 gap-4">
         <div className="p-4 bg-green-100 rounded-lg">
           <h3 className="text-lg font-semibold">Income</h3>
           <p className="text-green-700">${income.toFixed(2)}</p>

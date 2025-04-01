@@ -32,7 +32,7 @@ const ClientLayout = ({ children }) => {
           <div className="hidden md:block">
             <Sidebar />
           </div>
-          <main className="w-full p-4 md:p-6 overflow-auto scrollable-section">
+          <main className="w-full md:p-6 overflow-auto scrollable-section">
             <div className="p-4 md:p-0">{children}</div>
           </main>
         </div>
@@ -47,7 +47,7 @@ const ClientLayout = ({ children }) => {
         {/* AI Button */}
         <button
           onClick={handleToggleChatBot}
-          className="fixed bottom-6 right-6 bg-green-600 text-white p-4 rounded-full shadow-xl hover:bg-green-700 hover:scale-105 transition-transform duration-200 z-[999] animate-accordion-down"
+          className="fixed bottom-6 right-6 bg-green-600 text-white p-4 rounded-full shadow-xl hover:bg-green-700 hover:scale-105 transition-transform duration-200 z-[999] animate-accordion-down hidden lg:block"
         >
           <MessageCircle className="w-6 h-6" />
         </button>

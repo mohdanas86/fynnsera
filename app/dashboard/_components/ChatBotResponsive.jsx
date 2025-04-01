@@ -106,7 +106,7 @@ export default function ChatBotResponsive() {
             className={`flex ${msg.isBot ? "justify-start" : "justify-end"}`}
           >
             <div
-              className={`max-w-[90%] p-3 rounded-xl shadow transition-transform transform hover:scale-105 ${
+              className={`max-w-[90%] p-3 rounded-xl shadow transition-transform transform  ${
                 msg.isBot
                   ? "bg-white text-gray-800 border border-gray-200"
                   : "bg-green-600 text-white"

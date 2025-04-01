@@ -30,24 +30,26 @@ const transformData = (transactions) => {
   transactions.forEach((transaction) => {
     if (!transaction.date) return;
     const dateObj = new Date(transaction.date);
-    // Get full month name (e.g., "January")
-    const monthName = dateObj.toLocaleString("default", { month: "long" });
+    // Get abbreviated month name (e.g., "jan")
+    const monthName = dateObj
+      .toLocaleString("default", { month: "short" })
+      .toLowerCase();
     groups[monthName] = (groups[monthName] || 0) + transaction.amount;
   });
-  // Define month order for sorting
+  // Define month order for sorting using abbreviated month names
   const monthOrder = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
   ];
   return monthOrder
     .filter((month) => groups[month] !== undefined)

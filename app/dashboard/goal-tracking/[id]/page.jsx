@@ -80,7 +80,7 @@ export default function GoalDetail() {
   if (!goal) return <div className="text-center py-8">Goal not found.</div>;
 
   return (
-    <div className="min-h-screen  flex flex-col items-center p-4">
+    <div className="min-h-screen  flex flex-col items-center lg:p-4">
       <div className="w-full">
         <Button
           variant="ghost"

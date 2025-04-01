@@ -94,7 +94,7 @@ export default function Header() {
                     <span>Ai Assistant</span>
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     href="/dashboard/settings"
                     className="flex items-center space-x-2"
@@ -102,7 +102,7 @@ export default function Header() {
                     <Settings className="h-5 w-5" />
                     <span>Settings</span>
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </nav>
             <div className="mt-6">
@@ -148,7 +148,7 @@ export default function Header() {
       </div>
       <div className="flex items-center space-x-4">
         {status === "authenticated" ? (
-          <>
+          <div className=" hidden lg:block">
             <span className="text-gray-700">Hello, {session.user.name}</span>
             <Button
               variant="outline"
@@ -156,7 +156,7 @@ export default function Header() {
             >
               Sign Out
             </Button>
-          </>
+          </div>
         ) : (
           <div className="lg:flex hidden gap-3">
             <Link href="/signin">
