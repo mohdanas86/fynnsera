@@ -107,7 +107,7 @@ export function AreaCharts({ userTransaction }) {
                   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
                 }}
                 formatter={(value) => {
-                  return `₹${value.toLocaleString()}`;
+                  return `$${value.toLocaleString()}`;
                 }}
               />
               <defs>
@@ -135,18 +135,6 @@ export function AreaCharts({ userTransaction }) {
           </ResponsiveContainer>
         </div>
       </CardContent>
-      {/* <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div>
-          </div>
-        </div>
-      </CardFooter> */}
     </Card>
   );
 }

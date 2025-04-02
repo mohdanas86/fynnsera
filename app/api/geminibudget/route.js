@@ -33,12 +33,33 @@ const generationConfig = {
 };
 
 async function generateRecommendations(spendingData) {
+  console.log("spendingData : ", spendingData);
+  function calculateTotalSpending(spendingData) {
+    return spendingData.reduce((sum, item) => sum + item.spending, 0);
+  }
+  const totalSpending = calculateTotalSpending(spendingData);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-  const prompt = `Based on the following spending data, provide budget recommendations as a JSON array where each object includes "category", "spending", and "recommendation": ${JSON.stringify(
-    spendingData,
-    null,
-    2
-  )}`;
+  // const prompt = `Based on the following spending data, provide budget recommendations as a JSON array where each object includes "category", "spending", and "recommendation ": ${JSON.stringify(
+  //   spendingData,
+  //   null,
+  //   2
+  // )}`;
+
+  const prompt = `You are a financial advisor. Based on the following spending data and the total spending provided, generate budget recommendations. The spending data is a JSON array of objects, each with "category" and "spending" fields. The total spending is ${totalSpending}.
+
+  Your task is to:
+  1. For each category, calculate its percentage of the total spending.
+  2. Identify the top three categories with the highest spending amounts.
+  3. Provide a JSON array where each object includes "category", "spending", and "recommendation".
+     - In the "recommendation" field, include:
+       - The spending amount.
+       - The percentage of total spending.
+       - Actionable advice to reduce or optimize spending.
+     - For the top three categories, emphasize reducing expenses with specific, category-relevant tips.
+     - For other categories, provide general optimization suggestions.
+
+  Here is the spending data:
+  ${JSON.stringify(spendingData, totalSpending, null, 2)}`;
 
   const result = await model.generateContent(prompt, generationConfig);
   let textResponse = result.response.text();
@@ -66,8 +87,7 @@ async function generateRecommendations(spendingData) {
     return {
       category: item.category,
       spending: item.spending,
-      recommendation:
-        recommendation.recommendation || "No recommendation provided.",
+      recommendation: recommendation.recommendation || "No recommendation.",
     };
   });
 }

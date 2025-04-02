@@ -112,7 +112,7 @@ export async function POST(req) {
     // Set default date range to the last 30 days if not provided.
     const today = new Date().toISOString().split("T")[0];
     const defaultStart = new Date();
-    defaultStart.setMonth(defaultStart.getMonth() - 6);
+    defaultStart.setMonth(defaultStart.getMonth() - 12);
     const formattedStart = defaultStart.toISOString().split("T")[0];
 
     const start = formattedStart;

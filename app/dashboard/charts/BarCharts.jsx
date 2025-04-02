@@ -90,7 +90,9 @@ export function BarCharts({ userTransaction = [] }) {
                   tickMargin={10}
                   axisLine={false}
                 />
-                <Tooltip formatter={(value) => Number(value).toFixed(2)} />
+                <Tooltip
+                  formatter={(value) => `$${Number(value).toFixed(2)}`}
+                />
                 <Bar dataKey="value" fill="rgb(59, 130, 246)" radius={5} />
               </BarChart>
             </ResponsiveContainer>

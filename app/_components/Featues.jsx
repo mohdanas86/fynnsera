@@ -11,8 +11,7 @@ const featuresData = [
   {
     icon: "/img/span (5).png",
     title: "Savings Goals Made Simple",
-    description:
-      "Set savings goals together and earn up to 5% rewards* for good habits.",
+    description: "Set savings goals together.",
   },
   {
     icon: "/img/span (6).png",

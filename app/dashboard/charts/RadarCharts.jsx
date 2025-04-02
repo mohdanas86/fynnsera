@@ -85,7 +85,7 @@ export function RadarCharts({ userTransaction = [] }) {
         >
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
             <Tooltip
-              formatter={(value) => Number(value).toFixed(2)}
+              formatter={(value) => `$${Number(value).toFixed(2)}`}
               contentStyle={{
                 fontSize: "14px",
                 backgroundColor: "#fff",

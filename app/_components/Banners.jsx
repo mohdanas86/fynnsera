@@ -15,12 +15,11 @@ const Banners = memo(() => {
         </div>
         <div className="flex flex-col gap-6 items-start text-left">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
-            Smart Spending Insights
+            Smart Transaction Categorization
           </h2>
           <p className="text-gray-700 text-lg font-medium">
-            AI categorizes transactions (e.g., groceries, entertainment, bills)
-            and provides real-time notifications to track your kids' or teens'
-            spending habits.
+            AI intelligently classifies your expenses (e.g., groceries,
+            entertainment, bills) for a clearer financial overview.
           </p>
         </div>
       </div>
@@ -39,12 +38,11 @@ const Banners = memo(() => {
         {/* Text becomes first on md */}
         <div className="flex flex-col gap-6 items-start text-left md:order-1">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
-            Power Financial Independence
+            Achieve Financial Independence
           </h2>
           <p className="text-gray-700 text-lg font-medium">
-            Support your teen’s journey from their first job to their first car
-            with personalized financial advice and budgeting tools tailored to
-            their needs.
+            Gain control over your finances with AI-driven insights tailored to
+            your spending habits.
           </p>
         </div>
       </div>
@@ -61,11 +59,11 @@ const Banners = memo(() => {
         </div>
         <div className="flex flex-col gap-6 items-start text-left">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
-            Safety & Connectivity Features
+            Accelerate Your Savings Goals
           </h2>
           <p className="text-gray-700 text-lg font-medium">
-            Stay connected with spending alerts, AI-powered fraud detection, and
-            budgeting tools, all accessible through iOS and Android.
+            Get personalized strategies to save smarter and reach your financial
+            targets faster.
           </p>
         </div>
       </div>
@@ -84,11 +82,11 @@ const Banners = memo(() => {
         {/* Text becomes first on md */}
         <div className="flex flex-col gap-6 items-start text-left md:order-1">
           <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
-            Supercharge Savings Goals
+            Trade Smarter with AI
           </h2>
           <p className="text-gray-700 text-lg font-medium">
-            Set ambitious savings goals as a family and earn rewards of up to 5%
-            on savings* while tracking progress together.
+            Analyze your trading patterns through automated insights based on
+            your trade logs.
           </p>
         </div>
       </div>

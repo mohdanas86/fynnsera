@@ -27,22 +27,22 @@ const Header = () => {
     ? [
         { name: "Home", href: "/" },
         { name: "About", href: "/about" },
-        { name: "Careers", href: "/careers" },
+        // { name: "Careers", href: "/careers" },
         { name: "Dashboard", href: "/dashboard" },
-        { name: "History", href: "/history" },
-        { name: "Services", href: "/services" },
-        { name: "Projects", href: "/projects" },
-        { name: "Blog", href: "/blog" },
+        // { name: "History", href: "/history" },
+        // { name: "Services", href: "/services" },
+        // { name: "Projects", href: "/projects" },
+        // { name: "Blog", href: "/blog" },
       ]
     : [
         { name: "Home", href: "/" },
         { name: "About", href: "/about" },
         { name: "Dashboard", href: "/dashboard" },
-        { name: "Careers", href: "/careers" },
-        { name: "History", href: "/history" },
-        { name: "Services", href: "/services" },
-        { name: "Projects", href: "/projects" },
-        { name: "Blog", href: "/blog" },
+        // { name: "Careers", href: "/careers" },
+        // { name: "History", href: "/history" },
+        // /        { name: "Services", href: "/services" },
+        // { name: "Projects", href: "/projects" },
+        // { name: "Blog", href: "/blog" },
       ];
 
   return (
