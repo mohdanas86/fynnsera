@@ -118,7 +118,7 @@ export default function ChatbotResponsive() {
   return (
     <div className="flex flex-col h-[85vh] bg-white overflow-hidden">
       {/* Header */}
-      <header className="lg:p-4 lg:pb-0 pb-4 border-b border-gray-200 flex items-center justify-between">
+      <header className="lg:p-4 lg:pt-0 pb-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center">
             <SparklesIcon className="w-6 h-6 text-indigo-600" />

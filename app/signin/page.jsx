@@ -8,11 +8,13 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -22,14 +24,15 @@ export default function SignIn() {
 
     if (result?.error) {
       setError("Invalid email or password");
+      setIsLoading(false);
     } else {
       router.push("/dashboard");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
+    <div className="lg:min-h-screen flex items-center justify-center lg:bg-gray-50">
+      <div className="max-w-md w-full p-6 lg:bg-white rounded-lg lg:shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
           Sign In
         </h1>
@@ -48,6 +51,7 @@ export default function SignIn() {
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isLoading}
             />
           </div>
           <div className="mb-6">
@@ -64,14 +68,16 @@ export default function SignIn() {
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isLoading}
             />
           </div>
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors"
+            disabled={isLoading}
+            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50"
           >
-            Sign In
+            {isLoading ? "Loading..." : "Sign In"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">

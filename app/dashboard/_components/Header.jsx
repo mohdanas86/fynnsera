@@ -22,17 +22,21 @@ import {
   Settings,
 } from "lucide-react";
 import { useMyContext } from "@/context/MyContext";
+import { useState } from "react";
 
 export default function Header() {
   const { isLoggedin } = useMyContext();
   const { data: session, status } = useSession();
   const { showSidebar, setShowSidebar } = useMyContext();
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const handleLinkClick = () => setSheetOpen(false);
 
   return (
     <header className="flex items-center justify-between bg-white border-b shadow-sm px-4 py-3">
       <div className="flex items-center">
         {/* Mobile menu trigger */}
-        <Sheet>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" className="md:hidden">
               <Menu className="h-6 w-6" />
@@ -53,6 +57,7 @@ export default function Header() {
                   <Link
                     href="/dashboard"
                     className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
                   >
                     <Home className="h-5 w-5" />
                     <span>Dashboard</span>
@@ -62,6 +67,7 @@ export default function Header() {
                   <Link
                     href="/dashboard/transactions"
                     className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
                   >
                     <DollarSign className="h-5 w-5" />
                     <span>Transactions</span>
@@ -71,6 +77,7 @@ export default function Header() {
                   <Link
                     href="/dashboard/budget"
                     className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
                   >
                     <BadgePoundSterling className="h-5 w-5" />
                     <span>Budget</span>
@@ -80,6 +87,7 @@ export default function Header() {
                   <Link
                     href="/dashboard/goal-tracking"
                     className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
                   >
                     <Goal className="h-5 w-5" />
                     <span>Goal Tracking</span>
@@ -89,15 +97,18 @@ export default function Header() {
                   <Link
                     href="/dashboard/chat"
                     className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
                   >
                     <Sparkles className="h-5 w-5" />
                     <span>Ai Assistant</span>
                   </Link>
                 </li>
+                {/* Uncomment or add additional links as needed */}
                 {/* <li>
                   <Link
                     href="/dashboard/settings"
                     className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
                   >
                     <Settings className="h-5 w-5" />
                     <span>Settings</span>
@@ -108,19 +119,22 @@ export default function Header() {
             <div className="mt-6">
               {isLoggedin ? (
                 <Button
-                  onClick={() => signOut()}
+                  onClick={() => {
+                    signOut();
+                    setSheetOpen(false);
+                  }}
                   className="w-full rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
                 >
                   Logout
                 </Button>
               ) : (
                 <div className="flex flex-col gap-3">
-                  <Link href="/signin">
+                  <Link href="/signin" onClick={handleLinkClick}>
                     <Button className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark">
                       Login
                     </Button>
                   </Link>
-                  <Link href="/signup">
+                  <Link href="/signup" onClick={handleLinkClick}>
                     <Button
                       variant="outline"
                       className="w-full rounded-md border-secondary px-4 py-2 text-sm font-medium text-teal-600 transition hover:text-teal-600/75"
@@ -141,18 +155,18 @@ export default function Header() {
           <AlignLeft />
         </Button>
         <Link href="/">
-          <h1 className="lg:ml-4 lg;text-xl font-semibold">
+          <h1 className="lg:ml-4 lg:text-xl font-semibold">
             AI Finance Assistant
           </h1>
         </Link>
       </div>
       <div className="flex items-center space-x-4">
         {status === "authenticated" ? (
-          <div className=" hidden lg:block">
+          <div className="hidden lg:block">
             <span className="text-gray-700">Hello, {session.user.name}</span>
             <Button
               variant="outline"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => signOut({ callbackUrl: "/signin" })}
             >
               Sign Out
             </Button>

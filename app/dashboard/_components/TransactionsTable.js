@@ -164,7 +164,7 @@ export default function TransactionsTable({ transactions }) {
 
   return (
     <div className="rounded-lg">
-      <h2 className="text-2xl font-bold">Recent Transactions</h2>
+      {/* <h2 className="text-2xl font-bold">Recent Transactions</h2> */}
       <div className="flex items-center py-4 lg:gap-0 gap-4">
         <Input
           placeholder="Filter descriptions..."

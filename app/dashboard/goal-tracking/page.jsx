@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Loding from "../_components/Loding";
 
 export default function GoalTracking() {
   const router = useRouter();
@@ -22,16 +23,6 @@ export default function GoalTracking() {
     image: "",
   });
   const [errorMsg, setErrorMsg] = useState("");
-
-  // If no user is logged in, show login prompt
-  if (status !== "authenticated" && !session) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <p className=" mb-4">Please Sign In</p>
-        <Button onClick={() => router.push("/signin")}>Login</Button>
-      </div>
-    );
-  }
 
   // Fetch goals from the backend API
   useEffect(() => {
@@ -106,132 +97,140 @@ export default function GoalTracking() {
     router.push(`/dashboard/goal-tracking/${id}`);
   };
 
+  // Render loading state if goals are being fetched
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">Loading...</div>
-    );
+    return <Loding />;
   }
 
   return (
     <div className="container mx-auto lg:px-4 relative">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
-        <h1 className="text-2xl font-bold mb-4 sm:mb-0">Goal Tracking</h1>
-        <Button onClick={() => setShowAddForm(true)}>Add Goal</Button>
-      </div>
-      {errorMsg && (
-        <div className="mb-4 text-center text-red-500">{errorMsg}</div>
-      )}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {goals.map((goal) => (
-          <Card key={goal._id || goal.id} className="shadow-md">
-            <CardHeader>
-              <div className="flex items-start space-x-4">
-                {goal.image && (
-                  <img
-                    src={goal.image}
-                    alt={goal.title}
-                    className="w-16 h-16 object-cover rounded-full"
-                  />
-                )}
-                <div>
-                  <CardTitle className="text-xl font-semibold">
-                    {goal.title}
-                  </CardTitle>
-                  <p className="text-gray-600">
-                    {goal.description.length > 50
-                      ? goal.description.slice(0, 100) + "…"
-                      : goal.description}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
-                <span className="text-gray-700 font-medium">
-                  ${parseFloat(goal.currentAmount).toLocaleString()} / $
-                  {parseFloat(goal.targetAmount).toLocaleString()}
-                </span>
-                <Progress
-                  value={(goal.currentAmount / goal.targetAmount) * 100}
-                  className="h-2 mt-2"
-                />
-              </div>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => viewDetails(goal._id || goal.id)}
-              >
-                View Details
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Modal for adding a new goal */}
-      {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md shadow-xl">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-xl font-semibold">Add New Goal</h2>
-              <Button variant="ghost" onClick={() => setShowAddForm(false)}>
-                Close
-              </Button>
-            </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  value={newGoal.title}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  name="description"
-                  value={newGoal.description}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="targetAmount">Target Amount</Label>
-                <Input
-                  id="targetAmount"
-                  name="targetAmount"
-                  type="number"
-                  value={newGoal.targetAmount}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="currentAmount">Current Amount</Label>
-                <Input
-                  id="currentAmount"
-                  name="currentAmount"
-                  type="number"
-                  value={newGoal.currentAmount}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="image">Image URL</Label>
-                <Input
-                  id="image"
-                  name="image"
-                  value={newGoal.image}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <Button onClick={addNewGoal} className="w-full">
-                Submit Goal
-              </Button>
-            </div>
-          </Card>
+      {!session || status !== "authenticated" ? (
+        <div className="text-center py-8">
+          <p className="mb-4">Please Sign In</p>
+          <Button onClick={() => router.push("/signin")}>Login</Button>
         </div>
+      ) : (
+        <>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+            <h1 className="text-2xl font-bold mb-4 sm:mb-0">Goal Tracking</h1>
+            <Button onClick={() => setShowAddForm(true)}>Add Goal</Button>
+          </div>
+          {errorMsg && (
+            <div className="mb-4 text-center text-red-500">{errorMsg}</div>
+          )}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {goals.map((goal) => (
+              <Card key={goal._id || goal.id} className="shadow-md">
+                <CardHeader>
+                  <div className="flex items-start space-x-4">
+                    {goal.image && (
+                      <img
+                        src={goal.image}
+                        alt={goal.title}
+                        className="w-16 h-16 object-cover rounded-full"
+                      />
+                    )}
+                    <div>
+                      <CardTitle className="text-xl font-semibold">
+                        {goal.title}
+                      </CardTitle>
+                      <p className="text-gray-600">
+                        {goal.description.length > 50
+                          ? goal.description.slice(0, 100) + "…"
+                          : goal.description}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-4">
+                    <span className="text-gray-700 font-medium">
+                      ${parseFloat(goal.currentAmount).toLocaleString()} / $
+                      {parseFloat(goal.targetAmount).toLocaleString()}
+                    </span>
+                    <Progress
+                      value={(goal.currentAmount / goal.targetAmount) * 100}
+                      className="h-2 mt-2"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => viewDetails(goal._id || goal.id)}
+                  >
+                    View Details
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Modal for adding a new goal */}
+          {showAddForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-md shadow-xl">
+                <div className="flex justify-between items-center p-4 border-b">
+                  <h2 className="text-xl font-semibold">Add New Goal</h2>
+                  <Button variant="ghost" onClick={() => setShowAddForm(false)}>
+                    Close
+                  </Button>
+                </div>
+                <div className="p-4 space-y-4">
+                  <div>
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      value={newGoal.title}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Description</Label>
+                    <Input
+                      id="description"
+                      name="description"
+                      value={newGoal.description}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="targetAmount">Target Amount</Label>
+                    <Input
+                      id="targetAmount"
+                      name="targetAmount"
+                      type="number"
+                      value={newGoal.targetAmount}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="currentAmount">Current Amount</Label>
+                    <Input
+                      id="currentAmount"
+                      name="currentAmount"
+                      type="number"
+                      value={newGoal.currentAmount}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="image">Image URL</Label>
+                    <Input
+                      id="image"
+                      name="image"
+                      value={newGoal.image}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <Button onClick={addNewGoal} className="w-full">
+                    Submit Goal
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -61,7 +61,8 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto lg:p-4">
+    <div className="container mx-auto lg:px-4">
+      <h1 className="text-2xl font-bold mb-6">Transactions</h1>
       <div className="flex flex-col lg:flex-row lg:space-x-8">
         {hasTransactions ? (
           <div className="w-full">

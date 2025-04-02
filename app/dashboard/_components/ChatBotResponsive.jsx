@@ -7,9 +7,10 @@ import {
   ChatBubbleBottomCenterIcon,
 } from "@heroicons/react/24/solid";
 import Loding from "../_components/Loding";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function ChatBotResponsive() {
+export default function ChatBotResponsive({ setShowChatBot }) {
   const { data: session, status } = useSession();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -88,14 +89,19 @@ export default function ChatBotResponsive() {
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 py-2 shadow flex flex-col items-start">
-        <div className="flex items-center space-x-3">
-          <ChatBubbleBottomCenterIcon className="w-4 h-4 text-white" />
-          <h1 className="text-white text-xl font-bold">Finance Assistant</h1>
+      <header className="bg-slate-100 p-4 py-2 shadow flex justify-between items-center">
+        <div className="flex flex-col">
+          <div className="flex items-center space-x-3">
+            {/* <ChatBubbleBottomCenterIcon className="w-4 h-4 " /> */}
+            <h1 className=" font-bold">Finance Assistant</h1>
+          </div>
+          <p className="text-gray-600 text-sm  opacity-90">
+            AI-powered financial guidance
+          </p>
         </div>
-        <p className="mt-1 text-sm text-white opacity-90">
-          AI-powered financial guidance
-        </p>
+        <Button onClick={() => setShowChatBot((e) => !e)}>
+          <X />
+        </Button>
       </header>
 
       {/* Chat Area */}

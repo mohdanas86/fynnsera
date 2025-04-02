@@ -39,15 +39,15 @@ const ClientLayout = ({ children }) => {
 
         {/* Chatbot Modal */}
         {showChatBot && (
-          <div className="fixed right-4 bottom-20 w-full sm:w-96 h-[calc(100vh-100px)] bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-200 z-[999]">
-            <ChatBotResponsive />
+          <div className="fixed left-6 bottom-20 w-full sm:w-96 h-[calc(100vh-100px)] bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-200 z-[999]">
+            <ChatBotResponsive setShowChatBot={setShowChatBot} />
           </div>
         )}
 
         {/* AI Button */}
         <button
           onClick={handleToggleChatBot}
-          className="fixed bottom-6 right-6 bg-green-600 text-white p-4 rounded-full shadow-xl hover:bg-green-700 hover:scale-105 transition-transform duration-200 z-[999] animate-accordion-down hidden lg:block"
+          className="fixed bottom-6 left-6 bg-green-600 text-white p-4 rounded-full shadow-xl hover:bg-green-700 hover:scale-105 transition-transform duration-200 z-[999] animate-accordion-down hidden lg:block"
         >
           <MessageCircle className="w-6 h-6" />
         </button>
