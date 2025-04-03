@@ -7,9 +7,10 @@ const Banners = memo(() => {
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8">
         <div className="flex items-center justify-center">
           <img
-            src="/img/span (3).png"
+            src="/img/card.png"
+            // src="/img/span (3).png"
             loading="lazy"
-            className="w-[90%] max-w-[400px] drop-shadow-lg"
+            className="w-[90%] max-w-[300px] drop-shadow-lg transition-all scalingEffect"
             alt="Financial Insights"
           />
         </div>
@@ -29,9 +30,10 @@ const Banners = memo(() => {
         {/* Image becomes second on md */}
         <div className="flex items-center justify-center md:order-2">
           <img
-            src="/img/span (2).png"
+            src="/img/machine.png"
+            // src="/img/span (2).png"
             loading="lazy"
-            className="w-[90%] max-w-[400px] drop-shadow-lg"
+            className="w-[90%] max-w-[300px] drop-shadow-lg scalingEffect"
             alt="Financial Insights"
           />
         </div>
@@ -51,9 +53,10 @@ const Banners = memo(() => {
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-8">
         <div className="flex items-center justify-center">
           <img
-            src="/img/span (1).png"
+            src="/img/cash.png"
+            // src="/img/span (1).png"
             loading="lazy"
-            className="w-[90%] max-w-[400px] drop-shadow-lg"
+            className="w-[90%] max-w-[300px] drop-shadow-lg scalingEffect"
             alt="Financial Insights"
           />
         </div>
@@ -73,9 +76,9 @@ const Banners = memo(() => {
         {/* Image becomes second on md */}
         <div className="flex items-center justify-center md:order-2">
           <img
-            src="/img/span.png"
+            src="/img/coin.png"
             loading="lazy"
-            className="w-[90%] max-w-[400px] drop-shadow-lg"
+            className="w-[90%] max-w-[300px] drop-shadow-lg rotateEffect"
             alt="Financial Insights"
           />
         </div>

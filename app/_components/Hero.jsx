@@ -39,8 +39,8 @@ const Hero = () => {
       {/* Right Image */}
       <div className="flex items-center justify-center">
         <img
-          src="/img/hero.png"
-          className="w-[90%] max-w-[500px] drop-shadow-lg"
+          src="/img/bank.png"
+          className="w-[90%] max-w-[450px] drop-shadow-lg transition-all scale-x-[-1] rotate-[-7deg] scalingEffect"
           alt="Financial Insights"
         />
       </div>
