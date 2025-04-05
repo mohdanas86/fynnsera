@@ -51,7 +51,7 @@ const columns = [
   },
   {
     accessorKey: "amount",
-    header: "Amount | $",
+    header: "Amount | ₹",
     cell: ({ row }) => {
       const value = row.getValue("amount");
       return (

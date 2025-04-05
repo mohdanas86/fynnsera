@@ -26,14 +26,14 @@ const ClientLayout = ({ children }) => {
   return (
     <SessionProvider>
       <div className="h-screen flex flex-col overflow-hidden relative">
-        <Header />
         <div className="flex w-full overflow-hidden">
           {/* Sidebar hidden on mobile (visible from md and up) */}
           <div className="hidden md:block">
             <Sidebar />
           </div>
-          <main className="w-full md:p-6 overflow-auto scrollable-section">
-            <div className="p-4 md:p-0">{children}</div>
+          <main className="w-full overflow-auto scrollable-section">
+            <Header />
+            <div className="p-4">{children}</div>
           </main>
         </div>
 

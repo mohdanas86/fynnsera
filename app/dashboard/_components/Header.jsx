@@ -33,7 +33,7 @@ export default function Header() {
   const handleLinkClick = () => setSheetOpen(false);
 
   return (
-    <header className="flex items-center justify-between bg-white border-b shadow-sm px-4 py-3">
+    <header className="flex items-center justify-between shadow-sm px-4 py-3">
       <div className="flex items-center">
         {/* Mobile menu trigger */}
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -149,12 +149,12 @@ export default function Header() {
         </Sheet>
         {/* Sidebar toggle button for larger screens */}
         <Button
-          className="mr-1 w-[50px] hidden md:block"
+          className="mr-1 items-center justify-center hidden md:block rounded-[5px]"
           onClick={() => setShowSidebar(!showSidebar)}
         >
-          <AlignLeft />
+          <AlignLeft className="mx-auto" />
         </Button>
-        <Link href="/">
+        <Link href="/" className="lg:hidden block">
           <h1 className="lg:ml-4 lg:text-xl font-semibold">
             AI Finance Assistant
           </h1>

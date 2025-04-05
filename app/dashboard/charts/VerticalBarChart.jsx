@@ -104,7 +104,7 @@ export function VerticalBarChart({ userTransaction = [] }) {
                   position="top"
                   offset={12}
                   fontSize={12}
-                  formatter={(value) => `$${Number(value).toFixed(2)}`}
+                  formatter={(value) => `₹${Number(value).toFixed(2)}`}
                   className="fill-foreground"
                 />
               </Bar>

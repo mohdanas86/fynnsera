@@ -91,7 +91,7 @@ export function BarCharts({ userTransaction = [] }) {
                   axisLine={false}
                 />
                 <Tooltip
-                  formatter={(value) => `$${Number(value).toFixed(2)}`}
+                  formatter={(value) => `₹${Number(value).toFixed(2)}`}
                 />
                 <Bar dataKey="value" fill="rgb(59, 130, 246)" radius={5} />
               </BarChart>

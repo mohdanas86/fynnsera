@@ -17,7 +17,7 @@ import {
 
 // Helper: Format amount with currency
 const formatAmount = (amount) => {
-  return `$${amount.toFixed(2)}`;
+  return `₹${amount.toFixed(2)}`;
 };
 
 // Define columns for the aggregated category table

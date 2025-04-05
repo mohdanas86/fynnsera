@@ -107,7 +107,7 @@ export function AreaCharts({ userTransaction }) {
                   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
                 }}
                 formatter={(value) => {
-                  return `$${value.toLocaleString()}`;
+                  return `₹${value.toLocaleString()}`;
                 }}
               />
               <defs>

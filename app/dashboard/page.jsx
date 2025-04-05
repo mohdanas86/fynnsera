@@ -37,7 +37,7 @@ export default function Home() {
         const response = await fetch(
           `/api/transactions?userId=${session.user.id}`
         );
-        if (!response.ok) throw new Error("Failed to fetch transactions");
+        // if (!response.ok) throw new Error("Failed to fetch transactions");
         const data = await response.json();
         setUserTransaction(data);
         setHasFetched(true);
