@@ -189,7 +189,8 @@ export default function ChatbotResponsive() {
                   <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
                   <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce delay-100" />
                   <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce delay-200" />
-                  <span className="text-sm text-gray-600">Analyzing...</span>
+                  <span className="text-sm text-gray-600">Thinking...</span>
+                  {/* <span className="text-sm text-gray-600">Analyzing...</span> */}
                 </div>
               </div>
             )}

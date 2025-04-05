@@ -56,7 +56,7 @@ const transformData = (transactions) => {
     .map((month) => ({ name: month, value: groups[month] }));
 };
 
-export function AreaCharts({ userTransaction }) {
+function AreaCharts({ userTransaction }) {
   const chartData = transformData(userTransaction);
   console.log("userTransaction", userTransaction, "chartData", chartData);
 
@@ -138,3 +138,5 @@ export function AreaCharts({ userTransaction }) {
     </Card>
   );
 }
+
+export default AreaCharts;
