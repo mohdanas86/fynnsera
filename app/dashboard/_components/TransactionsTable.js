@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import * as XLSX from "xlsx";
 import {
   ColumnDef,
   flexRender,
@@ -10,7 +11,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  Download,
+  MoreHorizontal,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -91,6 +97,17 @@ const columns = [
     cell: ({ row }) => <div>{row.getValue("description")}</div>,
   },
   {
+    // New Transaction ID column:
+    id: "transactionId",
+    header: "Transaction ID",
+    cell: ({ row }) => {
+      // Assuming transaction id is stored in _id
+      const fullId = row.original._id;
+      const shortId = fullId.slice(0, 8) + "...";
+      return <span title={fullId}>{shortId}</span>;
+    },
+  },
+  {
     accessorKey: "amount",
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
@@ -126,8 +143,6 @@ const columns = [
             >
               Copy Transaction ID
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -162,10 +177,55 @@ export default function TransactionsTable({ transactions }) {
     getRowId: (row) => row._id,
   });
 
+  // Function to export data either as CSV or XLSX
+  const handleExport = (format) => {
+    // Determine export data:
+    const selectedRowIds = Object.keys(rowSelection);
+    const exportData =
+      selectedRowIds.length > 0
+        ? transactions.filter((tx) => rowSelection[tx._id])
+        : transactions;
+
+    // Prepare the data objects to export with appropriate keys.
+    const exportObjects = exportData.map((tx) => ({
+      Date: formatDate(tx.date),
+      Description: tx.description,
+      Amount: formatAmount(tx.amount),
+      Category: tx.category || "Uncategorized",
+      "Transaction ID": tx._id,
+    }));
+
+    if (format === "csv") {
+      // Convert array to CSV string.
+      const headers = Object.keys(exportObjects[0]).join(",");
+      const rows = exportObjects
+        .map((obj) =>
+          Object.values(obj)
+            .map((value) => `"${value}"`)
+            .join(",")
+        )
+        .join("\n");
+      const csvContent = headers + "\n" + rows;
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "transactions_export.csv");
+      link.click();
+      URL.revokeObjectURL(url);
+    } else if (format === "xlsx") {
+      // Create a worksheet and workbook.
+      const worksheet = XLSX.utils.json_to_sheet(exportObjects);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+      // Trigger file download.
+      XLSX.writeFile(workbook, "transactions_export.xlsx");
+    }
+  };
+
   return (
     <div className="rounded-lg">
-      {/* <h2 className="text-2xl font-bold">Recent Transactions</h2> */}
-      <div className="flex items-center py-4 lg:gap-0 gap-4">
+      <div className="flex items-center justify-between py-4 lg:gap-0 gap-4">
         <Input
           placeholder="Filter descriptions..."
           value={table.getColumn("description")?.getFilterValue() || ""}
@@ -174,28 +234,51 @@ export default function TransactionsTable({ transactions }) {
           }
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+        <div className="flex gap-4">
+          {/* Export dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="rounded-sm flex gap-2 items-center justify-center bg-white text-black hover:bg-white shadow-sm border">
+                <Download /> Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+                Export as XLSX
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Columns dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -254,6 +337,7 @@ export default function TransactionsTable({ transactions }) {
           <Button
             variant="outline"
             size="sm"
+            className="rounded-sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -262,6 +346,7 @@ export default function TransactionsTable({ transactions }) {
           <Button
             variant="outline"
             size="sm"
+            className="rounded-sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
