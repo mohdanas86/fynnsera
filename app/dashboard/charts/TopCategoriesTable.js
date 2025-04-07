@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { Card } from "@/components/ui/card";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -116,9 +117,9 @@ function TopCategoriesBarChart({ transactions }) {
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-white rounded-xl shadow-md max-w-4xl w-full h-[400px]">
+    <Card className="p-4 sm:p-6 bg-white rounded-xl shadow-md max-w-4xl w-full h-[400px]">
       <Bar data={chartData} options={chartOptions} />
-    </div>
+    </Card>
   );
 }
 

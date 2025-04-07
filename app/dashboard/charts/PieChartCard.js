@@ -84,7 +84,7 @@ function PieChartCard({ userTransaction = [] }) {
   const currentMonth = new Date().toLocaleString("default", { month: "short" });
 
   return (
-    <Card className="w-full bg-white shadow-md rounded-xl">
+    <Card className="p-4 sm:p-6 bg-white rounded-xl border max-w-4xl w-full  mx-auto">
       <CardHeader>
         <CardTitle>Monthly Transaction Distribution</CardTitle>
         <CardDescription>

@@ -59,7 +59,7 @@ function PolarAreaChart({ userTransaction = [] }) {
   );
 
   return (
-    <Card className="w-full rounded-2xl border border-gray-100 shadow-md">
+    <Card className="p-4 sm:p-6 bg-white rounded-xl border max-w-4xl w-full  mx-auto">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">
           Polar Monthly Spending

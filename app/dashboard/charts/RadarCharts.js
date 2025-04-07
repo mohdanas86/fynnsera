@@ -72,7 +72,7 @@ function RadarCharts({ userTransaction = [] }) {
   }, [chartData]);
 
   return (
-    <Card className="w-full bg-white shadow-md rounded-2xl">
+    <Card className="p-4 sm:p-6 bg-white rounded-xl border max-w-4xl w-full  mx-auto">
       <CardHeader className="items-center">
         <CardTitle className="text-xl font-semibold text-gray-800">
           Monthly Spending Patterns
