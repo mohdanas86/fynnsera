@@ -16,6 +16,7 @@ export default function GoalDetail() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editedGoal, setEditedGoal] = useState({});
+  const [contribution, setContribution] = useState("");
 
   useEffect(() => {
     async function fetchGoal() {
@@ -33,7 +34,6 @@ export default function GoalDetail() {
     if (id) fetchGoal();
   }, [id]);
 
-  // useMemo to calculate progress percentage only when goal changes
   const progressValue = useMemo(() => {
     if (!goal) return 0;
     return (goal.currentAmount / goal.targetAmount) * 100;
@@ -53,8 +53,12 @@ export default function GoalDetail() {
       const res = await fetch(`/api/goals/${goal._id || goal.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editedGoal),
+        body: JSON.stringify({
+          ...editedGoal,
+          status: editedGoal.status || goal.status || "Active",
+        }),
       });
+
       if (!res.ok) throw new Error("Failed to update goal");
       const updated = await res.json();
       setGoal(updated);
@@ -74,14 +78,52 @@ export default function GoalDetail() {
     }
   };
 
+  const handleAddContribution = async () => {
+    if (!contribution || isNaN(contribution)) {
+      setErrorMsg("Please enter a valid contribution amount.");
+      return;
+    }
+    const newCurrentAmount =
+      parseFloat(goal.currentAmount) + parseFloat(contribution);
+    try {
+      const res = await fetch(`/api/goals/${goal._id || goal.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...goal, currentAmount: newCurrentAmount }),
+      });
+      if (!res.ok) throw new Error("Failed to add contribution");
+      const updated = await res.json();
+      setGoal(updated);
+      setContribution("");
+    } catch (error) {
+      setErrorMsg("Error adding contribution");
+    }
+  };
+
+  const markAsClosed = async () => {
+    const updatedGoal = { ...goal, status: "Archived" };
+    try {
+      const res = await fetch(`/api/goals/${goal._id || goal.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedGoal),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+      const updated = await res.json();
+      setGoal(updated);
+    } catch (error) {
+      setErrorMsg("Error updating status");
+    }
+  };
+
   if (loading) return <Loding />;
   if (errorMsg)
     return <div className="text-red-500 text-center py-8">{errorMsg}</div>;
   if (!goal) return <div className="text-center py-8">Goal not found.</div>;
 
   return (
-    <div className="min-h-screen  flex flex-col items-center lg:p-4">
-      <div className="w-full">
+    <div className="min-h-screen px-4 sm:px-6 lg:px-12 py-6 flex flex-col items-center">
+      <div className="w-full max-w-5xl">
         <Button
           variant="ghost"
           onClick={() => router.push("/dashboard/goal-tracking")}
@@ -89,8 +131,8 @@ export default function GoalDetail() {
         >
           &larr; Back to Goals
         </Button>
-        <Card className="border-0 shadow-none rounded-lg overflow-hidden">
-          <CardHeader className="flex flex-col sm:flex-row items-center gap-4 p-6 py-2 bg-white">
+        <Card className="border-0 shadow-sm rounded-lg overflow-hidden">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-6 py-4 bg-white">
             {goal.image && (
               <img
                 src={goal.image}
@@ -98,20 +140,19 @@ export default function GoalDetail() {
                 className="w-24 h-24 object-cover rounded-md"
               />
             )}
-            <CardTitle className="text-3xl font-bold text-gray-900 flex-1">
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-900 flex-1">
               {isEditing ? (
                 <Input
                   name="title"
                   value={editedGoal.title}
                   onChange={handleInputChange}
-                  className="text-3xl font-bold"
                 />
               ) : (
                 goal.title
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 pt-2 bg-gray-50 space-y-6">
+          <CardContent className="p-4 sm:p-6 bg-gray-50 space-y-6">
             <div>
               <Label className="block text-sm font-medium text-gray-700 mb-1">
                 Description
@@ -127,7 +168,7 @@ export default function GoalDetail() {
                 <p className="text-gray-800">{goal.description}</p>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label className="block text-sm font-medium text-gray-700 mb-1">
                   Current Amount
@@ -138,11 +179,10 @@ export default function GoalDetail() {
                     type="number"
                     value={editedGoal.currentAmount}
                     onChange={handleInputChange}
-                    className="w-full"
                   />
                 ) : (
                   <p className="text-gray-800">
-                    ${goal.currentAmount.toLocaleString()}
+                    ${parseFloat(goal.currentAmount).toLocaleString()}
                   </p>
                 )}
               </div>
@@ -156,34 +196,79 @@ export default function GoalDetail() {
                     type="number"
                     value={editedGoal.targetAmount}
                     onChange={handleInputChange}
-                    className="w-full"
                   />
                 ) : (
                   <p className="text-gray-800">
-                    ${goal.targetAmount.toLocaleString()}
+                    ${parseFloat(goal.targetAmount).toLocaleString()}
                   </p>
                 )}
               </div>
             </div>
-            <div className="w-[200px]">
+
+            <div className="max-w-xs">
               <Label className="block text-sm font-medium text-gray-700 mb-1">
                 Progress
               </Label>
               <Progress value={progressValue} className="h-3 rounded-full" />
             </div>
+
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </Label>
+              {isEditing ? (
+                <select
+                  name="status"
+                  value={editedGoal.status || goal.status}
+                  onChange={handleInputChange}
+                  className="border p-2 rounded w-full"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Paused">Paused</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              ) : (
+                <span className="text-gray-800">{goal.status || "Active"}</span>
+              )}
+            </div>
+
             {isEditing ? (
-              <div className="flex space-x-4 mt-4">
+              <div className="flex flex-wrap gap-3 mt-4">
                 <Button onClick={handleUpdate}>Save</Button>
                 <Button variant="secondary" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
               </div>
             ) : (
-              <div className="flex space-x-4 mt-4">
-                <Button onClick={handleEditClick}>Edit Goal</Button>
-                <Button variant="destructive" onClick={handleDelete}>
-                  Delete Goal
-                </Button>
+              <div className="flex flex-col lg:flex-row lg:justify-between gap-4 mt-4">
+                <div className="flex flex-wrap gap-3">
+                  <Button onClick={handleEditClick}>Edit Goal</Button>
+                  <Button variant="destructive" onClick={handleDelete}>
+                    Delete Goal
+                  </Button>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 lg:w-[40%]">
+                  <Input
+                    placeholder="Add contribution"
+                    type="number"
+                    value={contribution}
+                    onChange={(e) => setContribution(e.target.value)}
+                    className="sm:flex-1"
+                  />
+                  <Button onClick={handleAddContribution}>Add Funds</Button>
+                </div>
+
+                {!isEditing && goal.status !== "Archived" && (
+                  <Button
+                    variant="destructive"
+                    onClick={markAsClosed}
+                    className="mt-2 w-full sm:w-auto"
+                  >
+                    Mark as Closed
+                  </Button>
+                )}
               </div>
             )}
           </CardContent>

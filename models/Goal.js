@@ -1,40 +1,42 @@
-// models/Goal.js
 import mongoose from "mongoose";
 
-const GoalSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
+const GoalSchema = mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    targetAmount: {
+      type: Number,
+      required: true,
+    },
+    currentAmount: {
+      type: Number,
+      required: true,
+    },
+    image: {
+      type: String,
+    },
+    status: {
+      type: String,
+      enum: ["Active", "Completed", "Paused"],
+      default: "Active", // or remove default if you want to force setting it
+    },
+    autoSave: {
+      type: Boolean,
+      default: false,
+    },
   },
-  title: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  targetAmount: {
-    type: Number,
-    required: true,
-  },
-  currentAmount: {
-    type: Number,
-    required: true,
-  },
-  image: {
-    type: String,
-    default: "",
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
-// Use an existing model if defined, or create a new one.
 export default mongoose.models.Goal || mongoose.model("Goal", GoalSchema);
