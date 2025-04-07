@@ -37,11 +37,10 @@ export default function Sidebar() {
       }`}
     >
       <nav>
-        <Link href="/">
-          <h1 className="lg:text-xl font-semibold p-6">AI Finance Assistant</h1>
-        </Link>
+        {/* <h1 className="lg:text-xl font-semibold p-6">FYNSERA</h1> */}
+        <img src="/logo/logo2.png" className="invert pt-4" />
 
-        <ul className="flex flex-col">
+        <ul className="flex flex-col mt-4">
           <li>
             <Link href="/dashboard" className={linkClasses("/dashboard")}>
               <Home className="h-5 w-5" />

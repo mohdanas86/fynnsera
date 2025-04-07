@@ -46,7 +46,7 @@ export default function Header() {
           <SheetContent side="left" className="p-4">
             <SheetHeader className="p-0 my-4">
               <SheetTitle className="text-2xl font-bold text-teal-600">
-                Ai Finance
+                FYNSERA
               </SheetTitle>
               <SheetDescription className="text-gray-500 text-sm">
                 Navigation for Smarter Financial Decisions
@@ -168,9 +168,7 @@ export default function Header() {
           <AlignLeft className="mx-auto" />
         </Button>
         <Link href="/" className="lg:hidden block">
-          <h1 className="lg:ml-4 lg:text-xl font-semibold">
-            AI Finance Assistant
-          </h1>
+          <h1 className="lg:ml-4 lg:text-xl font-semibold">FYNSERA</h1>
         </Link>
       </div>
       <div className="flex items-center space-x-4">

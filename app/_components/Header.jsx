@@ -54,7 +54,7 @@ const Header = () => {
         {/* Brand / Logo */}
         <div className="flex-shrink-0">
           <Link href="/">
-            <span className="text-xl font-bold text-teal-600">Ai Finance</span>
+            <span className="text-xl font-bold text-teal-600">FYNSERA</span>
           </Link>
         </div>
 
@@ -69,7 +69,7 @@ const Header = () => {
               <SheetContent side="left" className="w-64 p-4 pb-0">
                 <SheetHeader className="p-0 my-4">
                   <SheetTitle className="text-2xl font-bold text-teal-600">
-                    Ai Finance
+                    FYNSERA
                   </SheetTitle>
                   <SheetDescription className="text-gray-500 text-sm">
                     Navigation for Smarter Financial Decisions
