@@ -20,6 +20,7 @@ import {
   Goal,
   Sparkles,
   Settings,
+  ChartPie,
 } from "lucide-react";
 import { useMyContext } from "@/context/MyContext";
 import { useState } from "react";
@@ -43,7 +44,7 @@ export default function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-4">
-            <SheetHeader className="mb-3">
+            <SheetHeader className="p-0 my-4">
               <SheetTitle className="text-2xl font-bold text-teal-600">
                 Ai Finance
               </SheetTitle>
@@ -51,7 +52,7 @@ export default function Header() {
                 Navigation for Smarter Financial Decisions
               </SheetDescription>
             </SheetHeader>
-            <nav className="mt-4">
+            <nav className="mt-0">
               <ul className="flex flex-col space-y-3">
                 <li>
                   <Link
@@ -93,6 +94,17 @@ export default function Header() {
                     <span>Goal Tracking</span>
                   </Link>
                 </li>
+
+                <li>
+                  <Link
+                    href="/dashboard/ai-insight"
+                    className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
+                  >
+                    <ChartPie className="h-5 w-5" />
+                    <span>Ai Insight</span>
+                  </Link>
+                </li>
                 <li>
                   <Link
                     href="/dashboard/chat"
@@ -123,21 +135,21 @@ export default function Header() {
                     signOut();
                     setSheetOpen(false);
                   }}
-                  className="w-full rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+                  className="w-full bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600 border-0 bottom-0"
                 >
                   Logout
                 </Button>
               ) : (
                 <div className="flex flex-col gap-3">
                   <Link href="/signin" onClick={handleLinkClick}>
-                    <Button className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark">
+                    <Button className="w-full  bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] px-4 py-2 text-sm font-medium text-white transition ">
                       Login
                     </Button>
                   </Link>
                   <Link href="/signup" onClick={handleLinkClick}>
                     <Button
                       variant="outline"
-                      className="w-full rounded-md border-secondary px-4 py-2 text-sm font-medium text-teal-600 transition hover:text-teal-600/75"
+                      className="w-full border-secondary px-4 py-2 text-sm font-medium text-teal-600 transition hover:text-teal-600/75"
                     >
                       Register
                     </Button>
@@ -149,7 +161,8 @@ export default function Header() {
         </Sheet>
         {/* Sidebar toggle button for larger screens */}
         <Button
-          className="mr-1 items-center justify-center hidden md:block rounded-[5px]"
+          className="mr-1 items-center justify-center hidden md:block bg-[var(--color-primary)] text-white border-0 w-[50px] hover:bg-[var(--color-primary-dark)] hover:text-white"
+          variant="outline"
           onClick={() => setShowSidebar(!showSidebar)}
         >
           <AlignLeft className="mx-auto" />
@@ -163,9 +176,16 @@ export default function Header() {
       <div className="flex items-center space-x-4">
         {status === "authenticated" ? (
           <div className="hidden lg:block">
-            <span className="text-gray-700">Hello, {session.user.name}</span>
             <Button
               variant="outline"
+              className="text-gray-700 mr-2   bg-gradient-to-r from-blue-50 to-blue-50"
+            >
+              Hello, {session.user.email}
+            </Button>
+
+            <Button
+              variant="outline"
+              className="bg-[#E33B32] text-white hover:bg-[hsl(3,76%,54%)] hover:text-white"
               onClick={() => signOut({ callbackUrl: "/signin" })}
             >
               Sign Out

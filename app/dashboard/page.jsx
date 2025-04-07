@@ -35,7 +35,8 @@ const TopCategoriesTable = dynamic(
 );
 
 export default function Home() {
-  const { userTransaction, setUserTransaction } = useMyContext();
+  const { userTransaction, setUserTransaction, fetchTransactions } =
+    useMyContext();
   const { data: session, status } = useSession();
   const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
@@ -48,28 +49,6 @@ export default function Home() {
     () => !!memoizedTransactions?.length,
     [memoizedTransactions]
   );
-
-  const fetchTransactions = async () => {
-    if (status !== "authenticated" || !session?.user?.id || hasFetched) return;
-    setLoadingTransactions(true);
-    try {
-      const response = await fetch(
-        `/api/transactions?userId=${encodeURIComponent(session.user.id)}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch transactions");
-      const data = await response.json();
-      setUserTransaction(data);
-      setHasFetched(true);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    } finally {
-      setLoadingTransactions(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [session?.user?.id, status]);
 
   if (status === "loading" || loadingTransactions) {
     return (
@@ -103,8 +82,8 @@ export default function Home() {
         <>
           <TransactionSummary transactions={memoizedTransactions} />
 
-          <div className="grid grid-cols-1 gap-4">
-            <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mt-6 h-[400px]">
+          <div className="flex flex-col gap-4">
+            <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mt-6 lg:h-[400px] h-auto">
               <AreaCharts userTransaction={memoizedTransactions} />
               <LineChartComponent userTransaction={memoizedTransactions} />
             </div>

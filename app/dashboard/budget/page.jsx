@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
+import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import {
   Card,
   CardContent,
@@ -72,17 +73,27 @@ export default function Budget() {
       ) : memoizedRecommendations.length > 0 ? (
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {memoizedRecommendations.map((rec, index) => (
-            <Card key={index} className="shadow-md">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold">
+            <Card
+              key={index}
+              className="group transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg bg-white shadow-sm rounded-2xl p-6 border border-gray-100"
+            >
+              <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-4 mb-3">
+                <CardTitle className="flex items-center gap-2 text-2xl font-bold text-green-800 tracking-tight">
+                  {/* <ShoppingCartIcon className="h-6 w-6 text-green-800" />{" "} */}
+                  {/* Replace with category-specific icon */}
                   {rec.category}
                 </CardTitle>
-                <CardDescription>
-                  Budget: ${rec.spending.toFixed(2)}
+                <CardDescription className="text-sm text-green-600 mt-1">
+                  Estimated Spending:{" "}
+                  <span className="font-medium">
+                    ₹{rec.spending.toFixed(2)}
+                  </span>
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">{rec.recommendation}</p>
+              <CardContent className="text-gray-800 leading-relaxed">
+                <div className="text-base whitespace-pre-line">
+                  {rec.recommendation}
+                </div>
               </CardContent>
             </Card>
           ))}

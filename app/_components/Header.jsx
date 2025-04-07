@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -19,8 +19,11 @@ import { AlignLeft, AlignRight } from "lucide-react";
 const Header = () => {
   const pathname = usePathname();
   const { isLoggedin } = useMyContext();
+  const [isOpen, setIsOpen] = useState(false); // 🔹 Sheet open/close state
 
   const isActive = (href) => pathname === href;
+
+  const handleClose = () => setIsOpen(false); // 🔹 Used on every click
 
   // Define your links once
   const links = isLoggedin
@@ -56,16 +59,15 @@ const Header = () => {
         </div>
 
         <div className="flex w-full items-center justify-end">
-          {/* Mobile Menu (shown on small screens) */}
           <div className="md:hidden">
-            <Sheet>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" className="p-2">
                   <AlignRight className="h-6 w-6 text-gray-700" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-4">
-                <SheetHeader className="mb-3">
+              <SheetContent side="left" className="w-64 p-4 pb-0">
+                <SheetHeader className="p-0 my-4">
                   <SheetTitle className="text-2xl font-bold text-teal-600">
                     Ai Finance
                   </SheetTitle>
@@ -77,7 +79,7 @@ const Header = () => {
                   <ul className="flex flex-col gap-3 text-base">
                     {links.map((link) => (
                       <li key={link.name}>
-                        <Link href={link.href}>
+                        <Link href={link.href} onClick={handleClose}>
                           <span
                             className={`block transition ${
                               isActive(link.href)
@@ -95,22 +97,25 @@ const Header = () => {
                 <div className="mt-6">
                   {isLoggedin ? (
                     <Button
-                      onClick={() => signOut()}
+                      onClick={() => {
+                        signOut();
+                        handleClose(); // 🔹 Close on logout
+                      }}
                       className="w-full rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
                     >
                       Logout
                     </Button>
                   ) : (
                     <div className="flex flex-col gap-3">
-                      <Link href="/signin">
-                        <Button className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark">
+                      <Link href="/signin" onClick={handleClose}>
+                        <Button className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] px-4 py-2 text-sm font-medium text-white transition">
                           Login
                         </Button>
                       </Link>
-                      <Link href="/signup">
+                      <Link href="/signup" onClick={handleClose}>
                         <Button
                           variant="outline"
-                          className="w-full rounded-md border-secondary px-4 py-2 text-sm font-medium text-teal-600 transition hover:text-teal-600/75"
+                          className="w-full border-secondary px-4 py-2 text-sm font-medium text-teal-600 transition hover:text-teal-600/75"
                         >
                           Register
                         </Button>

@@ -8,6 +8,7 @@ import {
   BadgePoundSterling,
   Goal,
   Sparkles,
+  ChartPie,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useMyContext } from "@/context/MyContext";
@@ -72,6 +73,15 @@ export default function Sidebar() {
             >
               <Goal className="h-5 w-5" />
               <span>Goal Tracking</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dashboard/ai-insight"
+              className={linkClasses("/dashboard/ai-insight")}
+            >
+              <ChartPie className="h-5 w-5" />
+              <span>Ai Insight</span>
             </Link>
           </li>
           <li>

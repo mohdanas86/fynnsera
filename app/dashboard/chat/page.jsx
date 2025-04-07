@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import Loding from "../_components/Loding";
 import { SendHorizontal } from "lucide-react";
+import { useMyContext } from "@/context/MyContext";
 
 const financePrompts = [
   "How can I manage my monthly budget?",
@@ -15,6 +16,7 @@ const financePrompts = [
 
 export default function ChatbotResponsive() {
   const { data: session, status } = useSession();
+  const { userTransaction } = useMyContext();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -63,24 +65,33 @@ export default function ChatbotResponsive() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = input;
-    setLoading(true);
-    const newMessages = [...messages, { text: userMessage, isBot: false }];
-    setMessages(newMessages);
+    const userMessage = {
+      text: input,
+      isBot: false,
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setLoading(true);
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage, userId }),
+        body: JSON.stringify({ message: userMessage.text, userId }),
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
 
       const data = await res.json();
-      setMessages([
-        ...newMessages,
+      setMessages((prev) => [
+        ...prev,
         {
           text: data.text,
           isBot: true,
@@ -92,10 +103,10 @@ export default function ChatbotResponsive() {
       ]);
     } catch (error) {
       console.error(error);
-      setMessages([
-        ...newMessages,
+      setMessages((prev) => [
+        ...prev,
         {
-          text: "⚠️ Please try again. There was an issue processing your request.",
+          text: `⚠️ ${error.message}`,
           isBot: true,
           timestamp: new Date().toLocaleTimeString([], {
             hour: "2-digit",
@@ -109,7 +120,6 @@ export default function ChatbotResponsive() {
     }
   };
 
-  // Handler for prompt click: set the input and optionally auto-submit
   const handlePromptClick = (prompt) => {
     setInput(prompt);
     inputRef.current?.focus();
@@ -117,7 +127,6 @@ export default function ChatbotResponsive() {
 
   return (
     <div className="flex flex-col h-[85vh] bg-white overflow-hidden">
-      {/* Header */}
       <header className="lg:p-4 lg:pt-0 pb-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center">
@@ -136,7 +145,6 @@ export default function ChatbotResponsive() {
         </div>
       </header>
 
-      {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && !loading ? (
           <div className="flex flex-col items-center justify-center h-full">
@@ -177,7 +185,7 @@ export default function ChatbotResponsive() {
                       msg.isBot ? "text-gray-500" : "text-indigo-100"
                     }`}
                   >
-                    {msg.isBot && <span>Assistant</span>}
+                    {msg.isBot ? "Assistant" : "You"}
                     <span>{msg.timestamp}</span>
                   </div>
                 </div>
@@ -189,8 +197,9 @@ export default function ChatbotResponsive() {
                   <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
                   <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce delay-100" />
                   <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce delay-200" />
-                  <span className="text-sm text-gray-600">Thinking...</span>
-                  {/* <span className="text-sm text-gray-600">Analyzing...</span> */}
+                  <span className="text-sm text-gray-600">
+                    Analyzing your finances...
+                  </span>
                 </div>
               </div>
             )}
@@ -199,7 +208,6 @@ export default function ChatbotResponsive() {
         <div ref={messagesEndRef} className="h-[1px]"></div>
       </main>
 
-      {/* Input Area */}
       <footer className="p-4 border-t border-gray-200">
         <form onSubmit={handleSubmit} className="relative">
           <input

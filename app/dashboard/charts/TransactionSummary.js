@@ -40,13 +40,13 @@ const RadialChart = ({ label, value, color, maxValue }) => {
     <div className="flex flex-col items-center p-6">
       {/* Only the chart container scales on hover */}
       <div
-        className="relative transition-transform duration-300 hover:scale-105"
-        style={{ width: "250px", height: "250px" }}
+        className="relative transition-transform duration-300 hover:scale-105 lg:w-[250px] lg:h-[250px] w-[200px] h-[200px]"
+        // style={{ width: "250px", height: "250px" }}
       >
         <Doughnut data={data} options={options} />
         {/* Overlay for center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-2xl font-extrabold text-gray-800">
+          <span className="lg:text-2xl text-lg font-extrabold text-gray-800">
             ₹{value.toLocaleString()}
           </span>
           <span className="text-xl text-gray-500">
@@ -54,7 +54,9 @@ const RadialChart = ({ label, value, color, maxValue }) => {
           </span>
         </div>
       </div>
-      <h3 className="text-2xl font-bold text-gray-800 mt-8">{label}</h3>
+      <h3 className="lg:text-2xl text-lg font-bold text-gray-800 lg:mt-8 mt-4">
+        {label}
+      </h3>
     </div>
   );
 };
@@ -74,7 +76,7 @@ function TransactionSummaryCharts({ transactions }) {
   const maxValue = Math.max(income, expenses, Math.abs(balance));
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-8 mx-auto border rounded-sm shadow-sm">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:gap-8 gap-4 lg:p-8 mx-auto border rounded-sm shadow-sm">
       <RadialChart
         label="Income"
         value={income}
