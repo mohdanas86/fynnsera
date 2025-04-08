@@ -8,10 +8,11 @@ import { SendHorizontal } from "lucide-react";
 import { useMyContext } from "@/context/MyContext";
 
 const financePrompts = [
-  "How can I manage my monthly budget?",
-  "What are some investment tips for beginners?",
-  "How do I reduce my expenses?",
-  "What's the current market trend?",
+  "How do I build an emergency fund effectively?",
+  "What financial habits lead to long-term wealth?",
+  "How can I pay off debt faster and stay debt-free?",
+  "What are the best budgeting methods for beginners?",
+  "How do I improve my credit score quickly?",
 ];
 
 export default function ChatbotResponsive() {
@@ -127,7 +128,7 @@ export default function ChatbotResponsive() {
 
   return (
     <div className="flex flex-col h-[85vh] bg-white overflow-hidden">
-      <header className="lg:p-4 lg:pt-0 pb-4 border-b border-gray-200 flex items-center justify-between">
+      <header className="lg:p-4 lg:pt-0 pb-4 lg:border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center">
             <SparklesIcon className="w-6 h-6 text-indigo-600" />
@@ -145,7 +146,7 @@ export default function ChatbotResponsive() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
+      <main className="flex-1 overflow-y-auto lg:p-4 space-y-4">
         {messages.length === 0 && !loading ? (
           <div className="flex flex-col items-center justify-center h-full">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
@@ -156,7 +157,7 @@ export default function ChatbotResponsive() {
                 <button
                   key={index}
                   onClick={() => handlePromptClick(prompt)}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-full hover:bg-indigo-700 transition"
+                  className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition"
                 >
                   {prompt}
                 </button>
@@ -173,10 +174,10 @@ export default function ChatbotResponsive() {
                 }`}
               >
                 <div
-                  className={`max-w-[90%] p-3 rounded-xl text-sm ${
+                  className={`max-w-[100%] p-3 rounded-md text-sm ${
                     msg.isBot
                       ? "bg-gray-50 border border-gray-200 text-gray-800"
-                      : "bg-indigo-600 text-white"
+                      : "bg-teal-600 text-white"
                   }`}
                 >
                   <p className="break-words">{msg.text}</p>
@@ -194,10 +195,10 @@ export default function ChatbotResponsive() {
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-gray-50 p-3 rounded-xl border border-gray-200 flex gap-2 items-center">
-                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce delay-100" />
-                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce delay-200" />
-                  <span className="text-sm text-gray-600">
+                  <div className="w-2 h-2 bg-teal-600 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-teal-600 rounded-full animate-bounce delay-100" />
+                  <div className="w-2 h-2 bg-teal-600 rounded-full animate-bounce delay-200" />
+                  <span className="text-sm text-teal-800">
                     Analyzing your finances...
                   </span>
                 </div>
@@ -208,7 +209,7 @@ export default function ChatbotResponsive() {
         <div ref={messagesEndRef} className="h-[1px]"></div>
       </main>
 
-      <footer className="p-4 border-t border-gray-200">
+      <footer className="lg:p-4 border-t border-gray-200">
         <form onSubmit={handleSubmit} className="relative">
           <input
             ref={inputRef}
@@ -216,14 +217,14 @@ export default function ChatbotResponsive() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about budgets, expenses, or investments..."
-            className="w-full p-3 pr-12 bg-white text-gray-800 rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 disabled:opacity-50"
+            className="w-full p-3 pr-12 bg-white text-gray-800 rounded-lg border border-gray-300 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-indigo-100 disabled:opacity-50"
             disabled={loading}
             autoFocus
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 disabled:opacity-50"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-teal-600 hover:text-teal-800 disabled:opacity-50"
           >
             <SendHorizontal className="w-5 h-5" />
           </button>

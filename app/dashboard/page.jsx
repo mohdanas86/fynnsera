@@ -16,6 +16,7 @@ import {
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as XLSX from "xlsx";
+import { DatePickerWithRange } from "@/components/ui/DatePickerWithRange";
 
 // Lazy load charts
 const AreaCharts = dynamic(() => import("./charts/AreaCharts"), { ssr: false });
@@ -46,10 +47,12 @@ const TopCategoriesTable = dynamic(
 export default function Home() {
   const { userTransaction, fetchTransactions } = useMyContext();
   const { data: session, status } = useSession();
+
+  // Store selected dates as strings in ISO format ("YYYY-MM-DD")
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // Set default date range
+  // Set default date range from transactions (if available)
   useEffect(() => {
     if (userTransaction && userTransaction.length) {
       const validDates = userTransaction
@@ -58,13 +61,14 @@ export default function Home() {
       if (validDates.length > 0) {
         const min = new Date(Math.min(...validDates));
         const max = new Date(Math.max(...validDates));
-        const format = (d) => d.toISOString().slice(0, 10);
-        setDateFrom(format(min));
-        setDateTo(format(max));
+        const formatDate = (d) => d.toISOString().slice(0, 10);
+        setDateFrom(formatDate(min));
+        setDateTo(formatDate(max));
       }
     }
   }, [userTransaction]);
 
+  // Filter transactions based on the selected date range.
   const filteredTransactions = useMemo(() => {
     if (!userTransaction || !userTransaction.length) return [];
     return userTransaction.filter((tx) => {
@@ -139,55 +143,41 @@ export default function Home() {
       {hasOriginalData ? (
         <>
           {/* Filters and Export */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-6 rounded-md shadow-sm bg-gradient-to-r from-white to-gray-50 border border-gray-200 mb-8">
-            {/* Date Range Picker */}
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-600 font-medium mb-1">
-                  From
-                </label>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-200 text-sm shadow-sm"
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-600 font-medium mb-1">
-                  To
-                </label>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-200 text-sm shadow-sm"
-                />
-              </div>
-
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl shadow-md transition-all duration-200"
-                onClick={() => {}}
-              >
-                Apply
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setDateFrom("");
-                  setDateTo("");
+          <div className="flex flex-wrap justify-between items-start md:items-center lg:gap-6 gap-4 border-gray-200 mb-5">
+            {/* Date Range Picker using the daterangepicker module */}
+            <div className="flex gap-2 items-center justify-center">
+              {/* <DatePickerWithRange
+                className="px-3 py-2 border border-gray-300 rounded-md"
+                value={{
+                  from: dateFrom ? new Date(dateFrom) : undefined,
+                  to: dateTo ? new Date(dateTo) : undefined,
                 }}
-                className="border-gray-300 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-200"
-              >
-                Clear
-              </Button>
+                onChange={(range) => {
+                  setDateFrom(range?.from?.toISOString().slice(0, 10) || "");
+                  setDateTo(range?.to?.toISOString().slice(0, 10) || "");
+                }}
+              /> */}
+              <span className="font-semibold">Date : </span>
+              <DatePickerWithRange
+                // className="px-3 py-2 border border-gray-300 rounded-md"
+                defaultRange={{
+                  from: dateFrom ? new Date(dateFrom) : undefined,
+                  to: dateTo ? new Date(dateTo) : undefined,
+                }}
+                onChange={(range) => {
+                  setDateFrom(range?.from?.toISOString().slice(0, 10) || "");
+                  setDateTo(range?.to?.toISOString().slice(0, 10) || "");
+                }}
+              />
             </div>
 
             {/* Export Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="rounded-xl flex gap-2 items-center bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 hover:from-gray-200 hover:to-gray-300 shadow-inner border border-gray-300">
+                <Button
+                  variant="outline"
+                  className="rounded-sm flex gap-2 items-center   shadow-inner border border-gray-300"
+                >
                   <Download className="w-4 h-4" /> Export
                 </Button>
               </DropdownMenuTrigger>

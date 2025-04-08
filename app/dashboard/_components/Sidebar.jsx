@@ -37,10 +37,10 @@ export default function Sidebar() {
       }`}
     >
       <nav>
-        {/* <h1 className="lg:text-xl font-semibold p-6">FYNSERA</h1> */}
-        <img src="/logo/logo2.png" className="invert pt-4" />
+        <h1 className="lg:text-2xl font-semi-bold p-4">FYNSERA</h1>
+        {/* <img src="/logo/logo2.png" className="invert pt-4" /> */}
 
-        <ul className="flex flex-col mt-4">
+        <ul className="flex flex-col">
           <li>
             <Link href="/dashboard" className={linkClasses("/dashboard")}>
               <Home className="h-5 w-5" />

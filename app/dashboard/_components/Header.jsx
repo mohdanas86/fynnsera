@@ -35,7 +35,22 @@ export default function Header() {
 
   return (
     <header className="flex items-center justify-between shadow-sm px-4 py-3">
-      <div className="flex items-center">
+      <div className="flex items-center justify-between w-full">
+        {/* Sidebar toggle button for larger screens */}
+        <Button
+          className="mr-1 items-center justify-center hidden md:block bg-[var(--color-primary)] text-white border-0 w-[50px] hover:bg-[var(--color-primary-dark)] hover:text-white"
+          variant="outline"
+          onClick={() => setShowSidebar(!showSidebar)}
+        >
+          <AlignLeft className="mx-auto" />
+        </Button>
+
+        <Link href="/" className="lg:hidden block">
+          <h1 className="lg:ml-4 lg:text-2xl font-bold text-teal-600">
+            FYNSERA
+          </h1>
+        </Link>
+
         {/* Mobile menu trigger */}
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
@@ -159,24 +174,13 @@ export default function Header() {
             </div>
           </SheetContent>
         </Sheet>
-        {/* Sidebar toggle button for larger screens */}
-        <Button
-          className="mr-1 items-center justify-center hidden md:block bg-[var(--color-primary)] text-white border-0 w-[50px] hover:bg-[var(--color-primary-dark)] hover:text-white"
-          variant="outline"
-          onClick={() => setShowSidebar(!showSidebar)}
-        >
-          <AlignLeft className="mx-auto" />
-        </Button>
-        <Link href="/" className="lg:hidden block">
-          <h1 className="lg:ml-4 lg:text-xl font-semibold">FYNSERA</h1>
-        </Link>
       </div>
       <div className="flex items-center space-x-4">
         {status === "authenticated" ? (
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex items-center gap-4">
             <Button
               variant="outline"
-              className="text-gray-700 mr-2   bg-gradient-to-r from-blue-50 to-blue-50"
+              className="text-gray-700 bg-gradient-to-r from-blue-50 to-blue-50"
             >
               Hello, {session.user.email}
             </Button>
