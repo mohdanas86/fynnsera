@@ -4,12 +4,12 @@ options:
 steps:
   # Build the Docker image using the Dockerfile in training-model/
   - name: "gcr.io/cloud-builders/docker"
-    dir: "training-model"
+    dir: "model-training"
     args: ["build", "-t", "gcr.io/$PROJECT_ID/bank-tx-categorizer:latest", "."]
 
   # Push the Docker image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
-    dir: "training-model"
+    dir: "model-training"
     args: ["push", "gcr.io/$PROJECT_ID/bank-tx-categorizer:latest"]
 
 images:
