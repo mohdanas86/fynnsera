@@ -177,20 +177,14 @@ export default function Home() {
           <div className="flex flex-wrap justify-between items-start md:items-center lg:gap-6 gap-4 border-gray-200 mb-5">
             {/* Date Range Picker */}
             <div className="flex gap-2 items-center justify-center">
-              <span className="font-semibold">Date : </span>
-              <DatePickerWithRange
-                defaultRange={{
-                  from: dateFrom ? new Date(dateFrom) : undefined,
-                  to: dateTo ? new Date(dateTo) : undefined,
-                }}
-                onChange={(range) => {
-                  setDateFrom(range?.from?.toISOString().slice(0, 10) || "");
-                  setDateTo(range?.to?.toISOString().slice(0, 10) || "");
-                }}
-              />
+              {selectedFileData && (
+                <span className="font-semibold">
+                  Current Balance : {selectedFileData.currentBalance}
+                </span>
+              )}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               {/* Export Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -219,6 +213,18 @@ export default function Home() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {/* <span className="font-semibold">Date : </span> */}
+              <DatePickerWithRange
+                defaultRange={{
+                  from: dateFrom ? new Date(dateFrom) : undefined,
+                  to: dateTo ? new Date(dateTo) : undefined,
+                }}
+                onChange={(range) => {
+                  setDateFrom(range?.from?.toISOString().slice(0, 10) || "");
+                  setDateTo(range?.to?.toISOString().slice(0, 10) || "");
+                }}
+              />
 
               {/* File/Provider selection dropdown */}
               <DropdownMenu>
@@ -254,12 +260,6 @@ export default function Home() {
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {selectedFileData && (
-                <span className="font-semibold">
-                  Current Balance : {selectedFileData.currentBalance}
-                </span>
-              )}
             </div>
           </div>
 
