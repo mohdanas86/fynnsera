@@ -21,6 +21,7 @@ import {
   Sparkles,
   Settings,
   ChartPie,
+  File,
 } from "lucide-react";
 import { useMyContext } from "@/context/MyContext";
 import { useState } from "react";
@@ -77,6 +78,15 @@ export default function Header() {
                   >
                     <Home className="h-5 w-5" />
                     <span>Dashboard</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/upload-files"
+                    className="flex items-center space-x-2"
+                  >
+                    <File className="h-5 w-5" />
+                    <span>Upload Files</span>
                   </Link>
                 </li>
                 <li>
