@@ -12,8 +12,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@radix-ui/react-dropdown-menu";
-import { Download } from "lucide-react";
+import { ChevronDown, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as XLSX from "xlsx";
 import { DatePickerWithRange } from "@/components/ui/DatePickerWithRange";
@@ -45,14 +46,23 @@ const TopCategoriesTable = dynamic(
 );
 
 export default function Home() {
-  const { userTransaction, fetchTransactions } = useMyContext();
+  const {
+    userTransaction,
+    fetchTransactions,
+    userId,
+    fileList,
+    selectedProvider,
+    selectedFileData,
+    handleSelect,
+    setUserTransaction,
+  } = useMyContext();
   const { data: session, status } = useSession();
 
-  // Store selected dates as strings in ISO format ("YYYY-MM-DD")
+  // Date picker state
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // Set default date range from transactions (if available)
+  // Set default date range based on transactions (if available)
   useEffect(() => {
     if (userTransaction && userTransaction.length) {
       const validDates = userTransaction
@@ -69,12 +79,33 @@ export default function Home() {
   }, [userTransaction]);
 
   // Filter transactions based on the selected date range.
+  // const filteredTransactions = useMemo(() => {
+  //   if (!userTransaction || !userTransaction.length) return [];
+  //   return userTransaction.filter((tx) => {
+  //     const txDate = new Date(tx.date);
+  //     if (dateFrom && new Date(dateFrom) > txDate) return false;
+  //     if (dateTo && new Date(dateTo) < txDate) return false;
+  //     return true;
+  //   });
+  // }, [userTransaction, dateFrom, dateTo]);
+
   const filteredTransactions = useMemo(() => {
     if (!userTransaction || !userTransaction.length) return [];
+
     return userTransaction.filter((tx) => {
+      if (!tx.date) return false;
+
       const txDate = new Date(tx.date);
-      if (dateFrom && new Date(dateFrom) > txDate) return false;
-      if (dateTo && new Date(dateTo) < txDate) return false;
+      const txDay = new Date(txDate.toDateString()); // normalize time
+
+      const from = dateFrom
+        ? new Date(new Date(dateFrom).toDateString())
+        : null;
+      const to = dateTo ? new Date(new Date(dateTo).toDateString()) : null;
+
+      if (from && txDay < from) return false;
+      if (to && txDay > to) return false;
+
       return true;
     });
   }, [userTransaction, dateFrom, dateTo]);
@@ -144,22 +175,10 @@ export default function Home() {
         <>
           {/* Filters and Export */}
           <div className="flex flex-wrap justify-between items-start md:items-center lg:gap-6 gap-4 border-gray-200 mb-5">
-            {/* Date Range Picker using the daterangepicker module */}
+            {/* Date Range Picker */}
             <div className="flex gap-2 items-center justify-center">
-              {/* <DatePickerWithRange
-                className="px-3 py-2 border border-gray-300 rounded-md"
-                value={{
-                  from: dateFrom ? new Date(dateFrom) : undefined,
-                  to: dateTo ? new Date(dateTo) : undefined,
-                }}
-                onChange={(range) => {
-                  setDateFrom(range?.from?.toISOString().slice(0, 10) || "");
-                  setDateTo(range?.to?.toISOString().slice(0, 10) || "");
-                }}
-              /> */}
               <span className="font-semibold">Date : </span>
               <DatePickerWithRange
-                // className="px-3 py-2 border border-gray-300 rounded-md"
                 defaultRange={{
                   from: dateFrom ? new Date(dateFrom) : undefined,
                   to: dateTo ? new Date(dateTo) : undefined,
@@ -171,34 +190,77 @@ export default function Home() {
               />
             </div>
 
-            {/* Export Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="rounded-sm flex gap-2 items-center   shadow-inner border border-gray-300"
+            <div className="flex items-center gap-4">
+              {/* Export Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="rounded-sm flex gap-2 items-center shadow-inner border border-gray-300"
+                  >
+                    <Download className="w-4 h-4" /> Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-48"
                 >
-                  <Download className="w-4 h-4" /> Export
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-48"
-              >
-                <DropdownMenuItem
-                  onClick={() => handleExport("csv")}
-                  className="cursor-pointer px-2 py-2 rounded-md hover:bg-gray-100 text-sm"
-                >
-                  Export as CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleExport("xlsx")}
-                  className="cursor-pointer px-2 py-2 rounded-md hover:bg-gray-100 text-sm"
-                >
-                  Export as XLSX
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuItem
+                    onClick={() => handleExport("csv")}
+                    className="cursor-pointer px-2 py-2 rounded-md hover:bg-gray-100 text-sm"
+                  >
+                    Export as CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleExport("xlsx")}
+                    className="cursor-pointer px-2 py-2 rounded-md hover:bg-gray-100 text-sm"
+                  >
+                    Export as XLSX
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* File/Provider selection dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="w-[220px] flex justify-between items-center rounded-[4px] border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
+                    variant="outline"
+                  >
+                    <span className="text-sm font-medium text-gray-700">
+                      {selectedProvider || "Select Provider"}
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[220px] rounded-[4px] shadow-md border border-gray-200 bg-white z-50">
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 px-3 py-2">
+                    Files
+                  </DropdownMenuLabel>
+                  {fileList.length > 0 ? (
+                    fileList.map((file, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        onSelect={() => handleSelect(file)}
+                        className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors"
+                      >
+                        {file.filename}
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-gray-400">
+                      No files found
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {selectedFileData && (
+                <span className="font-semibold">
+                  Current Balance : {selectedFileData.currentBalance}
+                </span>
+              )}
+            </div>
           </div>
 
           {hasFilteredData ? (

@@ -28,7 +28,7 @@ export default function GoalModal({
   handleSimulatorChange,
 }) {
   return (
-    <div className="fixed inset-0 z-50 bg-[#00000074] flex items-center justify-center px-4 animate-fadeIn">
+    <div className="fixed inset-0 z-50 bg-[var(--model-bg)] flex items-center justify-center px-4 animate-fadeIn">
       <Card className="w-full max-w-lg bg-white rounded-2xl shadow-2xl">
         {/* Header */}
         <div className="flex justify-between items-center p-4 pt-0 border-b">

@@ -9,6 +9,7 @@ import {
   Goal,
   Sparkles,
   ChartPie,
+  File,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useMyContext } from "@/context/MyContext";
@@ -45,6 +46,15 @@ export default function Sidebar() {
             <Link href="/dashboard" className={linkClasses("/dashboard")}>
               <Home className="h-5 w-5" />
               <span>Dashboard</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dashboard/upload-files"
+              className={linkClasses("/dashboard/upload-files")}
+            >
+              <File className="h-5 w-5" />
+              <span>Upload Files</span>
             </Link>
           </li>
           <li>

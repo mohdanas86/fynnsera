@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.16.0",
+    "@google-cloud/vision": "^5.1.0",
     "@google/generative-ai": "^0.24.0",
     "@heroicons/react": "^2.2.0",
     "@radix-ui/react-checkbox": "^1.1.4",
@@ -30,6 +32,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^2.30.0",
     "daterangepicker": "^3.1.0",
+    "formidable": "^3.5.2",
     "framer-motion": "^12.6.3",
     "jquery": "^3.7.1",
     "lucide-react": "^0.484.0",
@@ -39,6 +42,10 @@
     "next": "^15.2.4",
     "next-auth": "^4.24.11",
     "papaparse": "^5.5.2",
+    "pdf-parse": "^1.1.1",
+    "pdf2pic": "^3.1.4",
+    "pdfjs-dist": "^5.1.91",
+    "pdfreader": "^3.0.7",
     "plaid": "^31.1.0",
     "razorpay": "^2.9.6",
     "react": "^18.3.1",
@@ -49,8 +56,10 @@
     "react-plaid-link": "^3.6.1",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.2",
+    "tesseract.js": "^6.0.1",
     "tw-animate-css": "^1.2.5",
     "twilio": "^5.5.1",
+    "uuid": "^11.1.0",
     "xlsx": "^0.18.5"
   },
   "resolutions": {
