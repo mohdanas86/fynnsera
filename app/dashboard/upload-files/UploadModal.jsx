@@ -86,6 +86,11 @@ export default function UploadModal({
         newTransactions
       );
 
+      console.log(
+        "new file categorizedTransactions : ",
+        categorizedTransactions
+      );
+
       if (!Array.isArray(categorizedTransactions)) {
         throw new Error("Categorized data is not in expected format.");
       }
