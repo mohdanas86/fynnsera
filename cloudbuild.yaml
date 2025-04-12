@@ -1,3 +1,6 @@
+options:
+  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
+
 steps:
   # Build the Docker image and tag it.
   - name: "gcr.io/cloud-builders/docker"
