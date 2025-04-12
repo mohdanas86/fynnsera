@@ -186,7 +186,9 @@ export function MyContextProvider({ children }) {
       .filter(Boolean); // remove nulls
 
     try {
-      const url = "http://127.0.0.1:5000/bulk_predict";
+      const url = `${
+        process.env.NEXT_PUBLIC_CATOGERY_MODEL || process.env.CATOGERY_MODEL
+      }`;
       const response = await axios.post(url, {
         transactions: formatted,
       });

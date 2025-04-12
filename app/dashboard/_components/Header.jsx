@@ -84,6 +84,7 @@ export default function Header() {
                   <Link
                     href="/dashboard/upload-files"
                     className="flex items-center space-x-2"
+                    onClick={handleLinkClick}
                   >
                     <File className="h-5 w-5" />
                     <span>Upload Files</span>
