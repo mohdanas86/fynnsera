@@ -65,7 +65,9 @@ export default function UploadModal({
 
     try {
       // 1. Upload file to text-extract API
-      const res = await fetch("http://localhost:8000/extract-text", {
+      const url = `${process.env.NEXT_PUBLIC_PDF_TEXT_EXTRACTOR}`;
+      console.log(url);
+      const res = await fetch(url, {
         method: "POST",
         body: formData,
       });
