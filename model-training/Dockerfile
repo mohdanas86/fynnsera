@@ -23,5 +23,6 @@ EXPOSE 8080
 
 # Command to run on container start
 # CMD ["python", "app.py"]
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+# CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+CMD ["sh", "-c", "exec gunicorn -b 0.0.0.0:$PORT app:app"]
 
