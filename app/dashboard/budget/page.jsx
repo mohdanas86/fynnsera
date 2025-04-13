@@ -11,6 +11,8 @@ import {
 import { useSession } from "next-auth/react";
 import PlaidLink from "../_components/PlaidLink";
 import Loding from "../_components/Loding";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Budget() {
   const { data: session, status } = useSession();
@@ -99,13 +101,18 @@ export default function Budget() {
           ))}
         </div>
       ) : (
-        <div className="bg-purple-100 p-6 rounded-lg shadow text-center">
-          <h2 className="text-2xl font-bold mb-2">Connect Your Bank Account</h2>
+        <div className="bg-teal-50 p-6 rounded-lg shadow mb-6 text-center">
+          <h2 className="text-2xl font-bold mb-2">No Transactions Available</h2>
           <p className="text-gray-600">
-            Link your bank account to see your budget recommendations.
+            Connect your bank account to see your transactions.
           </p>
-          <div className="mt-4">
-            <PlaidLink />
+          <div className="mt-4 flex flex-wrap gap-4 justify-center items-center">
+            <PlaidLink onConnected={fetchTransactions} />
+            <Link href="/dashboard/upload-files">
+              <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
+                Upload File
+              </Button>
+            </Link>
           </div>
         </div>
       )}

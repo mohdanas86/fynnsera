@@ -94,8 +94,6 @@ def pdf_to_json(file_path, userId=""):
 
                 # Build transaction dictionary using the required keys.
                 txn = {
-                    "accessToken": "",
-                    "accountId": "",
                     "amount": amount,
                     "createdAt": createdAt,
                     "date": date_only,
@@ -103,8 +101,6 @@ def pdf_to_json(file_path, userId=""):
                     "transactionId": transaction_id,
                      "transactionType": transaction_type,
                     "userId": userId,
-                    "__v": 0,
-                    "_id": ""
                 }
                 transactions.append(txn)
                 # Skip the 4 lines that we processed as part of this transaction block.

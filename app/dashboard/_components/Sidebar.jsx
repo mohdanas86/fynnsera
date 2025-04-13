@@ -13,9 +13,12 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useMyContext } from "@/context/MyContext";
+import { Button } from "@/components/ui/button";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
   const { showSidebar } = useMyContext();
 
   const linkClasses = (href) => {
@@ -41,68 +44,80 @@ export default function Sidebar() {
         <h1 className="lg:text-2xl font-semi-bold p-4">FYNSERA</h1>
         {/* <img src="/logo/logo2.png" className="invert pt-4" /> */}
 
-        <ul className="flex flex-col">
-          <li>
-            <Link href="/dashboard" className={linkClasses("/dashboard")}>
-              <Home className="h-5 w-5" />
-              <span>Dashboard</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/upload-files"
-              className={linkClasses("/dashboard/upload-files")}
+        <div className=" min-h-[90vh] flex flex-col justify-between">
+          <ul className="flex flex-col">
+            <li>
+              <Link href="/dashboard" className={linkClasses("/dashboard")}>
+                <Home className="h-5 w-5" />
+                <span>Dashboard</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/upload-files"
+                className={linkClasses("/dashboard/upload-files")}
+              >
+                <File className="h-5 w-5" />
+                <span>Upload Files</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/transactions"
+                className={linkClasses("/dashboard/transactions")}
+              >
+                <DollarSign className="h-5 w-5" />
+                <span>Transactions</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/budget"
+                className={linkClasses("/dashboard/budget")}
+              >
+                <BadgePoundSterling className="h-5 w-5" />
+                <span>Budget</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/goal-tracking"
+                className={linkClasses("/dashboard/goal-tracking")}
+              >
+                <Goal className="h-5 w-5" />
+                <span>Goal Tracking</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/ai-insight"
+                className={linkClasses("/dashboard/ai-insight")}
+              >
+                <ChartPie className="h-5 w-5" />
+                <span>Ai Insight</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/chat"
+                className={linkClasses("/dashboard/chat")}
+              >
+                <Sparkles className="h-5 w-5 " />
+                <span>Ai Assistant</span>
+              </Link>
+            </li>
+          </ul>
+
+          {status === "authenticated" && (
+            <Button
+              variant="outline"
+              className="bg-[#E33B32] text-white hover:bg-[hsl(3,76%,54%)] hover:text-white border-0 m-4 rounded-[5px]"
+              onClick={() => signOut({ callbackUrl: "/signin" })}
             >
-              <File className="h-5 w-5" />
-              <span>Upload Files</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/transactions"
-              className={linkClasses("/dashboard/transactions")}
-            >
-              <DollarSign className="h-5 w-5" />
-              <span>Transactions</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/budget"
-              className={linkClasses("/dashboard/budget")}
-            >
-              <BadgePoundSterling className="h-5 w-5" />
-              <span>Budget</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/goal-tracking"
-              className={linkClasses("/dashboard/goal-tracking")}
-            >
-              <Goal className="h-5 w-5" />
-              <span>Goal Tracking</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/ai-insight"
-              className={linkClasses("/dashboard/ai-insight")}
-            >
-              <ChartPie className="h-5 w-5" />
-              <span>Ai Insight</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/chat"
-              className={linkClasses("/dashboard/chat")}
-            >
-              <Sparkles className="h-5 w-5 " />
-              <span>Ai Assistant</span>
-            </Link>
-          </li>
-        </ul>
+              Sign Out
+            </Button>
+          )}
+        </div>
       </nav>
     </aside>
   );

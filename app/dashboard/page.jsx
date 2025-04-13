@@ -18,6 +18,7 @@ import { ChevronDown, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as XLSX from "xlsx";
 import { DatePickerWithRange } from "@/components/ui/DatePickerWithRange";
+import Link from "next/link";
 
 // Lazy load charts
 const AreaCharts = dynamic(() => import("./charts/AreaCharts"), { ssr: false });
@@ -168,7 +169,16 @@ export default function Home() {
           </h1>
           <p className="text-gray-600">Your financial dashboard is ready.</p>
         </div>
-        <PlaidLink onConnected={fetchTransactions} />
+        {hasOriginalData && (
+          <div className="flex gap-4 flex-wrap">
+            <PlaidLink onConnected={fetchTransactions} />
+            <Link href="/dashboard/upload-files">
+              <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
+                Upload File
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
 
       {hasOriginalData ? (
@@ -295,13 +305,18 @@ export default function Home() {
           )}
         </>
       ) : (
-        <div className="bg-blue-100 p-6 rounded-lg shadow mb-6 text-center">
+        <div className="bg-teal-50 p-6 rounded-lg shadow mb-6 text-center">
           <h2 className="text-2xl font-bold mb-2">No Transactions Available</h2>
           <p className="text-gray-600">
             Connect your bank account to see your transactions.
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex gap-4 justify-center items-center flex-wrap">
             <PlaidLink onConnected={fetchTransactions} />
+            <Link href="/dashboard/upload-files">
+              <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
+                Upload File
+              </Button>
+            </Link>
           </div>
         </div>
       )}

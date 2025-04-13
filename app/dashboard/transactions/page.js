@@ -4,6 +4,8 @@ import PlaidLink from "../_components/PlaidLink";
 import TransactionsTable from "../_components/TransactionsTable";
 import { useMyContext } from "@/context/MyContext";
 import Loding from "../_components/Loding";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -34,13 +36,20 @@ export default function Home() {
             <TransactionsTable transactions={userTransaction} />
           </div>
         ) : (
-          <div className="w-full bg-green-100 p-6 rounded-lg shadow text-center">
-            <h2 className="text-2xl font-bold mb-2">No Transactions Found</h2>
-            <p className="text-gray-600 mb-4">
-              Connect your bank account to start tracking your transactions.
+          <div className="bg-teal-50 p-6 rounded-lg shadow mb-6 text-center w-full">
+            <h2 className="text-2xl font-bold mb-2">
+              No Transactions Available
+            </h2>
+            <p className="text-gray-600">
+              Connect your bank account to see your transactions.
             </p>
-            <div className="flex justify-center">
+            <div className="mt-4 flex flex-wrap gap-4 justify-center items-center">
               <PlaidLink onConnected={fetchTransactions} />
+              <Link href="/dashboard/upload-files">
+                <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
+                  Upload File
+                </Button>
+              </Link>
             </div>
           </div>
         )}

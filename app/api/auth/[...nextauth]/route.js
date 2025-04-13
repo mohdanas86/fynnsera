@@ -22,7 +22,12 @@ const authOptions = {
         }
 
         // Ensure the returned user object includes a name if available
-        return { id: user._id.toString(), email: user.email, name: user.name };
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
       },
     }),
     // Added Google Provider for Google login option.
