@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Loding from "../../_components/Loding";
+import { toast } from "sonner";
 
 export default function GoalDetail() {
   const { id } = useParams();
@@ -22,7 +23,7 @@ export default function GoalDetail() {
     async function fetchGoal() {
       try {
         const res = await fetch(`/api/goals/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch goal details");
+        if (!res.ok) toast.error("Failed to fetch goal details");
         const data = await res.json();
         setGoal(data);
       } catch (error) {
@@ -61,6 +62,7 @@ export default function GoalDetail() {
 
       if (!res.ok) throw new Error("Failed to update goal");
       const updated = await res.json();
+      toast.success("Goal Is Updated");
       setGoal(updated);
       setIsEditing(false);
     } catch (error) {
@@ -108,11 +110,13 @@ export default function GoalDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedGoal),
       });
-      if (!res.ok) throw new Error("Failed to update status");
+      if (!res.ok) toast.error("Failed to update status");
       const updated = await res.json();
+      toast.success("Goal Updated..");
       setGoal(updated);
     } catch (error) {
       setErrorMsg("Error updating status");
+      toast.error("Error updating status");
     }
   };
 

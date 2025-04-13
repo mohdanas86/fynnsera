@@ -63,6 +63,7 @@ const AiSummaryPage = () => {
 
   useEffect(() => {
     const fetchAITips = async () => {
+      toast.success("loading AI tips...");
       try {
         const res = await fetch("/api/tips", {
           method: "POST",
@@ -76,7 +77,6 @@ const AiSummaryPage = () => {
         const data = await res.json();
         if (res.ok) {
           setAiTips(data.tips);
-          toast.success("loading AI tips...");
         } else {
           console.error("AI tips error:", data.error);
           setAiTips("Failed to load AI tips.");

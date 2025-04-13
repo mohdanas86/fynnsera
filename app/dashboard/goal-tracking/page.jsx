@@ -11,6 +11,7 @@ import Loding from "../_components/Loding";
 import Link from "next/link";
 import GoalModal from "./GoalModal";
 import { Pen, Trash } from "lucide-react";
+import { toast } from "sonner";
 
 export default function GoalTracking() {
   const router = useRouter();
@@ -39,11 +40,12 @@ export default function GoalTracking() {
     const fetchGoals = async () => {
       try {
         const res = await fetch("/api/goals");
-        if (!res.ok) throw new Error("Failed to fetch goals");
+        if (!res.ok) toast.error("Failed to fetch goals");
         const data = await res.json();
         setGoals(data);
       } catch (error) {
-        console.error("Error fetching goals:", error);
+        toast.error("Error fetching goals");
+        // console.error("Error fetching goals:", error);
       } finally {
         setLoading(false);
       }
@@ -114,14 +116,14 @@ export default function GoalTracking() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.error || "Failed to add goal");
+        // const errorData = await response.json();
+        toast.error("Failed to add goal");
       }
 
       const result = await response.json();
-      console.log("✔️ Form submitted successfully:");
-      console.log("User input:", payload);
-      console.log("Server response:", result);
+      toast.success("✔️ Form submitted successfully:");
+      // console.log("User input:", payload);
+      // console.log("Server response:", result);
 
       setGoals((prev) => [...prev, result]);
 
@@ -139,7 +141,7 @@ export default function GoalTracking() {
       setShowAddForm(false);
       setErrorMsg("");
     } catch (err) {
-      console.error("❌ Error adding goal:", err.message);
+      toast.error("Error adding goal");
       setErrorMsg(err.message);
     }
   };
@@ -165,7 +167,7 @@ export default function GoalTracking() {
         body: JSON.stringify(editedGoal),
       });
 
-      if (!res.ok) throw new Error("Failed to update goal");
+      if (!res.ok) toast.error("Failed to update goal");
       const updated = await res.json();
 
       setGoals((prev) =>
@@ -178,6 +180,7 @@ export default function GoalTracking() {
       setEditedGoal({});
     } catch (error) {
       setErrorMsg("Error updating goal");
+      toast.error("Error updating goal");
     }
   };
 
@@ -191,8 +194,10 @@ export default function GoalTracking() {
     try {
       await fetch(`/api/goals/${goalId}`, { method: "DELETE" });
       setGoals((prev) => prev.filter((g) => (g._id || g.id) !== goalId));
+      toast.success("Goal Deleted..");
     } catch (error) {
       setErrorMsg("Error deleting goal");
+      toast.error("Error deleting goal");
     }
   };
 

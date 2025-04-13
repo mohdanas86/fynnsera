@@ -99,9 +99,9 @@ export default function UploadPage() {
           provider={selectedProvider}
           userId={userId}
           onClose={() => setShowModal(false)}
-          onUploadSuccess={(data) => {
-            alert("Upload success");
-          }}
+          // onUploadSuccess={(data) => {
+          //   alert("Upload success");
+          // }}
         />
       )}
     </div>
