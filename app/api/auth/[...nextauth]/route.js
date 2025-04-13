@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import connectToDatabase from "@/lib/db";
 import User from "@/models/User";
@@ -16,14 +17,18 @@ const authOptions = {
         await connectToDatabase();
         const user = await User.findOne({ email: credentials.email });
 
-        // console.log("user ", user);
-
         if (!user || !bcrypt.compareSync(credentials.password, user.password)) {
           throw new Error("Invalid credentials");
         }
 
-        return { id: user._id.toString(), email: user.email };
+        // Ensure the returned user object includes a name if available
+        return { id: user._id.toString(), email: user.email, name: user.name };
       },
+    }),
+    // Added Google Provider for Google login option.
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
   session: {
