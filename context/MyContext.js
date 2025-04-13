@@ -68,8 +68,8 @@ export function MyContextProvider({ children }) {
           if (filesArray.length > 0) {
             setFileList(filesArray);
             // Auto-select the first file and update transactions accordingly
-            handleSelect(filesArray[1]);
-            console.log("Loaded files from localStorage:", filesArray);
+            handleSelect(filesArray[0]);
+            // console.log("Loaded files from localStorage:", filesArray);
           }
         } catch (err) {
           console.error(
@@ -90,64 +90,8 @@ export function MyContextProvider({ children }) {
   };
 
   // catogerization model api call flask api
-  // useEffect(() => {
-  //   async function modelData() {
-  //     console.log("Raw user data:", userTransaction);
-
-  //     let transactionsArray = [];
-
-  //     // Handle both formats: raw array or { transactions: [...] }
-  //     if (Array.isArray(userTransaction)) {
-  //       transactionsArray = userTransaction;
-  //     } else if (
-  //       typeof userTransaction === "object" &&
-  //       Array.isArray(userTransaction.transactions)
-  //     ) {
-  //       transactionsArray = userTransaction.transactions;
-  //     }
-
-  //     // Normalize: extract `description` and `transactionType`
-  //     const formatted = transactionsArray
-  //       .map((txn) => {
-  //         // Only include transactions that have at least a description
-  //         if (txn.description) {
-  //           return {
-  //             ...txn, // preserve all original fields
-  //             // Optionally fix transactionType if missing or inconsistent
-  //             transactionType: txn.transactionType
-  //               ? txn.transactionType
-  //               : (() => {
-  //                   const desc = txn.description.toLowerCase();
-  //                   const isCredit =
-  //                     desc.includes("from") ||
-  //                     desc.includes("credit") ||
-  //                     desc.includes("salary");
-  //                   return isCredit ? "Credit" : "Debit";
-  //                 })(),
-  //           };
-  //         }
-  //         return null;
-  //       })
-  //       .filter(Boolean); // remove nulls
-
-  //     try {
-  //       const url = "http://127.0.0.1:5000/bulk_predict";
-  //       const response = await axios.post(url, {
-  //         transactions: formatted,
-  //       });
-  //       console.log("Model response:", response);
-  //     } catch (err) {
-  //       console.log("Error posting to model:", err);
-  //     }
-  //   }
-
-  //   if (userTransaction && Object.keys(userTransaction).length > 0) {
-  //     modelData();
-  //   }
-  // }, [userTransaction]);
-
   async function catogerizationModelHandle(userTransaction) {
-    console.log("Raw user data from file:", userTransaction);
+    // console.log("Raw user data from file:", userTransaction);
 
     let transactionsArray = [];
 
@@ -192,13 +136,18 @@ export function MyContextProvider({ children }) {
       const response = await axios.post(url, {
         transactions: formatted,
       });
-      console.log("Model response:", response);
+      // console.log("Model response:", response);
       // ✅ Return only the predictions array
       return response.data.predictions;
     } catch (err) {
       console.log("Error posting to model:", err);
     }
   }
+
+  useEffect(() => {
+    // console.log("selectedFileData : ", selectedFileData);
+    // console.log("userTransaction : ", userTransaction);
+  }, [selectedFileData, userTransaction]);
 
   return (
     <MyContext.Provider
@@ -215,6 +164,7 @@ export function MyContextProvider({ children }) {
         fileList,
         selectedFileData,
         selectedProvider,
+        setSelectedFileData,
         handleSelect,
         catogerizationModelHandle,
       }}

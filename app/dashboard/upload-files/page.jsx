@@ -100,7 +100,7 @@ export default function UploadPage() {
           userId={userId}
           onClose={() => setShowModal(false)}
           onUploadSuccess={(data) => {
-            console.log("Upload success:", data);
+            alert("Upload success");
           }}
         />
       )}

@@ -16,6 +16,8 @@ const authOptions = {
         await connectToDatabase();
         const user = await User.findOne({ email: credentials.email });
 
+        // console.log("user ", user);
+
         if (!user || !bcrypt.compareSync(credentials.password, user.password)) {
           throw new Error("Invalid credentials");
         }

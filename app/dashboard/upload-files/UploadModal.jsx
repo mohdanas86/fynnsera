@@ -9,6 +9,18 @@ import {
 } from "@/components/ui/select";
 import { useMyContext } from "@/context/MyContext";
 import { useState, useEffect } from "react";
+import Loding from "../_components/Loding";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+
+// Define separate Zod schemas for each input field
+const fileNameSchema = z
+  .string()
+  .min(3, "File name must be greater than 3 characters.");
+const balanceSchema = z.preprocess(
+  (val) => parseFloat(val),
+  z.number({ invalid_type_error: "Balance must be a valid number." })
+);
 
 export default function UploadModal({
   provider,
@@ -16,13 +28,25 @@ export default function UploadModal({
   onClose,
   onUploadSuccess,
 }) {
+  const {
+    catogerizationModelHandle,
+    setUserTransaction,
+    setSelectedFileData,
+    handleSelect,
+  } = useMyContext();
   const [fileName, setFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMode, setUploadMode] = useState(""); // "new" or "merge"
   const [existingFiles, setExistingFiles] = useState([]); // Array of [key, file]
   const [selectedMergeFileKey, setSelectedMergeFileKey] = useState("");
+  const router = useRouter();
   const [currentBalance, setCurrentBalance] = useState("");
-  const { catogerizationModelHandle } = useMyContext();
+  const [loading, setLoading] = useState(false);
+
+  // Validation error states
+  const [fileNameError, setFileNameError] = useState("");
+  const [currentBalanceError, setCurrentBalanceError] = useState("");
+  const [fileInputError, setFileInputError] = useState("");
 
   // Read user data from localStorage
   const getUserData = () => {
@@ -41,21 +65,89 @@ export default function UploadModal({
       ([, file]) => file.provider === provider
     );
     setExistingFiles(files);
+    // If no existing files, automatically set the mode to "new"
+    if (files.length === 0) {
+      setUploadMode("new");
+    }
   }, [provider, userId]);
 
-  const handleFileSelect = (e) => {
-    setSelectedFile(e.target.files[0]);
+  // Validate file name on blur (for new file creation)
+  const validateFileName = () => {
+    try {
+      fileNameSchema.parse(fileName);
+      setFileNameError("");
+    } catch (e) {
+      setFileNameError(e.errors[0].message);
+    }
   };
 
+  // Validate current balance on blur (for new file creation)
+  const validateCurrentBalance = () => {
+    try {
+      balanceSchema.parse(currentBalance);
+      setCurrentBalanceError("");
+    } catch (e) {
+      setCurrentBalanceError(e.errors[0].message);
+    }
+  };
+
+  // Handle file select with PDF check
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== "application/pdf") {
+        setFileInputError("Only PDF files are allowed.");
+        setSelectedFile(null);
+      } else {
+        setFileInputError("");
+        setSelectedFile(file);
+      }
+    }
+  };
+
+  // Handle file upload
   const handleUpload = async () => {
-    if (!selectedFile || !fileName) {
-      alert("Please complete all fields.");
+    // Ensure a file is selected
+    if (!selectedFile) {
+      alert("Please select a PDF file.");
+      return;
+    }
+    // For new file creation, ensure file name and current balance are provided and valid.
+    if (uploadMode === "new") {
+      if (!fileName) {
+        alert("Please enter a file name.");
+        return;
+      }
+      try {
+        fileNameSchema.parse(fileName);
+      } catch (e) {
+        setFileNameError(e.errors[0].message);
+        return;
+      }
+      try {
+        balanceSchema.parse(currentBalance);
+      } catch (e) {
+        setCurrentBalanceError(e.errors[0].message);
+        return;
+      }
+    }
+    // For merge mode, ensure that a file has been selected to merge with.
+    if (uploadMode === "merge" && !selectedMergeFileKey) {
+      alert("Please select a file to merge with.");
+      return;
+    }
+    if (fileInputError) {
+      alert("Please choose a valid PDF file.");
       return;
     }
 
+    setLoading(true);
+
+    // Check file size (max 10MB)
     const maxSize = 10 * 1024 * 1024;
     if (selectedFile.size > maxSize) {
       alert("File size should be less than 10MB.");
+      setLoading(false);
       return;
     }
 
@@ -66,7 +158,6 @@ export default function UploadModal({
     try {
       // 1. Upload file to text-extract API
       const url = `${process.env.NEXT_PUBLIC_PDF_TEXT_EXTRACTOR}`;
-      console.log(url);
       const res = await fetch(url, {
         method: "POST",
         body: formData,
@@ -88,11 +179,6 @@ export default function UploadModal({
         newTransactions
       );
 
-      console.log(
-        "new file categorizedTransactions : ",
-        categorizedTransactions
-      );
-
       if (!Array.isArray(categorizedTransactions)) {
         throw new Error("Categorized data is not in expected format.");
       }
@@ -102,16 +188,18 @@ export default function UploadModal({
       const files = userData.uploadedFiles || {};
 
       if (uploadMode === "merge") {
-        if (!selectedMergeFileKey) {
-          alert("Please select a file to merge with.");
-          return;
-        }
-
+        // Merge transactions with an existing file.
+        // The merge dropdown has already provided the selectedMergeFileKey.
         files[selectedMergeFileKey].transactions = [
           ...files[selectedMergeFileKey].transactions,
           ...categorizedTransactions,
         ].sort((a, b) => new Date(a.date) - new Date(b.date));
+        const updatedFile = files[selectedMergeFileKey];
+        setSelectedFileData(updatedFile);
+        handleSelect(updatedFile);
+        setUserTransaction(updatedFile.transactions);
       } else {
+        // Create new file
         const nextIndex = Object.keys(files).length;
         files[nextIndex] = {
           provider,
@@ -120,45 +208,36 @@ export default function UploadModal({
           filename: fileName,
           transactions: categorizedTransactions,
         };
+        const newFileData = files[nextIndex];
+        setSelectedFileData(newFileData);
+        handleSelect(newFileData);
+        setUserTransaction(newFileData.transactions);
       }
 
-      // 4. Save updated data
+      // 4. Save updated data to localStorage
       saveUserData({ uploadedFiles: files });
 
-      // 5. Trigger success callback and close UI
+      // 5. Trigger success callback, close modal and navigate to dashboard
       onUploadSuccess?.(categorizedTransactions);
       onClose();
+      router.push("/dashboard");
     } catch (error) {
       console.error("❌ Upload error:", error.message || error);
       alert("Failed to upload and categorize file. Check console for details.");
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) return <Loding />;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--model-bg)] bg-opacity-40">
       <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md relative">
         <h2 className="text-lg font-semibold mb-4 text-gray-800">Upload PDF</h2>
 
-        {/* Filename input */}
-        <input
-          type="text"
-          placeholder="Enter file name"
-          value={fileName}
-          onChange={(e) => setFileName(e.target.value)}
-          className="mb-3 w-full border px-3 py-2 rounded-[2px]"
-        />
-
-        {/* Current Balance input */}
-        <input
-          type="number"
-          placeholder="Enter current balance"
-          value={currentBalance}
-          onChange={(e) => setCurrentBalance(e.target.value)}
-          className="mb-3 w-full border px-3 py-2 rounded-[2px]"
-        />
-
         {/* PDF drop zone */}
-        <div className="group relative mb-4">
+        <div className="group relative mb-1">
           <div className="relative rounded-[2px] border-2 border-dashed border-gray-300 bg-gray-50 p-8">
             <input
               type="file"
@@ -193,10 +272,60 @@ export default function UploadModal({
           </div>
         </div>
 
+        <div className="mb-3 text-sm">
+          {fileInputError ? (
+            <span className="text-red-600">{fileInputError}</span>
+          ) : (
+            <span className="text-gray-500">Please select a PDF file</span>
+          )}
+        </div>
+
+        {/* For new file creation mode show file name and balance inputs */}
+        {uploadMode === "new" && (
+          <>
+            {/* Filename input */}
+            <input
+              type="text"
+              placeholder="Enter file name"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              onBlur={validateFileName}
+              className="mb-1 w-full border px-3 py-2 rounded-[2px] mt-2"
+            />
+            <div className="mb-3 text-sm">
+              {fileNameError ? (
+                <span className="text-red-600">{fileNameError}</span>
+              ) : (
+                <span className="text-gray-500">
+                  Example: Last Month Transaction
+                </span>
+              )}
+            </div>
+
+            {/* Current Balance input */}
+            <input
+              type="number"
+              placeholder="Enter current balance"
+              value={currentBalance}
+              onChange={(e) => setCurrentBalance(e.target.value)}
+              onBlur={validateCurrentBalance}
+              className="mb-1 w-full border px-3 py-2 rounded-[2px]"
+            />
+            <div className="mb-3 text-sm">
+              {currentBalanceError ? (
+                <span className="text-red-600">{currentBalanceError}</span>
+              ) : (
+                <span className="text-gray-500">Example: 1234.56</span>
+              )}
+            </div>
+          </>
+        )}
+
         {/* Upload mode options */}
         {selectedFile &&
           (existingFiles.length > 0 ? (
             <div className="mb-4">
+              {/* Two buttons shown when there are existing files */}
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setUploadMode("new")}
@@ -219,6 +348,7 @@ export default function UploadModal({
                   Merge
                 </button>
               </div>
+              {/* If merge mode is selected, show the dropdown to select an existing file */}
               {uploadMode === "merge" && (
                 <div className="mt-3">
                   <Select
@@ -240,6 +370,7 @@ export default function UploadModal({
               )}
             </div>
           ) : (
+            // If there are no existing files, only show the new file creation option.
             <div className="mb-4">
               <Button
                 onClick={() => setUploadMode("new")}
