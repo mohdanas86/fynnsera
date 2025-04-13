@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
 import Loding from "../dashboard/_components/Loding";
+import { toast } from "sonner";
 
 // Define Zod schema for front-end validation
 const signUpSchema = z.object({
@@ -47,15 +48,19 @@ export default function SignUp() {
       if (!res.ok) {
         if (data.errors) {
           setErrors(data.errors);
+          toast(data.errors);
         } else {
           setErrors({ general: data.message });
+          toast({ general: data.message });
         }
         setIsLoading(false);
         return;
       }
+      toast("Signup Successfully");
       router.push("/signin");
     } catch (err) {
       setErrors({ general: err.message });
+      toast({ general: err.message });
       setIsLoading(false);
     } finally {
       setIsLoading(false);

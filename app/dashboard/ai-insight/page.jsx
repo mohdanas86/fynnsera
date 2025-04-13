@@ -14,6 +14,7 @@ import {
 import { motion } from "framer-motion";
 import { useMyContext } from "@/context/MyContext";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 const SummaryCard = ({ title, amount }) => (
   <Card className="w-full max-w-sm shadow rounded-md">
@@ -73,15 +74,18 @@ const AiSummaryPage = () => {
         });
 
         const data = await res.json();
-        if (res.ok && data.tips) {
+        if (res.ok) {
           setAiTips(data.tips);
+          toast.success("loading AI tips...");
         } else {
           console.error("AI tips error:", data.error);
           setAiTips("Failed to load AI tips.");
+          toast("Failed to load AI tips.");
         }
       } catch (err) {
         console.error("Request error:", err);
         setAiTips("Failed to load AI tips.");
+        toast("Failed to load AI tips.");
       }
     };
 

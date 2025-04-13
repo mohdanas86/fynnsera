@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import Loding from "../dashboard/_components/Loding";
+import { toast } from "sonner";
 
 // Define Zod schema for sign in validation
 const signInSchema = z.object({
@@ -33,6 +34,7 @@ export default function SignIn() {
         const { fieldErrors } = parseResult.error.flatten();
         const errorMessages = Object.values(fieldErrors).flat().join(" ");
         setError(errorMessages);
+        toast(errorMessages);
         return;
       }
 
@@ -45,10 +47,11 @@ export default function SignIn() {
 
       if (result?.error) {
         setError("Invalid email or password");
+        toast("Invalid email or password");
         setIsLoading(false);
-      } else {
-        router.push("/dashboard");
       }
+      toast("Signin Successfully");
+      router.push("/dashboard");
     } catch (err) {
       setIsLoading(false);
     } finally {

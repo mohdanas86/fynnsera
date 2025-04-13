@@ -1,5 +1,6 @@
 // app/layout.tsx or app/layout.js
 
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import LayoutClient from "./LayoutClient";
 
@@ -62,6 +63,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="bg-gray-50 max-w-screen-2xl mx-auto">
         <LayoutClient>{children}</LayoutClient>
+        <Toaster />
       </body>
     </html>
   );

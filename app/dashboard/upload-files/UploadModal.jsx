@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import Loding from "../_components/Loding";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import { toast } from "sonner";
 
 // Define separate Zod schemas for each input field
 const fileNameSchema = z
@@ -97,6 +98,7 @@ export default function UploadModal({
     if (file) {
       if (file.type !== "application/pdf") {
         setFileInputError("Only PDF files are allowed.");
+        toast("Only PDF files are allowed.");
         setSelectedFile(null);
       } else {
         setFileInputError("");
@@ -109,13 +111,15 @@ export default function UploadModal({
   const handleUpload = async () => {
     // Ensure a file is selected
     if (!selectedFile) {
-      alert("Please select a PDF file.");
+      // alert("Please select a PDF file.");
+      toast("Please select a PDF file.");
       return;
     }
     // For new file creation, ensure file name and current balance are provided and valid.
     if (uploadMode === "new") {
       if (!fileName) {
-        alert("Please enter a file name.");
+        // alert("Please enter a file name.");
+        toast("Please enter a file name.");
         return;
       }
       try {
@@ -133,11 +137,13 @@ export default function UploadModal({
     }
     // For merge mode, ensure that a file has been selected to merge with.
     if (uploadMode === "merge" && !selectedMergeFileKey) {
-      alert("Please select a file to merge with.");
+      // alert("Please select a file to merge with.");
+      toast("Please select a file to merge with.");
       return;
     }
     if (fileInputError) {
-      alert("Please choose a valid PDF file.");
+      // alert("Please choose a valid PDF file.");
+      toast("Please choose a valid PDF file.");
       return;
     }
 
@@ -146,7 +152,8 @@ export default function UploadModal({
     // Check file size (max 10MB)
     const maxSize = 10 * 1024 * 1024;
     if (selectedFile.size > maxSize) {
-      alert("File size should be less than 10MB.");
+      // alert("File size should be less than 10MB.");
+      toast("File size should be less than 10MB.");
       setLoading(false);
       return;
     }
@@ -164,6 +171,7 @@ export default function UploadModal({
       });
 
       if (!res.ok) {
+        toast(`Text extraction failed with status: ${res.status}`);
         throw new Error(`Text extraction failed with status: ${res.status}`);
       }
 
@@ -171,6 +179,7 @@ export default function UploadModal({
       const newTransactions = data.transactions || data;
 
       if (!Array.isArray(newTransactions)) {
+        toast(`Invalid transaction data format.`);
         throw new Error("Invalid transaction data format.");
       }
 
@@ -179,9 +188,9 @@ export default function UploadModal({
         newTransactions
       );
 
-      if (!Array.isArray(categorizedTransactions)) {
-        throw new Error("Categorized data is not in expected format.");
-      }
+      // if (!Array.isArray(categorizedTransactions)) {
+      //   throw new Error("Categorized data is not in expected format.");
+      // }
 
       // 3. Get existing user data
       const userData = getUserData();
@@ -218,12 +227,15 @@ export default function UploadModal({
       saveUserData({ uploadedFiles: files });
 
       // 5. Trigger success callback, close modal and navigate to dashboard
+      toast.success("File Uploaded Successfully!");
+
       onUploadSuccess?.(categorizedTransactions);
       onClose();
       router.push("/dashboard");
     } catch (error) {
       console.error("❌ Upload error:", error.message || error);
-      alert("Failed to upload and categorize file. Check console for details.");
+      // alert("Failed to upload and categorize file.");
+      toast.error("Failed to upload file.");
     } finally {
       setLoading(false);
     }
