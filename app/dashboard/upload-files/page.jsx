@@ -12,10 +12,30 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+//pdf icons
+export const RupeePddIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.5}
+    stroke="currentColor"
+    className="w-4 h-4"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 9h3.75m-4.5 2.625h4.5M12 18.75 9.75 16.5h.375a2.625 2.625 0 0 0 0-5.25H9.75m.75-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+    />
+  </svg>
+);
 
 export default function UploadPage() {
   const { data: session, status } = useSession();
-  const { userId } = useMyContext();
+  const router = useRouter();
+  const { userId, userFileLogs, handleSelect } = useMyContext();
   const [selectedProvider, setSelectedProvider] = useState(""); // Default to PhonePe
   const [showModal, setShowModal] = useState(false);
 
@@ -28,6 +48,11 @@ export default function UploadPage() {
       return alert("Please select a provider.");
     }
     setShowModal(true);
+  };
+
+  const handleFileSelect = (file) => {
+    handleSelect(file);
+    router.push("/dashboard/transactions");
   };
 
   return (
@@ -104,6 +129,46 @@ export default function UploadPage() {
           // }}
         />
       )}
+
+      {/* SHOW ALL FILE LOGS FOR THIS USER */}
+      <h2 className="text-2xl font-semibold text-gray-800 mt-6 lg:mt-10 mb-4">
+        Your Files
+      </h2>
+
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {userFileLogs?.data?.length > 0 ? (
+          userFileLogs.data.map((v) => (
+            <div
+              key={v._id}
+              className="border border-gray-200 rounded-lg shadow-sm p-5 hover:shadow-md transition-all bg-white"
+              onClick={() => handleFileSelect(v)}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <img src="/pdf.png" alt="file" className="w-10 h-10" />
+                <span className="text-gray-500 p-2 border rounded-full bg-gray-50">
+                  <RupeePddIcon />
+                </span>
+              </div>
+              <div className="text-sm font-medium text-gray-900 truncate">
+                {v.filename}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Balance: ₹{v.currentBalance}
+              </div>
+              <div className="text-xs text-gray-500">
+                Provider: {v.provider}
+              </div>
+              <div className="text-xs text-gray-500">
+                Totoal Transactions: {v.transactions.length}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-gray-500 text-sm">
+            No files found.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

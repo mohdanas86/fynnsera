@@ -297,7 +297,10 @@ export default function TransactionsTable({ transactions }) {
         <div className="flex gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="bg-white text-black border shadow-sm">
+              <Button
+                variant="outline"
+                className="bg-white text-black border shadow-sm"
+              >
                 <Download className="mr-2 h-4 w-4" /> Export
               </Button>
             </DropdownMenuTrigger>

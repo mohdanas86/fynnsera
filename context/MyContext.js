@@ -13,6 +13,7 @@ export function MyContextProvider({ children }) {
   const [hasFetched, setHasFetched] = useState(false);
   const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [userId, setUserId] = useState("");
+  const [userFileLogs, setUserFileLogs] = useState("");
 
   // File handling state:
   const [fileList, setFileList] = useState([]);
@@ -56,38 +57,33 @@ export function MyContextProvider({ children }) {
   };
 
   // Fetch file list from localStorage and auto-select the first file
-  useEffect(() => {
-    if (userId) {
-      const stored = localStorage.getItem(userId);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          const filesArray = parsed.uploadedFiles
-            ? Object.values(parsed.uploadedFiles)
-            : [];
-          if (filesArray.length > 0) {
-            setFileList(filesArray);
-            // Auto-select the first file and update transactions accordingly
-            handleSelect(filesArray[0]);
-            // console.log("Loaded files from localStorage:", filesArray);
-          }
-        } catch (err) {
-          console.error(
-            "Failed to parse uploaded files from localStorage:",
-            err
-          );
-        }
-      }
-    }
-  }, [userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     const stored = localStorage.getItem(userId);
+  //     if (stored) {
+  //       try {
+  //         const parsed = JSON.parse(stored);
+  //         const filesArray = parsed.uploadedFiles
+  //           ? Object.values(parsed.uploadedFiles)
+  //           : [];
+  //         if (filesArray.length > 0) {
+  //           setFileList(filesArray);
+  //           // Auto-select the first file and update transactions accordingly
+  //           handleSelect(filesArray[0]);
+  //           // console.log("Loaded files from localStorage:", filesArray);
+  //         }
+  //       } catch (err) {
+  //         console.error(
+  //           "Failed to parse uploaded files from localStorage:",
+  //           err
+  //         );
+  //       }
+  //     }
+  //   }
+  // }, [userId]);
 
   // Function to handle file selection from the dropdown.
   // It updates selectedProvider, selectedFileData, and the transactions.
-  const handleSelect = (file) => {
-    setSelectedProvider(file.filename);
-    setSelectedFileData(file);
-    setUserTransaction(file.transactions || []);
-  };
 
   // catogerization model api call flask api
   async function catogerizationModelHandle(userTransaction) {
@@ -144,10 +140,36 @@ export function MyContextProvider({ children }) {
     }
   }
 
+  // get user all file logs
   useEffect(() => {
-    // console.log("selectedFileData : ", selectedFileData);
-    // console.log("userTransaction : ", userTransaction);
-  }, [selectedFileData, userTransaction]);
+    const fetchData = async () => {
+      if (!userId) return;
+      try {
+        const response = await axios.get(
+          `/api/transaction-log?userId=${userId}`
+        );
+        setUserFileLogs(response.data);
+        // Access filesArray from response.data.data
+        const filesArray = response.data.data || []; // Correct extraction
+        console.log("filesArray : ", filesArray);
+        if (filesArray.length > 0) {
+          setFileList(filesArray);
+          handleSelect(filesArray[0]); // Auto-select the first file
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
+  // handle file slections
+  const handleSelect = (file) => {
+    setSelectedProvider(file.filename);
+    setSelectedFileData(file);
+    setUserTransaction(file.transactions || []);
+  };
 
   return (
     <MyContext.Provider
@@ -167,6 +189,8 @@ export function MyContextProvider({ children }) {
         setSelectedFileData,
         handleSelect,
         catogerizationModelHandle,
+        userFileLogs,
+        setUserFileLogs,
       }}
     >
       {children}

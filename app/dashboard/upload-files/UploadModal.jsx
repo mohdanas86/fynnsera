@@ -13,6 +13,7 @@ import Loding from "../_components/Loding";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { toast } from "sonner";
+import axios from "axios";
 
 // Define separate Zod schemas for each input field
 const fileNameSchema = z
@@ -207,6 +208,7 @@ export default function UploadModal({
         setSelectedFileData(updatedFile);
         handleSelect(updatedFile);
         setUserTransaction(updatedFile.transactions);
+        // const uploadFileData = await axios.post("/api/transaction-log");
       } else {
         // Create new file
         const nextIndex = Object.keys(files).length;
@@ -218,16 +220,22 @@ export default function UploadModal({
           transactions: categorizedTransactions,
         };
         const newFileData = files[nextIndex];
+        // upload data in db
+        await axios.post("/api/transaction-log", newFileData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         setSelectedFileData(newFileData);
         handleSelect(newFileData);
         setUserTransaction(newFileData.transactions);
+        toast.success("File Uploaded Successfully!");
       }
 
       // 4. Save updated data to localStorage
       saveUserData({ uploadedFiles: files });
 
       // 5. Trigger success callback, close modal and navigate to dashboard
-      toast.success("File Uploaded Successfully!");
 
       onUploadSuccess?.(categorizedTransactions);
       onClose();
