@@ -199,7 +199,7 @@ export default function Sidebar() {
           <div className="p-4">
             <Button
               variant="ghost"
-              className=" bg-transaparent w-full text-white hover:bg-red-600 hover:text-white border-0 rounded-md py-5 flex justify-start  items-center"
+              className=" bg-transaparent w-full text-white transition-all duration-300 border-0 rounded-md py-5 flex justify-start  items-center"
               onClick={() => signOut({ callbackUrl: "/signin" })}
             >
               <span>
