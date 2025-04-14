@@ -124,9 +124,6 @@ export default function UploadPage() {
           provider={selectedProvider}
           userId={userId}
           onClose={() => setShowModal(false)}
-          // onUploadSuccess={(data) => {
-          //   alert("Upload success");
-          // }}
         />
       )}
 
@@ -140,7 +137,7 @@ export default function UploadPage() {
           userFileLogs.data.map((v) => (
             <div
               key={v._id}
-              className="border border-gray-200 rounded-lg shadow-sm p-5 hover:shadow-md transition-all bg-white"
+              className="border border-gray-200 rounded-lg shadow-sm p-5 hover:shadow-md transition-all bg-white cursor-pointer"
               onClick={() => handleFileSelect(v)}
             >
               <div className="flex items-start justify-between mb-3">

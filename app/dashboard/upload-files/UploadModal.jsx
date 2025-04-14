@@ -35,6 +35,8 @@ export default function UploadModal({
     setUserTransaction,
     setSelectedFileData,
     handleSelect,
+    userFileLogs,
+    setUserFileLogs,
   } = useMyContext();
   const [fileName, setFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -52,12 +54,11 @@ export default function UploadModal({
 
   // Read user data from localStorage
   const getUserData = () => {
-    return JSON.parse(localStorage.getItem(userId)) || { uploadedFiles: {} };
-  };
-
-  // Save user data to localStorage
-  const saveUserData = (data) => {
-    localStorage.setItem(userId, JSON.stringify(data));
+    const data = { uploadedFiles: userFileLogs.data } || {
+      uploadedFiles: {},
+    };
+    console.log("userFiledata : ", { uploadedFiles: userFileLogs.data });
+    return data;
   };
 
   // When the modal opens, filter the user's uploaded files by the chosen provider.
@@ -189,26 +190,26 @@ export default function UploadModal({
         newTransactions
       );
 
-      // if (!Array.isArray(categorizedTransactions)) {
-      //   throw new Error("Categorized data is not in expected format.");
-      // }
-
       // 3. Get existing user data
       const userData = getUserData();
       const files = userData.uploadedFiles || {};
 
       if (uploadMode === "merge") {
-        // Merge transactions with an existing file.
-        // The merge dropdown has already provided the selectedMergeFileKey.
-        files[selectedMergeFileKey].transactions = [
-          ...files[selectedMergeFileKey].transactions,
-          ...categorizedTransactions,
-        ].sort((a, b) => new Date(a.date) - new Date(b.date));
-        const updatedFile = files[selectedMergeFileKey];
-        setSelectedFileData(updatedFile);
-        handleSelect(updatedFile);
-        setUserTransaction(updatedFile.transactions);
-        // const uploadFileData = await axios.post("/api/transaction-log");
+        const fileId = userFileLogs.data[selectedMergeFileKey]._id; // file id
+
+        // Call the PATCH endpoint to update the file in the database
+        const response = await axios.patch("/api/transaction-log", {
+          uploadMode: "merge",
+          fileId: fileId,
+          categorizedTransactions: categorizedTransactions,
+        });
+        console.log(
+          "Merge update response:",
+          response.data.updatedFile.transactions
+        );
+        setSelectedFileData(response.data.updatedFile);
+        handleSelect(response.data.updatedFile);
+        setUserTransaction(response.data.updatedFile.transactions);
       } else {
         // Create new file
         const nextIndex = Object.keys(files).length;
@@ -232,11 +233,9 @@ export default function UploadModal({
         toast.success("File Uploaded Successfully!");
       }
 
-      // 4. Save updated data to localStorage
-      saveUserData({ uploadedFiles: files });
-
       // 5. Trigger success callback, close modal and navigate to dashboard
-
+      const response = await axios.get(`/api/transaction-log?userId=${userId}`);
+      setUserFileLogs(response.data);
       onUploadSuccess?.(categorizedTransactions);
       onClose();
       router.push("/dashboard");

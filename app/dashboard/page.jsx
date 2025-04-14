@@ -50,12 +50,10 @@ export default function Home() {
   const {
     userTransaction,
     fetchTransactions,
-    userId,
-    fileList,
     selectedProvider,
     selectedFileData,
     handleSelect,
-    setUserTransaction,
+    userFileLogs,
   } = useMyContext();
   const { data: session, status } = useSession();
 
@@ -78,17 +76,6 @@ export default function Home() {
       }
     }
   }, [userTransaction]);
-
-  // Filter transactions based on the selected date range.
-  // const filteredTransactions = useMemo(() => {
-  //   if (!userTransaction || !userTransaction.length) return [];
-  //   return userTransaction.filter((tx) => {
-  //     const txDate = new Date(tx.date);
-  //     if (dateFrom && new Date(dateFrom) > txDate) return false;
-  //     if (dateTo && new Date(dateTo) < txDate) return false;
-  //     return true;
-  //   });
-  // }, [userTransaction, dateFrom, dateTo]);
 
   const filteredTransactions = useMemo(() => {
     if (!userTransaction || !userTransaction.length) return [];
@@ -143,6 +130,8 @@ export default function Home() {
       XLSX.writeFile(wb, "transactions.xlsx");
     }
   };
+
+  // console.log("userFileLogs : ", userFileLogs.data);
 
   if (status === "loading") {
     return (
@@ -254,8 +243,9 @@ export default function Home() {
                   <DropdownMenuLabel className="text-xs font-semibold text-gray-500 px-3 py-2">
                     Files
                   </DropdownMenuLabel>
-                  {fileList.length > 0 ? (
-                    fileList.map((file, index) => (
+
+                  {userFileLogs.data.length > 0 ? (
+                    userFileLogs.data.map((file, index) => (
                       <DropdownMenuItem
                         key={index}
                         onSelect={() => handleSelect(file)}

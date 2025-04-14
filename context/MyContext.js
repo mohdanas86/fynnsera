@@ -56,35 +56,6 @@ export function MyContextProvider({ children }) {
     }
   };
 
-  // Fetch file list from localStorage and auto-select the first file
-  // useEffect(() => {
-  //   if (userId) {
-  //     const stored = localStorage.getItem(userId);
-  //     if (stored) {
-  //       try {
-  //         const parsed = JSON.parse(stored);
-  //         const filesArray = parsed.uploadedFiles
-  //           ? Object.values(parsed.uploadedFiles)
-  //           : [];
-  //         if (filesArray.length > 0) {
-  //           setFileList(filesArray);
-  //           // Auto-select the first file and update transactions accordingly
-  //           handleSelect(filesArray[0]);
-  //           // console.log("Loaded files from localStorage:", filesArray);
-  //         }
-  //       } catch (err) {
-  //         console.error(
-  //           "Failed to parse uploaded files from localStorage:",
-  //           err
-  //         );
-  //       }
-  //     }
-  //   }
-  // }, [userId]);
-
-  // Function to handle file selection from the dropdown.
-  // It updates selectedProvider, selectedFileData, and the transactions.
-
   // catogerization model api call flask api
   async function catogerizationModelHandle(userTransaction) {
     // console.log("Raw user data from file:", userTransaction);
@@ -141,26 +112,23 @@ export function MyContextProvider({ children }) {
   }
 
   // get user all file logs
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!userId) return;
-      try {
-        const response = await axios.get(
-          `/api/transaction-log?userId=${userId}`
-        );
-        setUserFileLogs(response.data);
-        // Access filesArray from response.data.data
-        const filesArray = response.data.data || []; // Correct extraction
-        console.log("filesArray : ", filesArray);
-        if (filesArray.length > 0) {
-          setFileList(filesArray);
-          handleSelect(filesArray[0]); // Auto-select the first file
-        }
-      } catch (error) {
-        console.error("Failed to fetch user data", error);
+  async function fetchData() {
+    if (!userId) return;
+    try {
+      const response = await axios.get(`/api/transaction-log?userId=${userId}`);
+      setUserFileLogs(response.data);
+      // Access filesArray from response.data.data
+      const filesArray = response.data.data || []; // Correct extraction
+      console.log("filesArray : ", filesArray);
+      if (filesArray.length > 0) {
+        setFileList(filesArray);
+        handleSelect(filesArray[0]); // Auto-select the first file
       }
-    };
-
+    } catch (error) {
+      console.error("Failed to fetch user data", error);
+    }
+  }
+  useEffect(() => {
     fetchData();
   }, [userId]);
 

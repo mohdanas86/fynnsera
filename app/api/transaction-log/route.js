@@ -62,3 +62,53 @@ export async function GET(req) {
     });
   }
 }
+
+// update and merge new file data.
+export async function PATCH(req) {
+  await connectToDatabase();
+  try {
+    // Parse the JSON payload from the request
+    const { uploadMode, fileId, categorizedTransactions } = await req.json();
+
+    // Check that we're in merge mode.
+    if (uploadMode !== "merge") {
+      return NextResponse.json(
+        { error: "Invalid update mode" },
+        { status: 400 }
+      );
+    }
+
+    // Find the existing file using its ID.
+    const existingFile = await UploadLog.findById(fileId);
+    if (!existingFile) {
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
+    }
+
+    // Merge the new transactions with the existing ones
+    const updatedTransactions = [
+      ...existingFile.transactions,
+      ...categorizedTransactions,
+    ].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Update the transactions field
+    existingFile.transactions = updatedTransactions;
+
+    // Save the updated document
+    const updatedFile = await existingFile.save();
+
+    return NextResponse.json(
+      {
+        message: "Upload merged successfully",
+        updatedFile,
+        fileId: updatedFile._id,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error merging transactions:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
