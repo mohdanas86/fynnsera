@@ -10,6 +10,8 @@ const displayFormat = "MMM DD, YYYY";
 
 export function DatePickerWithRange({ defaultRange, onChange, className }) {
   const inputRef = useRef(null);
+  // Use a ref to track if a new date range has been selected.
+  const hasUserSelected = useRef(false);
 
   const [selectedRange, setSelectedRange] = useState(() => {
     const from = defaultRange?.from
@@ -25,6 +27,7 @@ export function DatePickerWithRange({ defaultRange, onChange, className }) {
   useEffect(() => {
     const $input = $(inputRef.current);
 
+    // Remove any previous instance before reinitializing
     if ($input.data("daterangepicker")) {
       $input.data("daterangepicker").remove();
     }
@@ -33,18 +36,18 @@ export function DatePickerWithRange({ defaultRange, onChange, className }) {
       {
         startDate: selectedRange.from.clone(),
         endDate: selectedRange.to.clone(),
-        opens: "right",
+        opens: "left",
         autoUpdateInput: true,
         timePicker: false,
         locale: {
-          format: displayFormat,
-          cancelLabel: "Clear",
+          cancelLabel: "Clear", // Show Clear button
         },
       },
       (start, end) => {
         const newFrom = start.clone().startOf("day");
         const newTo = end.clone().endOf("day");
 
+        // If the selected dates are the same as the current ones, do nothing.
         if (
           newFrom.isSame(selectedRange.from, "day") &&
           newTo.isSame(selectedRange.to, "day")
@@ -53,14 +56,35 @@ export function DatePickerWithRange({ defaultRange, onChange, className }) {
 
         const newRange = { from: newFrom, to: newTo };
         setSelectedRange(newRange);
+        // Mark that a new selection has been made.
+        hasUserSelected.current = true;
         onChange?.({ from: newFrom.toDate(), to: newTo.toDate() });
       }
     );
 
-    $input.on("cancel.daterangepicker", function () {
-      $input.val("");
-      setSelectedRange({ from: null, to: null });
-      onChange?.({ from: null, to: null });
+    // Handle the cancel (Clear) button click.
+    $input.on("cancel.daterangepicker", function (ev, picker) {
+      if (!hasUserSelected.current) {
+        // If no new date range was selected, revert to the current selected range.
+        picker.setStartDate(selectedRange.from);
+        picker.setEndDate(selectedRange.to);
+        picker.hide();
+        return;
+      }
+      // Reset to the default range provided via props.
+      const defaultFrom = defaultRange?.from
+        ? moment(defaultRange.from).startOf("day")
+        : moment().startOf("month");
+      const defaultTo = defaultRange?.to
+        ? moment(defaultRange.to).endOf("day")
+        : moment().endOf("month");
+
+      picker.setStartDate(defaultFrom);
+      picker.setEndDate(defaultTo);
+      setSelectedRange({ from: defaultFrom, to: defaultTo });
+      onChange?.({ from: defaultFrom.toDate(), to: defaultTo.toDate() });
+      // Reset the flag.
+      hasUserSelected.current = false;
     });
 
     return () => {
@@ -69,7 +93,7 @@ export function DatePickerWithRange({ defaultRange, onChange, className }) {
         $input.data("daterangepicker").remove();
       }
     };
-  }, [selectedRange.from, selectedRange.to, onChange]);
+  }, [selectedRange.from, selectedRange.to, onChange, defaultRange]);
 
   useEffect(() => {
     if (defaultRange?.from && defaultRange?.to) {
