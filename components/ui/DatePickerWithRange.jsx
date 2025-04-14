@@ -108,10 +108,10 @@ export function DatePickerWithRange({ defaultRange, onChange, className }) {
       type="text"
       ref={inputRef}
       readOnly
-      className={`px-3 py-2 border border-gray-300 rounded-sm text-sm bg-white ${
+      className={`px-3 py-2 border border-gray-300 rounded-sm text-sm bg-white w-full lg:w-[200px] ${
         className || ""
       }`}
-      style={{ minWidth: "200px" }}
+      // style={{ minWidth: "200px" }}
       value={
         selectedRange.from && selectedRange.to
           ? `${selectedRange.from.format(

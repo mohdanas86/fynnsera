@@ -162,7 +162,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto lg:p-4">
-      <div className="bg-white bg-gradient-to-r from-white to-gray-50 p-4 lg:p-6 rounded-md shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start">
+      <div className="lg:bg-white lg:bg-gradient-to-r from-white to-gray-50  lg:p-6 lg:rounded-md lg:shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start">
         <div className="mb-4 md:mb-0">
           <h1 className="text-2xl lg:text-3xl font-bold mb-2">
             Welcome, {session.user.email}
@@ -170,10 +170,10 @@ export default function Home() {
           <p className="text-gray-600">Your financial dashboard is ready.</p>
         </div>
         {hasOriginalData && (
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex gap-4">
             <PlaidLink onConnected={fetchTransactions} />
             <Link href="/dashboard/upload-files">
-              <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
+              <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] lg:w-[200px] w-[100px]">
                 Upload File
               </Button>
             </Link>
@@ -184,7 +184,8 @@ export default function Home() {
       {hasOriginalData ? (
         <>
           {/* Filters and Export */}
-          <div className="flex flex-wrap justify-between items-start md:items-center lg:gap-6 gap-4 border-gray-200 mb-5">
+          <hr className="bg-slate-200 lg:hidden" />
+          <div className="flex flex-wrap justify-between items-start md:items-center lg:gap-6 gap-4 border-gray-200 mb-5 mt-4 lg:mt-0">
             {/* Date Range Picker */}
             <div className="flex gap-2 items-center justify-center">
               {selectedFileData && (
@@ -195,6 +196,18 @@ export default function Home() {
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
+              {/* <span className="font-semibold">Date : </span> */}
+              <DatePickerWithRange
+                defaultRange={{
+                  from: dateFrom ? new Date(dateFrom) : undefined,
+                  to: dateTo ? new Date(dateTo) : undefined,
+                }}
+                onChange={(range) => {
+                  setDateFrom(range?.from?.toISOString().slice(0, 10) || "");
+                  setDateTo(range?.to?.toISOString().slice(0, 10) || "");
+                }}
+              />
+
               {/* Export Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -223,18 +236,6 @@ export default function Home() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {/* <span className="font-semibold">Date : </span> */}
-              <DatePickerWithRange
-                defaultRange={{
-                  from: dateFrom ? new Date(dateFrom) : undefined,
-                  to: dateTo ? new Date(dateTo) : undefined,
-                }}
-                onChange={(range) => {
-                  setDateFrom(range?.from?.toISOString().slice(0, 10) || "");
-                  setDateTo(range?.to?.toISOString().slice(0, 10) || "");
-                }}
-              />
 
               {/* File/Provider selection dropdown */}
               <DropdownMenu>
