@@ -73,14 +73,14 @@ export default function About() {
             </h2>
             <p className="text-gray-700 text-lg max-w-3xl mx-auto">
               Our AI-Powered Personal Finance Assistant helps you take control
-              of your finances. By integrating with your bank through the Plaid
-              API and leveraging AI, we provide personalized insights into your
-              spending, budgeting, and savings strategies.
+              of your finances. By integrating with your bank, we provide
+              personalized insights into your spending, budgeting, and savings
+              strategies.
             </p>
           </section>
 
           {/* Key Features Section */}
-          <section className="mb-12">
+          <section>
             <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
               Key Features
             </h2>
@@ -118,27 +118,6 @@ export default function About() {
                 </div>
               ))}
             </div>
-          </section>
-
-          {/* Tech Stack Section */}
-          <section className=" text-center">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
-              Tech Stack
-            </h2>
-            <ul className="list-none text-gray-700 text-lg flex flex-wrap justify-center gap-6">
-              <li>
-                <strong>Frontend:</strong> Next.js
-              </li>
-              <li>
-                <strong>Backend:</strong> Next.js
-              </li>
-              <li>
-                <strong>AI:</strong> Gemini API / TensorFlow.js
-              </li>
-              <li>
-                <strong>Bank Data:</strong> Plaid API
-              </li>
-            </ul>
           </section>
         </main>
       </div>

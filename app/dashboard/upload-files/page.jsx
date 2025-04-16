@@ -134,9 +134,9 @@ export default function UploadPage() {
 
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {userFileLogs?.data?.length > 0 ? (
-          userFileLogs.data.map((v) => (
+          userFileLogs.data.map((v, i) => (
             <div
-              key={v._id}
+              key={i}
               className="border border-gray-200 rounded-lg shadow-sm p-5 hover:shadow-md transition-all bg-white cursor-pointer"
               onClick={() => handleFileSelect(v)}
             >
