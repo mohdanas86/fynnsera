@@ -57,7 +57,7 @@ export default function UploadModal({
     const data = { uploadedFiles: userFileLogs.data } || {
       uploadedFiles: {},
     };
-    console.log("userFiledata : ", { uploadedFiles: userFileLogs.data });
+    // console.log("userFiledata : ", { uploadedFiles: userFileLogs.data });
     return data;
   };
 
@@ -203,10 +203,10 @@ export default function UploadModal({
           fileId: fileId,
           categorizedTransactions: categorizedTransactions,
         });
-        console.log(
-          "Merge update response:",
-          response.data.updatedFile.transactions
-        );
+        // console.log(
+        //   "Merge update response:",
+        //   response.data.updatedFile.transactions
+        // );
         setSelectedFileData(response.data.updatedFile);
         handleSelect(response.data.updatedFile);
         setUserTransaction(response.data.updatedFile.transactions);
@@ -240,7 +240,7 @@ export default function UploadModal({
       onClose();
       router.push("/dashboard");
     } catch (error) {
-      console.error("❌ Upload error:", error.message || error);
+      // console.error("❌ Upload error:", error.message || error);
       // alert("Failed to upload and categorize file.");
       toast.error("Failed to upload file.");
     } finally {
@@ -252,7 +252,7 @@ export default function UploadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--model-bg)] bg-opacity-40">
-      <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md relative">
+      <div className="bg-white p-6 lg:rounded-xl rounded-sm shadow-xl w-[90%] max-w-md relative">
         <h2 className="text-lg font-semibold mb-4 text-gray-800">Upload PDF</h2>
 
         {/* PDF drop zone */}
