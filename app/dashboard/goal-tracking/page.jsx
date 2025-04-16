@@ -220,9 +220,11 @@ export default function GoalTracking() {
         </div>
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center lg:mb-4 mb-6">
             <h1 className="text-2xl font-bold mb-4 sm:mb-0">Goal Tracking</h1>
             <Button
+              className="border-0 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white rounded-[2px]"
+              variant="outline"
               onClick={() => {
                 setShowAddForm(true);
                 setWizardStep(1);
@@ -244,31 +246,32 @@ export default function GoalTracking() {
               return (
                 <Card
                   key={goalId}
-                  className="shadow-md rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-lg lg:flex lg:flex-col lg:justify-between"
+                  className="shadow-md rounded-xl border border-gray-200 bg-white transition-transform transform hover:shadow-lg lg:flex lg:flex-col lg:justify-between p-0 duration-300"
                 >
-                  <CardHeader className="p-4 border-b bg-gradient-to-r from-white to-gray-50">
-                    <div className="flex items-start sm:items-center gap-4">
+                  {/* Header with gradient background */}
+                  <CardHeader className="p-5 bg-gray-200 text-[#333] rounded-t-xl">
+                    <div className="flex items-start gap-4">
                       {goal.image && (
                         <img
                           src={goal.image}
                           alt={goal.title}
-                          className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full border"
+                          className="w-20 h-20 object-cover rounded-full border-2 border-white"
                         />
                       )}
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col">
                         {editingId === goalId ? (
                           <Input
                             name="title"
                             value={editedGoal.title}
                             onChange={handleEditChange}
-                            className="text-lg font-semibold"
+                            className="text-md font-semibold bg-white text-black rounded-[2px] mb-1"
                           />
                         ) : (
-                          <CardTitle className="text-xl font-bold text-gray-900">
+                          <CardTitle className="text-2xl font-bold">
                             {goal.title}
                           </CardTitle>
                         )}
-                        <p className="text-gray-600 text-sm sm:text-base bg-gray-50 px-3 py-2 rounded">
+                        <p className="text-sm">
                           {goal.description.length > 100
                             ? goal.description.slice(0, 100) + "…"
                             : goal.description}
@@ -277,11 +280,12 @@ export default function GoalTracking() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-4 space-y-4">
-                    {/* Amount & Progress */}
+                  {/* Card Body */}
+                  <CardContent className="p-5 space-y-6">
+                    {/* Amount & Progress Section */}
                     <div>
                       {editingId === goalId ? (
-                        <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                           <div>
                             <Label>Current Amount</Label>
                             <Input
@@ -289,6 +293,7 @@ export default function GoalTracking() {
                               type="number"
                               value={editedGoal.currentAmount}
                               onChange={handleEditChange}
+                              className="mt-1 rounded-[4px]"
                             />
                           </div>
                           <div>
@@ -298,19 +303,20 @@ export default function GoalTracking() {
                               type="number"
                               value={editedGoal.targetAmount}
                               onChange={handleEditChange}
+                              className="mt-1 rounded-[4px]"
                             />
                           </div>
                         </div>
                       ) : (
                         <>
                           <p className="font-medium text-gray-700">
-                            ${parseFloat(goal.currentAmount).toLocaleString()}{" "}
-                            <span className="text-gray-400">/</span> $
+                            ₹{parseFloat(goal.currentAmount).toLocaleString()}{" "}
+                            <span className="text-gray-400">/</span> ₹
                             {parseFloat(goal.targetAmount).toLocaleString()}
                           </p>
                           <Progress
                             value={progress}
-                            className="h-3 rounded-full mt-1"
+                            className="h-3 rounded-full mt-1 bg-gray-200"
                           />
                           {getMilestoneMessage(goal) && (
                             <p className="text-green-600 text-xs italic mt-1">
@@ -321,10 +327,10 @@ export default function GoalTracking() {
                       )}
                     </div>
 
-                    {/* Status & Estimation */}
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    {/* Status & Estimated Time Section */}
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label>Status</Label>
+                        <Label className="mb-1">Status</Label>
                         {editingId === goalId ? (
                           <select
                             name="status"
@@ -344,7 +350,7 @@ export default function GoalTracking() {
                         )}
                       </div>
                       <div>
-                        <Label>Estimated Months</Label>
+                        <Label className="mb-1">Estimated Months</Label>
                         <p className="text-gray-800">{estimateMonths(goal)}</p>
                       </div>
                     </div>
@@ -352,32 +358,44 @@ export default function GoalTracking() {
                     {/* Actions */}
                     {editingId === goalId ? (
                       <div className="flex gap-3">
-                        <Button onClick={updateGoal}>Save</Button>
-                        <Button variant="secondary" onClick={cancelEditing}>
+                        <Button
+                          onClick={updateGoal}
+                          className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white rounded-[4px]"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          className="rounded-[4px]"
+                          onClick={cancelEditing}
+                        >
                           Cancel
                         </Button>
                       </div>
                     ) : (
                       <div className="flex flex-col gap-3">
-                        <div className="grid sm:grid-cols-2 gap-2">
+                        <div className="flex gap-4">
                           <Button
                             onClick={() => startEditing(goal)}
-                            className="w-full flex items-center justify-center gap-2"
+                            className="flex-1 flex items-center justify-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white rounded-[4px]"
                           >
-                            <span>Edit</span>
                             <Pen className="w-4 h-4" />
+                            Edit
                           </Button>
                           <Button
                             variant="destructive"
                             onClick={() => deleteGoal(goalId)}
-                            className="w-full flex items-center justify-center gap-2"
+                            className="flex-1 flex items-center justify-center gap-2 rounded-[4px]"
                           >
-                            <span>Delete</span>
                             <Trash className="w-4 h-4" />
+                            Delete
                           </Button>
                         </div>
                         <Link href={`/dashboard/goal-tracking/${goalId}`}>
-                          <Button variant={"outline"} className="w-full">
+                          <Button
+                            variant="outline"
+                            className="w-full rounded-[4px]"
+                          >
                             View Details
                           </Button>
                         </Link>

@@ -172,3 +172,7 @@
   animation: rotateEffects 20s linear infinite;
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

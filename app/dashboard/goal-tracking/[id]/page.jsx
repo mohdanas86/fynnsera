@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Loding from "../../_components/Loding";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function GoalDetail() {
   const { id } = useParams();
@@ -126,8 +127,8 @@ export default function GoalDetail() {
   if (!goal) return <div className="text-center py-8">Goal not found.</div>;
 
   return (
-    <div className="min-h-screen px-4 sm:px-6 lg:px-12 py-6 flex flex-col items-center">
-      <div className="w-full max-w-5xl">
+    <div className="min-h-screen flex flex-col items-center">
+      <div className="w-full">
         <Button
           variant="ghost"
           onClick={() => router.push("/dashboard/goal-tracking")}
@@ -135,13 +136,14 @@ export default function GoalDetail() {
         >
           &larr; Back to Goals
         </Button>
-        <Card className="border-0 shadow-sm rounded-lg overflow-hidden">
-          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-6 py-4 bg-white">
+
+        <Card className="border-none shadow-none lg:shadow-sm lg:rounded-lg lg:overflow-hidden p-0">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-4 lg:p-6 lg:py-4 p-0 lg:bg-white">
             {goal.image && (
               <img
                 src={goal.image}
                 alt={goal.title}
-                className="w-24 h-24 object-cover rounded-md"
+                className="w-24 h-24 object-cover rounded-md border"
               />
             )}
             <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-900 flex-1">
@@ -150,23 +152,24 @@ export default function GoalDetail() {
                   name="title"
                   value={editedGoal.title}
                   onChange={handleInputChange}
+                  className="rounded-[4px]"
                 />
               ) : (
                 goal.title
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 bg-gray-50 space-y-6">
+          <CardContent className="lg:p-4 p-0 lg:bg-gray-50 space-y-6">
             <div>
               <Label className="block text-sm font-medium text-gray-700 mb-1">
                 Description
               </Label>
               {isEditing ? (
-                <Input
+                <Textarea
                   name="description"
                   value={editedGoal.description}
                   onChange={handleInputChange}
-                  className="w-full"
+                  className="w-full rounded-[4px]"
                 />
               ) : (
                 <p className="text-gray-800">{goal.description}</p>
@@ -179,14 +182,15 @@ export default function GoalDetail() {
                 </Label>
                 {isEditing ? (
                   <Input
-                    name="currentAmount"
+                    name="currentAmount "
                     type="number"
                     value={editedGoal.currentAmount}
                     onChange={handleInputChange}
+                    className="rounded-[4px]"
                   />
                 ) : (
                   <p className="text-gray-800">
-                    ${parseFloat(goal.currentAmount).toLocaleString()}
+                    ₹{parseFloat(goal.currentAmount).toLocaleString()}
                   </p>
                 )}
               </div>
@@ -203,7 +207,7 @@ export default function GoalDetail() {
                   />
                 ) : (
                   <p className="text-gray-800">
-                    ${parseFloat(goal.targetAmount).toLocaleString()}
+                    ₹{parseFloat(goal.targetAmount).toLocaleString()}
                   </p>
                 )}
               </div>
@@ -225,7 +229,7 @@ export default function GoalDetail() {
                   name="status"
                   value={editedGoal.status || goal.status}
                   onChange={handleInputChange}
-                  className="border p-2 rounded w-full"
+                  className="border p-2 rounded lg:w-[20%]"
                 >
                   <option value="Active">Active</option>
                   <option value="Paused">Paused</option>
@@ -239,16 +243,28 @@ export default function GoalDetail() {
 
             {isEditing ? (
               <div className="flex flex-wrap gap-3 mt-4">
-                <Button onClick={handleUpdate}>Save</Button>
-                <Button variant="secondary" onClick={() => setIsEditing(false)}>
+                <Button className="rounded-[4px]" onClick={handleUpdate}>
+                  Save
+                </Button>
+                <Button
+                  className="rounded-[4px]"
+                  variant="secondary"
+                  onClick={() => setIsEditing(false)}
+                >
                   Cancel
                 </Button>
               </div>
             ) : (
               <div className="flex flex-col lg:flex-row lg:justify-between gap-4 mt-4">
                 <div className="flex flex-wrap gap-3">
-                  <Button onClick={handleEditClick}>Edit Goal</Button>
-                  <Button variant="destructive" onClick={handleDelete}>
+                  <Button className="rounded-[4px]" onClick={handleEditClick}>
+                    Edit Goal
+                  </Button>
+                  <Button
+                    className="rounded-[4px]"
+                    variant="destructive"
+                    onClick={handleDelete}
+                  >
                     Delete Goal
                   </Button>
                 </div>
@@ -259,16 +275,21 @@ export default function GoalDetail() {
                     type="number"
                     value={contribution}
                     onChange={(e) => setContribution(e.target.value)}
-                    className="sm:flex-1"
+                    className="sm:flex-1 rounded-[4px]"
                   />
-                  <Button onClick={handleAddContribution}>Add Funds</Button>
+                  <Button
+                    className="rounded-[4px]"
+                    onClick={handleAddContribution}
+                  >
+                    Add Funds
+                  </Button>
                 </div>
 
                 {!isEditing && goal.status !== "Archived" && (
                   <Button
                     variant="destructive"
                     onClick={markAsClosed}
-                    className="mt-2 w-full sm:w-auto"
+                    className="mt-2 w-full sm:w-auto rounded-[4px]"
                   >
                     Mark as Closed
                   </Button>

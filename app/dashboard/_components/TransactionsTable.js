@@ -292,19 +292,19 @@ export default function TransactionsTable({ transactions }) {
           onChange={(e) =>
             table.getColumn("description")?.setFilterValue(e.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm rounded-[4px]"
         />
         <div className="flex gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="bg-white text-black border shadow-sm"
+                className="bg-white text-[#333] border shadow-sm rounded-[4px]"
               >
-                <Download className="mr-2 h-4 w-4" /> Export
+                <Download className="mr-2 h-4 w-4 text-[#333]" /> Export
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="start">
               <DropdownMenuItem onClick={() => handleExport("csv")}>
                 Export as CSV
               </DropdownMenuItem>
@@ -318,13 +318,13 @@ export default function TransactionsTable({ transactions }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                className="w-[220px] flex justify-between items-center rounded-[4px] border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
+                className="lg:w-[220px] w-[212px] flex justify-between items-center rounded-[4px] border  shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
                 variant="outline"
               >
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-[#333]">
                   {selectedProvider || "Select Provider"}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+                <ChevronDown className="w-4 h-4 text-[#333]" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[220px] rounded-[4px] shadow-md border border-gray-200 bg-white z-50">

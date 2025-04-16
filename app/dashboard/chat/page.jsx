@@ -146,7 +146,7 @@ export default function ChatbotResponsive() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto lg:p-4 space-y-4">
+      <main className="flex-1 overflow-y-auto lg:p-4 space-y-4 hide-scrollbar">
         {messages.length === 0 && !loading ? (
           <div className="flex flex-col items-center justify-center h-full">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
