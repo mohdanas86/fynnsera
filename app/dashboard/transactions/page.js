@@ -28,7 +28,7 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto lg:px-4">
+    <div className=" lg:px-4">
       <h1 className="text-2xl font-bold">Transactions</h1>
       <div className="flex flex-col lg:flex-row lg:space-x-8">
         {userTransaction && userTransaction.length > 0 ? (

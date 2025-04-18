@@ -68,7 +68,7 @@ export default function SignUp() {
   };
 
   const handleGoogleSignup = () => {
-    signIn("google", { callbackUrl: "/dashboard" });
+    signIn("google", { callbackUrl: "https://fynsera.netlify.app/dashboard" });
   };
 
   if (isLoading) return <Loding />;

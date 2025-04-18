@@ -212,7 +212,7 @@ export default function GoalTracking() {
   if (loading) return <Loding />;
 
   return (
-    <div className="container mx-auto lg:px-4 relative">
+    <div className=" lg:px-4 relative">
       {!session || status !== "authenticated" ? (
         <div className="text-center py-8">
           <p className="mb-4">Please Sign In</p>

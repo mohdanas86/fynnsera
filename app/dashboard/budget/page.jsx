@@ -66,7 +66,7 @@ export default function Budget() {
   }, [session, status, hasFetched]);
 
   return (
-    <div className="container mx-auto lg:px-4">
+    <div className=" lg:px-4">
       <h1 className="text-2xl font-bold mb-6">Budget Recommendations</h1>
       {loading ? (
         <Loding />

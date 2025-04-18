@@ -72,7 +72,7 @@ export default function SignIn() {
         <button
           onClick={() =>
             signIn("google", {
-              callbackUrl: "/dashboard",
+              callbackUrl: "https://fynsera.netlify.app/dashboard",
             })
           }
           disabled={isLoading}

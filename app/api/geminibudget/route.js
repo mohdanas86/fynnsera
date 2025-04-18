@@ -4,9 +4,16 @@ import connectToDatabase from "@/lib/db";
 import User from "@/models/User";
 import Transaction from "@/models/Transaction";
 import Recommendation from "@/models/Recommendation";
+import UploadLog from "@/models/UploadLog";
 
+// plaid user transaction
 async function getUserTransactions(userId) {
   return await Transaction.find({ userId }).lean();
+}
+
+// phonepe user transaction
+async function getUserFileTransactions(userId) {
+  return await UploadLog.find({ userId }).lean();
 }
 
 const apiKey = process.env.GEMINI_API_KEY;
