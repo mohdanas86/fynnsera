@@ -73,7 +73,8 @@ const PlaidLink = () => {
 
   return (
     <Button
-      className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+      className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px] disabled:cursor-not-allowed"
+      // className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
       onClick={() => {
         console.log("Button clicked, opening Plaid Link");
         open();

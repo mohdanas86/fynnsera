@@ -1,9 +1,10 @@
+// app/api/goals/[id]/route.js
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import connectToDatabase from "@/lib/db";
 import Goal from "@/models/Goal";
 import { getServerSession } from "next-auth/next";
-import authOptions from "@/lib/authOptions"; // adjust as necessary
+import authOptions from "@/lib/authOptions";
 
 export async function OPTIONS() {
   return NextResponse.json(null, {
@@ -22,7 +23,6 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const userId = session.user.id;
-  console.log("id", userId);
   const { id } = await params;
 
   try {
@@ -37,37 +37,6 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function PUT(request, { params }) {
-  await connectToDatabase();
-
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const userId = session.user.id;
-  const { id } = params;
-
-  try {
-    const { title, description, targetAmount, currentAmount, image } =
-      await request.json();
-    const goal = await Goal.findOne({ _id: new ObjectId(id), userId });
-    if (!goal) {
-      return NextResponse.json({ error: "Goal not found" }, { status: 404 });
-    }
-    goal.title = title;
-    goal.description = description;
-    goal.targetAmount = parseFloat(targetAmount);
-    goal.currentAmount = parseFloat(currentAmount);
-    goal.image = image || "";
-    goal.updatedAt = new Date();
-    await goal.save();
-    return NextResponse.json(goal, { status: 200 });
-  } catch (error) {
-    console.error("Error updating goal:", error);
-    return NextResponse.json({ error: "Error updating goal" }, { status: 500 });
-  }
-}
-
 export async function DELETE(request, { params }) {
   await connectToDatabase();
 
@@ -76,7 +45,7 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const userId = session.user.id;
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const goal = await Goal.findOne({ _id: new ObjectId(id), userId });
@@ -91,5 +60,48 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     console.error("Error deleting goal:", error);
     return NextResponse.json({ error: "Error deleting goal" }, { status: 500 });
+  }
+}
+
+export async function PUT(req, { params }) {
+  console.log("🔧 PUT called");
+  await connectToDatabase();
+
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const goalId = await params?.id;
+    const userId = session.user.id;
+    const updates = await req.json();
+
+    const updatedGoal = await Goal.findOneAndUpdate(
+      { _id: new ObjectId(goalId), userId },
+      {
+        $set: {
+          title: updates.title,
+          description: updates.description,
+          targetAmount: parseFloat(updates.targetAmount),
+          currentAmount: parseFloat(updates.currentAmount),
+          image: updates.image || "",
+          status: updates.status || "Active", // 👈 fallback
+          autoSave: updates.autoSave ?? false,
+          updatedAt: new Date(),
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedGoal) {
+      return NextResponse.json({ error: "Goal not found" }, { status: 404 });
+    }
+
+    console.log("✅ Updated goal:", updatedGoal);
+    return NextResponse.json(updatedGoal, { status: 200 });
+  } catch (error) {
+    console.error("❌ PUT error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

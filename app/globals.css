@@ -138,5 +138,41 @@
 :root {
   --color-primary: #319795; /* Example teal color */
   --color-primary-dark: #2c7a7b; /* Darker shade for hover effect */
+  --color-lightgreen-dark: #00fbff; /* Darker shade for hover effect */
   --color-secondary: #e2e8f0; /* Example gray color */
+  --model-bg: #00000074; /* Example gray color */
+}
+
+
+@keyframes scalingBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1); /* Slight bounce effect */
+  }
+}
+
+.scalingEffect {
+  display: inline-block; /* Ensures scaling looks smooth */
+  animation: scalingBounce 8s ease-in-out infinite;
+}
+
+@keyframes rotateEffects {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.rotateEffect {
+  display: inline-block;
+  animation: rotateEffects 20s linear infinite;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

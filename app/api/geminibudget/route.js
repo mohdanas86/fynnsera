@@ -3,53 +3,61 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import connectToDatabase from "@/lib/db";
 import User from "@/models/User";
 import Transaction from "@/models/Transaction";
-import Recommendation from "@/models/Recommendation"; // Import the new model
+import Recommendation from "@/models/Recommendation";
+import UploadLog from "@/models/UploadLog";
 
+// plaid user transaction
 async function getUserTransactions(userId) {
   return await Transaction.find({ userId }).lean();
+}
+
+// phonepe user transaction
+async function getUserFileTransactions(userId) {
+  return await UploadLog.find({ userId }).lean();
 }
 
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const generationConfig = {
-  temperature: 1,
+  temperature: 0.2,
   topP: 0.95,
   topK: 40,
-  maxOutputTokens: 8192,
-  responseMimeType: "application/json",
-  responseSchema: {
-    type: "array",
-    items: {
-      type: "object",
-      properties: {
-        category: { type: "string" },
-        spending: { type: "number" },
-        recommendation: { type: "string" },
-      },
-      required: ["category", "spending", "recommendation"],
-    },
-  },
+  maxOutputTokens: 3000,
+  responseMimeType: "plain/text",
 };
 
 async function generateRecommendations(spendingData) {
+  const totalSpending = spendingData.reduce(
+    (sum, item) => sum + item.spending,
+    0
+  );
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-  const prompt = `Based on the following spending data, provide budget recommendations as a JSON array where each object includes "category", "spending", and "recommendation": ${JSON.stringify(
-    spendingData,
-    null,
-    2
-  )}`;
+
+  const prompt = `You are a financial advisor. Based on the following spending data and the total spending provided, generate budget recommendations. The spending data is a JSON array of objects, each with "category" and "spending" fields. The total spending is ₹{totalSpending} in rupees.
+
+Your task is to:
+1. For each category, calculate its percentage of the total spending.
+2. Identify the top three categories with the highest spending amounts.
+3. Provide a JSON array where each object includes "category", "spending", and "recommendation".
+   - In the "recommendation" field, include:
+     - The spending amount.
+     - The percentage of total spending.
+     - Actionable advice to reduce or optimize spending.
+   - For the top three categories, emphasize reducing expenses with specific, category-relevant tips.
+   - For other categories, provide general optimization suggestions.
+
+Here is the spending data:
+${JSON.stringify(spendingData, null, 2)}`;
 
   const result = await model.generateContent(prompt, generationConfig);
   let textResponse = result.response.text();
 
-  // Strip Markdown code blocks and any extra whitespace
+  // Clean response
   textResponse = textResponse
     .replace(/```json/g, "")
     .replace(/```/g, "")
     .trim();
-
-  console.log("Cleaned textResponse:", textResponse);
 
   let data;
   try {
@@ -59,15 +67,15 @@ async function generateRecommendations(spendingData) {
     throw new Error("Invalid JSON response from AI");
   }
 
-  // Merge spending data with Gemini recommendations
+  // Return recommendations: stringify each recommendation (if needed)
   return spendingData.map((item) => {
-    const recommendation =
-      data.find((rec) => rec.category === item.category) || {};
+    const match = data.find((rec) => rec.category === item.category) || {};
     return {
       category: item.category,
       spending: item.spending,
-      recommendation:
-        recommendation.recommendation || "No recommendation provided.",
+      recommendation: JSON.stringify(
+        match.recommendation || "No recommendation."
+      ),
     };
   });
 }
@@ -75,6 +83,7 @@ async function generateRecommendations(spendingData) {
 export async function POST(req) {
   try {
     const { userId } = await req.json();
+
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required" },
@@ -83,6 +92,8 @@ export async function POST(req) {
     }
 
     await connectToDatabase();
+
+    // Verify user exists and has access token
     const user = await User.findById(userId);
     if (!user || !user.plaidAccessToken) {
       return NextResponse.json(
@@ -91,20 +102,16 @@ export async function POST(req) {
       );
     }
 
-    // Check if recommendations already exist in the database
-    const existingRecommendations = await Recommendation.findOne({ userId });
-    if (existingRecommendations) {
-      console.log("Returning existing recommendations from DB");
+    // Check for existing recommendations
+    const existing = await Recommendation.findOne({ userId });
+    if (existing && existing.recommendations?.length > 0) {
       return NextResponse.json(
-        {
-          success: true,
-          recommendations: existingRecommendations.recommendations,
-        },
+        { success: true, recommendations: existing.recommendations },
         { status: 200 }
       );
     }
 
-    // Fetch transactions if no recommendations exist
+    // If no recommendations, generate from transactions
     const transactions = await getUserTransactions(userId);
     if (!transactions.length) {
       return NextResponse.json(
@@ -113,7 +120,7 @@ export async function POST(req) {
       );
     }
 
-    // Calculate spending by category
+    // Sum up spending by category
     const spendingByCategory = transactions.reduce((acc, tx) => {
       const category = tx.category || "Uncategorized";
       acc[category] = (acc[category] || 0) + tx.amount;
@@ -127,17 +134,13 @@ export async function POST(req) {
       })
     );
 
-    // Generate recommendations using Gemini
+    // Generate and save recommendations
     const recommendations = await generateRecommendations(spendingData);
 
-    // Save the new recommendations to the database
-    const newRecommendation = new Recommendation({
+    await Recommendation.create({
       userId,
       recommendations,
     });
-    await newRecommendation.save();
-
-    console.log("Generated and saved new recommendations:", recommendations);
 
     return NextResponse.json(
       { success: true, recommendations },

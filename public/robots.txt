@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://fynsera.netlify.app/sitemap.xml
