@@ -40,6 +40,7 @@ export async function POST(req) {
 
 export async function GET(req) {
   await connectToDatabase();
+
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");

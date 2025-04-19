@@ -25,7 +25,7 @@ const ClientLayout = ({ children }) => {
 
   return (
     <SessionProvider>
-      <div className="h-screen flex flex-col overflow-hidden relative">
+      <div className="h-screen flex flex-col overflow-hidden relative bg-[#F9F9F9]">
         <div className="flex w-full overflow-hidden">
           {/* Sidebar hidden on mobile (visible from md and up) */}
           <div className="hidden md:block">
