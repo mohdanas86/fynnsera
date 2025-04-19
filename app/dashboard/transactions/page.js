@@ -1,6 +1,5 @@
 "use client";
 import { useSession } from "next-auth/react";
-import PlaidLink from "../_components/PlaidLink";
 import TransactionsTable from "../_components/TransactionsTable";
 import { useMyContext } from "@/context/MyContext";
 import Loding from "../_components/Loding";
@@ -44,7 +43,6 @@ export default function Home() {
               Connect your bank account to see your transactions.
             </p>
             <div className="mt-4 flex flex-wrap gap-4 justify-center items-center">
-              <PlaidLink onConnected={fetchTransactions} />
               <Link href="/dashboard/upload-files">
                 <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
                   Upload File

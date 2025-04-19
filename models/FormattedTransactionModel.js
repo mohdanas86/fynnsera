@@ -6,7 +6,12 @@ const FormattedTransactionSchema = new mongoose.Schema({
     required: true,
     ref: "User",
   },
-  transactions: {
+  fileId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "UploadLog",
+  },
+  formattedData: {
     type: String,
     required: true,
   },

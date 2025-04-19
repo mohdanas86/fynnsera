@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import Loding from "../../_components/Loding";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { MoveLeft } from "lucide-react";
 
 export default function GoalDetail() {
   const { id } = useParams();
@@ -132,9 +133,12 @@ export default function GoalDetail() {
         <Button
           variant="ghost"
           onClick={() => router.push("/dashboard/goal-tracking")}
-          className="mb-6 bg-slate-50"
+          className="mb-6 bg-slate-50 flex justify-center items-center gap-2"
         >
-          &larr; Back to Goals
+          <span>
+            <MoveLeft className="w-4 h-4" />
+          </span>{" "}
+          <span>Back to Goals</span>
         </Button>
 
         <Card className="border-none shadow-none lg:shadow-sm lg:rounded-lg lg:overflow-hidden p-0">

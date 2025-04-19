@@ -1,119 +1,229 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import PlaidLink from "../_components/PlaidLink";
-import Loding from "../_components/Loding";
-import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, AlertCircle, RefreshCw } from "lucide-react";
+import { useMyContext } from "@/context/MyContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Budget() {
   const { data: session, status } = useSession();
-  const [recommendations, setRecommendations] = useState([]);
+  const {
+    userTransaction = [],
+    selectedProvider,
+    selectedFileData,
+    handleSelect,
+    userFileLogs = { data: [] },
+  } = useMyContext();
+
+  const [budgetData, setBudgetData] = useState({
+    budgets: [],
+    total: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [hasFetched, setHasFetched] = useState(false);
-
-  // Memoize recommendations to avoid unnecessary re-renders.
-  const memoizedRecommendations = useMemo(
-    () => recommendations,
-    [recommendations]
-  );
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (status === "loading" || !session || hasFetched) return;
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
-    async function fetchBudgetRecommendations() {
-      try {
-        const response = await fetch("/api/geminibudget", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: session.user.id }),
-        });
-        const result = await response.json();
-        console.log("result : ", result);
-
-        // If the API returns an error response
-        if (!response.ok || !result.success) {
-          // If the error is due to no transactions, treat it as a valid empty state.
-          if (result.error && result.error.includes("No transactions found")) {
-            setRecommendations([]);
-            setHasFetched(true);
-          } else {
-            setRecommendations([]);
-            setHasFetched(true);
-          }
-        } else {
-          setRecommendations(result.recommendations || []);
-          setHasFetched(true);
-        }
-      } catch (error) {
-        console.error("Error fetching budget recommendations:", error);
-        setError("Unable to load recommendations. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
+  useEffect(() => {
+    if (
+      !isMounted ||
+      status !== "authenticated" ||
+      !session?.user?.id ||
+      !selectedFileData?._id
+    ) {
+      return;
     }
 
-    fetchBudgetRecommendations();
-  }, [session, status, hasFetched]);
+    const controller = new AbortController();
+    const fetchBudget = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await fetch("/api/geminibudget", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: session.user.id,
+            fileId: selectedFileData._id,
+            formatedData: userTransaction,
+          }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const errRes = await res.json().catch(() => ({}));
+          throw new Error(errRes.error || "Failed to load budget");
+        }
+
+        const data = await res.json();
+        setBudgetData({
+          budgets: Array.isArray(data.budgets) ? data.budgets : [],
+          total:
+            typeof data.totalSpending === "number" ? data.totalSpending : 0,
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          setError(
+            err.message || "Something went wrong while fetching budget."
+          );
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchBudget();
+
+    return () => controller.abort();
+  }, [isMounted, status, session, selectedFileData, userTransaction]);
+
+  if (!isMounted) return null;
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px] gap-4 p-6">
+        <div className="flex items-center gap-2 text-red-600">
+          <AlertCircle className="w-6 h-6" />
+          <p className="text-lg font-medium">{error}</p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => window.location.reload()}
+          className="gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className=" lg:px-4">
-      <h1 className="text-2xl font-bold mb-6">Budget Recommendations</h1>
-      {loading ? (
-        <Loding />
-      ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
-      ) : memoizedRecommendations.length > 0 ? (
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {memoizedRecommendations.map((rec, index) => (
-            <Card
-              key={index}
-              className="group transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg bg-white shadow-sm rounded-2xl p-6 border border-gray-100"
+    <div className="lg:px-4 space-y-6">
+      <h1 className="text-2xl font-bold">Smart Budget Planner</h1>
+
+      <div className="flex lg:flex-row flex-col lg:items-center items-start justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <p className="text-lg font-medium opacity-90">Monthly Expenditure</p>
+          <h2 className="text-lg font-bold">
+            ₹
+            {budgetData.total.toLocaleString("en-IN", {
+              maximumFractionDigits: 2,
+            })}
+          </h2>
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-[220px] flex justify-between items-center rounded-[4px] border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
             >
-              <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-4 mb-3">
-                <CardTitle className="flex items-center gap-2 text-2xl font-bold text-green-800 tracking-tight">
-                  {/* <ShoppingCartIcon className="h-6 w-6 text-green-800" />{" "} */}
-                  {/* Replace with category-specific icon */}
-                  {rec.category}
-                </CardTitle>
-                <CardDescription className="text-sm text-green-600 mt-1">
-                  Estimated Spending:{" "}
-                  <span className="font-medium">
-                    ₹{rec.spending.toFixed(2)}
-                  </span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-gray-800 leading-relaxed">
-                <div className="text-base whitespace-pre-line">
-                  {rec.recommendation}
+              <span className="text-sm font-medium text-gray-700">
+                {selectedProvider || "Select Provider"}
+              </span>
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[220px] rounded-[4px] shadow-md border border-gray-200 bg-white z-50">
+            <DropdownMenuLabel className="text-xs font-semibold text-gray-500 px-3 py-2">
+              Files
+            </DropdownMenuLabel>
+            {Array.isArray(userFileLogs.data) &&
+            userFileLogs.data.length > 0 ? (
+              userFileLogs.data.map((file) => (
+                <DropdownMenuItem
+                  key={file._id || file.filename}
+                  onSelect={() => handleSelect(file)}
+                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  {file.filename}
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <div className="px-3 py-2 text-sm text-gray-400">
+                No files found
+              </div>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {loading ? (
+        <div className="space-y-6">
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-[200px] w-full rounded-xl" />
+            ))}
+          </div>
+        </div>
+      ) : budgetData.budgets.length > 0 ? (
+        <div
+          className={`grid gap-6 sm:grid-cols-2 ${
+            budgetData.budgets.length > 1 ? "lg:grid-cols-3" : "lg:grid-cols-1"
+          }`}
+        >
+          {budgetData.budgets.map((item, index) => (
+            <Card
+              key={`${item.category}-${index}`}
+              className="group relative overflow-hidden rounded-lg"
+            >
+              <CardContent className="prose prose-sm max-w-none">
+                <div className="p-2 bg-teal-50 rounded-lg">
+                  <h3 className="text-lg font-bold text-green-800">
+                    {item.category}
+                  </h3>
+                  <p className="text-sm font-medium text-gray-600 mb-4">
+                    ₹{Number(item.spending).toFixed(2)} •{" "}
+                    {Number(item.percentage).toFixed(1)}%
+                  </p>
+                </div>
+                <div className="p-2 mt-2 bg-gray-50 rounded-lg">
+                  <ReactMarkdown
+                    components={{
+                      p: (props) => (
+                        <p className="text-gray-700 mb-3" {...props} />
+                      ),
+                      ul: (props) => (
+                        <ul className="list-disc pl-5 space-y-1" {...props} />
+                      ),
+                      li: (props) => (
+                        <li className="text-gray-600" {...props} />
+                      ),
+                    }}
+                  >
+                    {item.recommendation || ""}
+                  </ReactMarkdown>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="bg-teal-50 p-6 rounded-lg shadow mb-6 text-center">
-          <h2 className="text-2xl font-bold mb-2">No Transactions Available</h2>
-          <p className="text-gray-600">
-            Connect your bank account to see your transactions.
+        <div className="flex flex-col items-center justify-center min-h-[200px] gap-4 p-6 text-center border-2 border-dashed rounded-xl">
+          <p className="text-lg text-muted-foreground">
+            No budget categories found
           </p>
-          <div className="mt-4 flex flex-wrap gap-4 justify-center items-center">
-            <PlaidLink onConnected={fetchTransactions} />
-            <Link href="/dashboard/upload-files">
-              <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
-                Upload File
-              </Button>
-            </Link>
-          </div>
+          <Button variant="ghost" onClick={() => window.location.reload()}>
+            <RefreshCw className="w-4 h-4" /> Refresh Data
+          </Button>
         </div>
       )}
     </div>
