@@ -1,153 +1,119 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import connectToDatabase from "@/lib/db";
-import User from "@/models/User";
-import Transaction from "@/models/Transaction";
-import Recommendation from "@/models/Recommendation";
-import UploadLog from "@/models/UploadLog";
+import Budget from "@/models/Budget";
 
-// plaid user transaction
-async function getUserTransactions(userId) {
-  return await Transaction.find({ userId }).lean();
-}
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// phonepe user transaction
-async function getUserFileTransactions(userId) {
-  return await UploadLog.find({ userId }).lean();
-}
+async function generateBudgetPlan(transactions) {
+  const spendingData = transactions.reduce((acc, tx) => {
+    const category = tx.category || "Uncategorized";
+    acc[category] = (acc[category] || 0) + tx.amount;
+    return acc;
+  }, {});
 
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey);
-
-const generationConfig = {
-  temperature: 0.2,
-  topP: 0.95,
-  topK: 40,
-  maxOutputTokens: 3000,
-  responseMimeType: "plain/text",
-};
-
-async function generateRecommendations(spendingData) {
-  const totalSpending = spendingData.reduce(
-    (sum, item) => sum + item.spending,
+  const totalSpending = Object.values(spendingData).reduce(
+    (sum, val) => sum + val,
     0
   );
+  if (totalSpending === 0) throw new Error("No expenses to analyze");
+
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-  const prompt = `You are a financial advisor. Based on the following spending data and the total spending provided, generate budget recommendations. The spending data is a JSON array of objects, each with "category" and "spending" fields. The total spending is ₹{totalSpending} in rupees.
+  const prompt = `Act as a financial expert analyzing these monthly expenses:
+${JSON.stringify(spendingData)}
 
-Your task is to:
-1. For each category, calculate its percentage of the total spending.
-2. Identify the top three categories with the highest spending amounts.
-3. Provide a JSON array where each object includes "category", "spending", and "recommendation".
-   - In the "recommendation" field, include:
-     - The spending amount.
-     - The percentage of total spending.
-     - Actionable advice to reduce or optimize spending.
-   - For the top three categories, emphasize reducing expenses with specific, category-relevant tips.
-   - For other categories, provide general optimization suggestions.
+Total Monthly Spending: ₹${totalSpending.toFixed(2)}
 
-Here is the spending data:
-${JSON.stringify(spendingData, null, 2)}`;
+Generate JSON recommendations with:
+1. Category name
+2. Total spent
+3. Percentage of total spending
+4. Specific cost-saving recommendations
 
-  const result = await model.generateContent(prompt, generationConfig);
-  let textResponse = result.response.text();
+Format output: [{
+  "category": "Category Name",
+  "spending": 1234.56,
+  "percentage": 30.5,
+  "recommendation": "Specific advice..."
+}]`;
 
-  // Clean response
-  textResponse = textResponse
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
+  const result = await model.generateContent(prompt);
+  const textResponse = result.response
+    .text()
+    .replace(/```json|```/g, "")
     .trim();
-
-  let data;
-  try {
-    data = JSON.parse(textResponse);
-  } catch (err) {
-    console.error("Error parsing JSON response from Gemini:", err);
-    throw new Error("Invalid JSON response from AI");
-  }
-
-  // Return recommendations: stringify each recommendation (if needed)
-  return spendingData.map((item) => {
-    const match = data.find((rec) => rec.category === item.category) || {};
-    return {
-      category: item.category,
-      spending: item.spending,
-      recommendation: JSON.stringify(
-        match.recommendation || "No recommendation."
-      ),
-    };
-  });
+  return textResponse;
 }
 
 export async function POST(req) {
   try {
-    const { userId } = await req.json();
+    const { userId, fileId, formatedData } = await req.json();
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!userId) {
+    await connectToDatabase();
+
+    const existingBudget = await Budget.findOne({ userId, fileId });
+    if (existingBudget) {
+      return NextResponse.json({
+        success: true,
+        budgets: existingBudget.budgets,
+        totalSpending: existingBudget.totalSpending,
+      });
+    }
+
+    const transactions = Array.isArray(formatedData)
+      ? formatedData.filter(
+          (tx) =>
+            tx.transactionType === "DEBIT" && typeof tx.amount === "number"
+        )
+      : [];
+
+    if (transactions.length === 0) {
       return NextResponse.json(
-        { error: "User ID is required" },
+        { error: "No expense transactions found", success: false },
         { status: 400 }
       );
     }
 
-    await connectToDatabase();
+    const budgetPlanStr = await generateBudgetPlan(transactions);
+    let budgetPlan;
 
-    // Verify user exists and has access token
-    const user = await User.findById(userId);
-    if (!user || !user.plaidAccessToken) {
+    try {
+      budgetPlan = JSON.parse(budgetPlanStr);
+    } catch (err) {
+      console.error("Invalid JSON from AI:", budgetPlanStr);
       return NextResponse.json(
-        { error: "User or access token not found" },
-        { status: 404 }
+        { error: "Invalid response from AI. Could not parse JSON." },
+        { status: 500 }
       );
     }
 
-    // Check for existing recommendations
-    const existing = await Recommendation.findOne({ userId });
-    if (existing && existing.recommendations?.length > 0) {
-      return NextResponse.json(
-        { success: true, recommendations: existing.recommendations },
-        { status: 200 }
-      );
-    }
-
-    // If no recommendations, generate from transactions
-    const transactions = await getUserTransactions(userId);
-    if (!transactions.length) {
-      return NextResponse.json(
-        { error: "No transactions found for this user." },
-        { status: 404 }
-      );
-    }
-
-    // Sum up spending by category
-    const spendingByCategory = transactions.reduce((acc, tx) => {
-      const category = tx.category || "Uncategorized";
-      acc[category] = (acc[category] || 0) + tx.amount;
-      return acc;
-    }, {});
-
-    const spendingData = Object.entries(spendingByCategory).map(
-      ([category, spending]) => ({
-        category,
-        spending: Math.abs(spending),
-      })
+    const totalSpending = budgetPlan.reduce(
+      (sum, item) => sum + item.spending,
+      0
     );
 
-    // Generate and save recommendations
-    const recommendations = await generateRecommendations(spendingData);
+    if (!existingBudget) {
+      const savedBudget = await Budget.create({
+        userId,
+        fileId,
+        budgets: budgetPlan,
+        totalSpending,
+      });
 
-    await Recommendation.create({
-      userId,
-      recommendations,
-    });
-
-    return NextResponse.json(
-      { success: true, recommendations },
-      { status: 200 }
-    );
+      return NextResponse.json({
+        success: true,
+        budgets: savedBudget.budgets,
+        totalSpending: savedBudget.totalSpending,
+      });
+    }
   } catch (error) {
-    console.error("Error processing request:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Budget Error:", error.message);
+    return NextResponse.json(
+      { error: error.message || "Server error" },
+      { status: 500 }
+    );
   }
 }

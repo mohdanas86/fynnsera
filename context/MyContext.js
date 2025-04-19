@@ -14,6 +14,7 @@ export function MyContextProvider({ children }) {
   const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [userId, setUserId] = useState("");
   const [userFileLogs, setUserFileLogs] = useState("");
+  const [formatedData, setFormatedData] = useState("");
 
   // File handling state:
   const [fileList, setFileList] = useState([]);
@@ -139,6 +140,36 @@ export function MyContextProvider({ children }) {
     setUserTransaction(file.transactions || []);
   };
 
+  // ====== Create formatted data for current file ======
+  useEffect(() => {
+    async function currentFileFormatedData() {
+      if (!selectedFileData) return;
+      try {
+        const formatData = await fetch("/api/format-transaction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            fileId: selectedFileData._id,
+            transactions: userTransaction,
+          }),
+        });
+        const response = await formatData.json();
+        // console.log("response", response.data.formattedData);
+        setFormatedData(response.data.formattedData);
+        console.log("formated data : ", formatedData);
+      } catch (err) {
+        console.error("Error formatting file data:", err);
+      }
+    }
+
+    if (userId && selectedFileData && userTransaction.length > 0) {
+      currentFileFormatedData();
+    }
+  }, [userId, selectedFileData, userTransaction]);
+
   return (
     <MyContext.Provider
       value={{
@@ -159,6 +190,8 @@ export function MyContextProvider({ children }) {
         catogerizationModelHandle,
         userFileLogs,
         setUserFileLogs,
+        formatedData,
+        setFormatedData,
       }}
     >
       {children}

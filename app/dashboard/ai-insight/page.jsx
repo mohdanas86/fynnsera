@@ -31,8 +31,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMyContext } from "@/context/MyContext";
 import { useSession } from "next-auth/react";
-import { toast } from "sonner";
 import { Legend } from "chart.js";
+import FinancialInsightsCard from "./FinancialInsightsCard";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 const COLORS = [
   "#0088FE",
@@ -50,17 +60,29 @@ const formatINR = (value) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+// utils/formatThousands.ts
+const formatThousands = (value) => {
+  if (value >= 10000000) return (value / 10000000).toFixed(1) + "Cr";
+  if (value >= 100000) return (value / 100000).toFixed(1) + "L";
+  if (value >= 1000) return (value / 1000).toFixed(1) + "k";
+  return value.toString();
+};
+
 const SummaryCard = ({ title, amount, isLoading, imgUrl }) => (
   <Card
-    className={`w-full lg:shadow-md shadow-sm py-0 rounded-2xl  transition-all duration-300
+    className={`w-full shadow-sm py-4 rounded-lg  transition-all duration-300
     relative overflow-hidden
   `}
   >
     <CardContent className="p-4">
-      <h2 className="text-xl font-bold text-muted-foreground">{title}</h2>
-      <img
+      <h2 className="text-lg font-bold text-muted-foreground">{title}</h2>
+      <Image
+        width={100}
+        height={100}
+        alt={imgUrl}
         src={`/img/${imgUrl}`}
-        className="absolute bottom-[-0px] right-[-0px] w-[100px] "
+        draggable={false}
+        className="absolute bottom-[-0px] right-[-0px] "
       />
       {isLoading ? (
         <Skeleton className="h-8 w-32 mt-2" />
@@ -73,7 +95,14 @@ const SummaryCard = ({ title, amount, isLoading, imgUrl }) => (
 
 const AiSummaryPage = () => {
   const { data: session } = useSession();
-  const { userTransaction } = useMyContext();
+  const {
+    formatedData,
+    userTransaction,
+    selectedProvider,
+    selectedFileData,
+    handleSelect,
+    userFileLogs,
+  } = useMyContext();
   const [aiTips, setAiTips] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -167,18 +196,25 @@ const AiSummaryPage = () => {
 
   useEffect(() => {
     const fetchAITips = async () => {
+      if (!session?.user?.id || !selectedFileData) {
+        setAiTips("Missing user session or file data.");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch("/api/tips", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            transactions: userTransaction,
             userId: session?.user?.id,
-            summary: processTransactions.totals,
+            fileId: selectedFileData._id,
+            formatedData: formatedData,
           }),
         });
 
         const data = await res.json();
+        console.log("res : ", data.tips);
         setAiTips(data.tips || "No insights available");
       } catch (error) {
         setAiTips("Failed to load financial insights. Please try again later.");
@@ -191,7 +227,7 @@ const AiSummaryPage = () => {
     } else {
       setIsLoading(false);
     }
-  }, [userTransaction, session]);
+  }, [formatedData]);
 
   if (isLoading) {
     return (
@@ -207,35 +243,90 @@ const AiSummaryPage = () => {
   }
 
   return (
-    <div className="px-4 space-y-8">
+    <div className="lg:px-4 lg:space-y-8 space-y-6">
       <h1 className="text-2xl font-bold">Financial Overview</h1>
+
+      <div className="flex justify-between items-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-[220px] flex justify-between items-center rounded-[4px] border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-sm font-medium text-gray-700">
+                {selectedProvider || "Select Provider"}
+              </span>
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[220px] rounded-[4px] shadow-md border border-gray-200 bg-white z-50">
+            <DropdownMenuLabel className="text-xs font-semibold text-gray-500 px-3 py-2">
+              Files
+            </DropdownMenuLabel>
+
+            {Array.isArray(userFileLogs?.data) &&
+            userFileLogs.data.length > 0 ? (
+              userFileLogs.data.map((file, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  onSelect={() => handleSelect(file)}
+                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  {file.filename}
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <div className="px-3 py-2 text-sm text-gray-400">
+                No files found
+              </div>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       <div className="grid md:grid-cols-3 lg:gap-6 gap-4">
         <SummaryCard
-          title="Credited"
+          title="Totoal Credited"
           imgUrl="cradit.png"
           amount={processTransactions.totals.income}
           isLoading={isLoading}
         />
         <SummaryCard
-          title="Debited"
+          title="Total Debited"
           imgUrl="debit.png"
-          amount={processTransactions.totals.expenses}
-          isLoading={isLoading}
-        />
-        <SummaryCard
-          title="Total Expenses"
-          imgUrl="transfer.png"
           amount={processTransactions.totals.expenses}
           isLoading={isLoading}
         />
       </div>
 
+      <div className="mt-8 lg:mt-0">
+        <div className="flex items-center lg:gap-3">
+          <div className="p-2 rounded-full ">
+            <svg
+              className="w-6 h-6 text-gray-800"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+          </div>
+          <h2 className="lg:text-2xl text-lg font-bold text-gray-800">
+            AI-Powered Financial Insights
+          </h2>
+        </div>
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Spending by Category - Pie Chart */}
-        <Card className="lg:shadow-lg lg:rounded-2xl lg:border shadow-none rounded-sm border-gray-200">
+        <Card className="shadow-sm rounded-lg border hover:shadow-sm transition-shadow duration-300 bg-white">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-800">
+            <CardTitle className="text-xl font-semibold text-gray-900">
               Spending by Category
             </CardTitle>
           </CardHeader>
@@ -249,7 +340,7 @@ const AiSummaryPage = () => {
                     cy="50%"
                     innerRadius={60}
                     outerRadius={90}
-                    paddingAngle={5}
+                    paddingAngle={4}
                     dataKey="value"
                     isAnimationActive
                   >
@@ -263,19 +354,40 @@ const AiSummaryPage = () => {
                       borderRadius: "8px",
                       boxShadow: "0 0 10px rgba(0,0,0,0.1)",
                     }}
-                    formatter={(value, name) => [formatINR(value), "Spent"]}
+                    formatter={(value) => [
+                      `₹${formatThousands(value)}`,
+                      "Spent",
+                    ]}
                   />
-                  <Legend verticalAlign="bottom" height={36} />
+                  <Legend
+                    verticalAlign="bottom"
+                    iconType="circle"
+                    wrapperStyle={{
+                      fontSize: "0.85rem",
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
+            </div>
+            {/* Manual Legend */}
+            <div className="mt-4 flex flex-wrap gap-4 text-sm">
+              {processTransactions.categoryData.map((entry, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  />
+                  <span className="text-gray-700">{entry.name}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
         {/* Monthly Trends - Bar Chart */}
-        <Card className="lg:shadow-lg lg:rounded-2xl lg:border shadow-none rounded-sm border-gray-200">
+        <Card className="shadow-sm rounded-lg border hover:shadow-sm transition-shadow duration-300 bg-white">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-800">
+            <CardTitle className="text-xl font-semibold text-gray-900">
               Monthly Trends
             </CardTitle>
           </CardHeader>
@@ -284,50 +396,63 @@ const AiSummaryPage = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={processTransactions.monthlyTrends}
-                  barCategoryGap="15%"
+                  barCategoryGap="20%"
+                  margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
                 >
-                  <XAxis dataKey="name" />
-                  <YAxis tickFormatter={(value) => `₹${value}`} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis
+                    tickFormatter={(value) => `₹${formatThousands(value)}`}
+                    tick={{ fontSize: 12 }}
+                  />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#ffffff",
                       borderRadius: "8px",
                       boxShadow: "0 0 10px rgba(0,0,0,0.1)",
                     }}
-                    formatter={(value, name) => [formatINR(value), name]}
+                    formatter={(value, name) => [
+                      `₹${formatThousands(value)}`,
+                      name,
+                    ]}
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ fontSize: "0.85rem" }} />
                   <Bar
                     dataKey="income"
                     fill="#00C49F"
                     name="Income"
-                    radius={[8, 8, 0, 0]}
+                    radius={[3, 3, 0, 0]}
+                    barSize={28}
                   />
                   <Bar
                     dataKey="expenses"
                     fill="#FF8042"
                     name="Expenses"
-                    radius={[8, 8, 0, 0]}
+                    radius={[3, 3, 0, 0]}
+                    barSize={28}
                   />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+            {/* Custom Color Legend */}
+            <div className="mt-4 flex gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#00C49F]" />
+                <span className="text-gray-700">Income</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#FF8042]" />
+                <span className="text-gray-700">Expenses</span>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="bg-blue-50 lg:p-6 p-3 lg:rounded-xl rounded-sm shadow-sm border border-blue-100"
-      >
-        <h3 className="text-xl font-semibold mb-4 text-blue-800">
-          AI-Powered Insights
-        </h3>
-        <div className="prose max-w-none text-blue-900">
-          <ReactMarkdown>{aiTips}</ReactMarkdown>
-        </div>
-      </motion.div>
+      {/* ****** TIPS START ****** */}
+      <div>
+        <FinancialInsightsCard insights={aiTips} />
+      </div>
+      {/* ****** TIPS END ****** */}
 
       <Card className="lg:p-6 lg:rounded-xl rounded-none border-0 lg:border shadow-none lg:shadow-sm">
         <CardHeader className="p-0">

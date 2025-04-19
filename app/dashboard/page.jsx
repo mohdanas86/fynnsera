@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMyContext } from "@/context/MyContext";
 import Loding from "./_components/Loding";
-import PlaidLink from "./_components/PlaidLink";
 import TransactionSummary from "./charts/TransactionSummary";
 import {
   DropdownMenu,
@@ -54,7 +53,6 @@ const TopCategoriesTable = dynamic(
 export default function Home() {
   const {
     userTransaction,
-    fetchTransactions,
     selectedProvider,
     selectedFileData,
     handleSelect,
@@ -159,7 +157,6 @@ export default function Home() {
         </div>
         {hasOriginalData && (
           <div className="flex gap-4">
-            <PlaidLink onConnected={fetchTransactions} />
             <Link href="/dashboard/upload-files">
               <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] lg:w-[200px] w-[110px]">
                 Upload File
@@ -247,6 +244,7 @@ export default function Home() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -323,7 +321,6 @@ export default function Home() {
             Connect your bank account to see your transactions.
           </p>
           <div className="mt-4 flex gap-4 justify-center items-center flex-wrap">
-            <PlaidLink onConnected={fetchTransactions} />
             <Link href="/dashboard/upload-files">
               <Button className="bg-[var(--color-primary)] text-white rounded-[2px] hover:bg-[var(--color-primary-dark)] w-[200px]">
                 Upload File
