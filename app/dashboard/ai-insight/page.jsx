@@ -243,7 +243,7 @@ const AiSummaryPage = () => {
   }
 
   return (
-    <div className="lg:px-4 lg:space-y-8 space-y-6">
+    <div className="lg:p-10 p-4 lg:space-y-8 space-y-6">
       <h1 className="text-2xl font-bold">Financial Overview</h1>
 
       <div className="flex justify-between items-center">

@@ -17,7 +17,7 @@ const financePrompts = [
 
 export default function ChatbotResponsive() {
   const { data: session, status } = useSession();
-  const { userTransaction } = useMyContext();
+  const { formatedData } = useMyContext();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -82,7 +82,11 @@ export default function ChatbotResponsive() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage.text, userId }),
+        body: JSON.stringify({
+          message: userMessage.text,
+          userId,
+          formatedData,
+        }),
       });
 
       if (!res.ok) {
@@ -127,8 +131,8 @@ export default function ChatbotResponsive() {
   };
 
   return (
-    <div className="flex flex-col h-[85vh] bg-white overflow-hidden">
-      <header className="lg:p-4 lg:pt-0 pb-4 lg:border-b border-gray-200 flex items-center justify-between">
+    <div className="flex flex-col h-[90vh] bg-white overflow-hidden lg:py-4 lg:px-10 p-4">
+      <header className="lg:p-4 lg:pt-0 pb-4  flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center">
             <SparklesIcon className="w-6 h-6 text-indigo-600" />
@@ -209,7 +213,7 @@ export default function ChatbotResponsive() {
         <div ref={messagesEndRef} className="h-[1px]"></div>
       </main>
 
-      <footer className="lg:p-4 border-t border-gray-200">
+      <footer className="lg:px-4">
         <form onSubmit={handleSubmit} className="relative">
           <input
             ref={inputRef}

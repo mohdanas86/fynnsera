@@ -108,7 +108,7 @@ export function DatePickerWithRange({ defaultRange, onChange, className }) {
       type="text"
       ref={inputRef}
       readOnly
-      className={`px-3 py-2 border border-gray-300 rounded-sm text-sm bg-white w-full lg:w-[200px] ${
+      className={`px-3 py-2 border border-gray-300 rounded-sm text-sm bg-white w-full lg:w-[200px] IbmFont ${
         className || ""
       }`}
       // style={{ minWidth: "200px" }}
