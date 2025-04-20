@@ -212,7 +212,7 @@ export default function GoalTracking() {
   if (loading) return <Loding />;
 
   return (
-    <div className=" lg:px-4 relative">
+    <div className=" lg:p-10 p-4 relative">
       {!session || status !== "authenticated" ? (
         <div className="text-center py-8">
           <p className="mb-4">Please Sign In</p>
@@ -220,10 +220,12 @@ export default function GoalTracking() {
         </div>
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center lg:mb-4 mb-6">
-            <h1 className="text-2xl font-bold mb-4 sm:mb-0">Goal Tracking</h1>
+          <div className="flex justify-between items-start mb-4 lg:mb-8">
+            <h1 className="text-2xl font-bold mb-4 sm:mb-0 text-[var(--color-heading)]">
+              Goal Tracking
+            </h1>
             <Button
-              className="border-0 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white rounded-[2px]"
+              className="border-0 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white hover:text-white rounded-[2px]"
               variant="outline"
               onClick={() => {
                 setShowAddForm(true);
@@ -246,10 +248,10 @@ export default function GoalTracking() {
               return (
                 <Card
                   key={goalId}
-                  className="shadow-md rounded-xl border border-gray-200 bg-white transition-transform transform hover:shadow-lg lg:flex lg:flex-col lg:justify-between p-0 duration-300"
+                  className="shadow-md rounded-md border border-gray-200 bg-white transition-transform transform hover:shadow-lg lg:flex lg:flex-col lg:justify-between p-0 duration-300"
                 >
                   {/* Header with gradient background */}
-                  <CardHeader className="p-5 bg-gray-200 text-[#333] rounded-t-xl">
+                  <CardHeader className="p-5 bg-gray-200 text-[#333] rounded-t-md">
                     <div className="flex items-start gap-4">
                       {goal.image && (
                         <img

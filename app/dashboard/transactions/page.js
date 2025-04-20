@@ -21,14 +21,18 @@ export default function Home() {
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Please sign in to connect your bank account.</p>
+        <p className="text-[var(--color-para)]">
+          Please sign in to connect your bank account.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className=" lg:px-4">
-      <h1 className="text-2xl font-bold">Transactions</h1>
+    <div className=" lg:p-10 p-4">
+      <h1 className="text-2xl font-bold text-[var(--color-heading)]">
+        Transactions
+      </h1>
       <div className="flex flex-col lg:flex-row lg:space-x-8">
         {userTransaction && userTransaction.length > 0 ? (
           <div className="w-full">

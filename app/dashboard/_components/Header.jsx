@@ -42,7 +42,7 @@ export default function Header() {
   }, [session]);
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 shadow-sm bg-white">
+    <header className="flex items-center justify-between px-4 py-4 bg-white border-b">
       {/* Left: Sidebar toggle and Logo */}
       <div className="flex items-center space-x-4">
         {/* Sidebar toggle (visible on desktop only) */}

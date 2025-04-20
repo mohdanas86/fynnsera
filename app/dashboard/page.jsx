@@ -146,14 +146,16 @@ export default function Home() {
   }
 
   return (
-    <div className="mx-auto lg:p-4 ">
+    <div className="lg:p-10 p-4">
       {/* Header */}
-      <div className="lg:bg-white lg:bg-gradient-to-r from-white to-gray-50 lg:p-6 lg:rounded-md lg:shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start">
+      <div className=" lg:mb-12 mb-4 flex flex-col md:flex-row justify-between items-start">
         <div className="mb-4 md:mb-0">
-          <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+          <h1 className="text-2xl lg:text-3xl font-bold mb-2 text-[var(--color-heading)]">
             Welcome, {session.user.name}
           </h1>
-          <p className="text-gray-600">Your financial dashboard is ready.</p>
+          <p className="text-[var(--color-para)]">
+            Your financial dashboard is ready.
+          </p>
         </div>
         {hasOriginalData && (
           <div className="flex gap-4">
@@ -170,7 +172,7 @@ export default function Home() {
         <>
           {/* Mobile: Filter shown as a modal */}
           <hr className="border lg:hidden mb-6" />
-          <div className="flex justify-between items-center lg:hidden  gap-4">
+          <div className="flex justify-between items-center lg:hidden gap-4">
             <DatePickerWithRange
               defaultRange={{
                 from: dateFrom ? new Date(dateFrom) : undefined,
@@ -202,7 +204,9 @@ export default function Home() {
                 {selectedFileData && (
                   <span className="font-semibold">
                     <span className=" font-bold">Current Balance:</span>{" "}
-                    {selectedFileData.currentBalance}
+                    <span className="IbmFont">
+                      {selectedFileData.currentBalance}
+                    </span>
                   </span>
                 )}
                 <DatePickerWithRange
@@ -403,9 +407,11 @@ export function PhoneFilterModal({
             <div className="flex flex-col gap-6">
               {selectedFileData && (
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg shadow-sm">
-                  <span className="font-semibold text-lg text-gray-800">
+                  <span className="font-semibold text-lg text-gray-800 ">
                     Current Balance:{" "}
-                    <span>{selectedFileData.currentBalance}</span>
+                    <span className="IbmFont">
+                      {selectedFileData.currentBalance}
+                    </span>
                   </span>
                 </div>
               )}
