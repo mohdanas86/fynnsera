@@ -1,7 +1,6 @@
 // Import the Google Generative AI library, database connection, and the FormattedTransactionModel.
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import connectToDatabase from "@/lib/db";
-import FormattedTransactionModel from "@/models/FormattedTransactionModel";
 
 // Retrieve the API key from environment variables; throw an error if it's missing.
 const apiKey = process.env.GEMINI_API_KEY;
@@ -28,7 +27,8 @@ export async function POST(request) {
     await connectToDatabase();
 
     // Parse the request body to extract the user query and userId.
-    const { message, userId } = await request.json();
+    const { message, userId, formatedData } = await request.json();
+    // console.log("formatedData", formatedData);
 
     // Validate that both message and userId are provided.
     if (!message?.trim() || !userId) {
@@ -38,21 +38,16 @@ export async function POST(request) {
       });
     }
 
-    // Retrieve all formatted transactions for the given user.
-    const transactions = await FormattedTransactionModel.find({
-      userId,
-    }).lean();
-
     // Enhanced prompt for generating a finance expert response.
     const prompt = `
       You are a seasoned finance expert with extensive experience in personal finance and budgeting.
       Analyze the user's query and review their recent financial transactions provided below.
-      
+
       User Query: "${message}"
-      
-      Formatted Transactions Data: ${JSON.stringify(transactions)}
-      
-      Based on the above, provide clear, concise, and actionable financial advice. 
+
+      Formatted Transactions Data: ${formatedData}
+
+      Based on the above, provide clear, concise, and actionable financial advice.
       Highlight any trends or areas of concern and suggest practical steps for improvement.
       Limit your response to 2-3 sentences, and ensure your language is simple and non-technical.
     `;
