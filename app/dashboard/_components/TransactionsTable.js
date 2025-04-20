@@ -292,14 +292,14 @@ export default function TransactionsTable({ transactions }) {
           onChange={(e) =>
             table.getColumn("description")?.setFilterValue(e.target.value)
           }
-          className="max-w-sm rounded-[4px]"
+          className="max-w-sm rounded-sm bg-white"
         />
         <div className="flex gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="bg-white text-[#333] border shadow-sm rounded-[4px]"
+                className="bg-white text-[#333] border shadow-sm rounded-sm hover:bg-gray-50"
               >
                 <Download className="mr-2 h-4 w-4 text-[#333]" /> Export
               </Button>
@@ -318,7 +318,7 @@ export default function TransactionsTable({ transactions }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                className="lg:w-[220px] w-[212px] flex justify-between items-center rounded-[4px] border  shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
+                className="lg:w-[220px] w-[212px] flex justify-between items-center rounded-sm border  shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
                 variant="outline"
               >
                 <span className="text-sm font-medium text-[#333]">
@@ -351,7 +351,7 @@ export default function TransactionsTable({ transactions }) {
         </div>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-sm border bg-white IbmFont">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -400,7 +400,7 @@ export default function TransactionsTable({ transactions }) {
       </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        <div className="flex-1 text-sm text-[var(--color-para)]">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -410,6 +410,7 @@ export default function TransactionsTable({ transactions }) {
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="rounded-sm"
           >
             Previous
           </Button>
@@ -418,6 +419,7 @@ export default function TransactionsTable({ transactions }) {
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="rounded-sm"
           >
             Next
           </Button>

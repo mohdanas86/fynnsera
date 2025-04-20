@@ -115,13 +115,15 @@ export default function Budget() {
   }
 
   return (
-    <div className="lg:px-4 space-y-6">
-      <h1 className="text-2xl font-bold">Smart Budget Planner</h1>
+    <div className="lg:p-10 p-4 space-y-6">
+      <h1 className="text-2xl font-bold text-[var(--color-heading)]">
+        Smart Budget Planner
+      </h1>
 
       <div className="flex lg:flex-row flex-col lg:items-center items-start justify-between gap-4">
         <div className="flex items-center gap-2">
           <p className="text-lg font-medium opacity-90">Monthly Expenditure</p>
-          <h2 className="text-lg font-bold">
+          <h2 className="text-lg font-bold IbmFont">
             ₹
             {budgetData.total.toLocaleString("en-IN", {
               maximumFractionDigits: 2,
@@ -183,7 +185,7 @@ export default function Budget() {
           {budgetData.budgets.map((item, index) => (
             <Card
               key={`${item.category}-${index}`}
-              className="group relative overflow-hidden rounded-lg"
+              className="group relative overflow-hidden rounded-sm IbmFont"
             >
               <CardContent className="prose prose-sm max-w-none">
                 <div className="p-2 bg-teal-50 rounded-lg">
@@ -218,7 +220,7 @@ export default function Budget() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center min-h-[200px] gap-4 p-6 text-center border-2 border-dashed rounded-xl">
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-[var(--color-para)]">
             No budget categories found
           </p>
           <Button variant="ghost" onClick={() => window.location.reload()}>

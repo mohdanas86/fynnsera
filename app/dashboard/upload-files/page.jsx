@@ -56,8 +56,10 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white lg:px-4 text-gray-800">
-      <h1 className="text-2xl font-bold mb-4">Upload Transactions</h1>
+    <div className="flex flex-col min-h-screen bg-white text-gray-800 lg:p-10 p-4">
+      <h1 className="text-2xl font-bold lg:mb-6 mb-4 text-[var(--color-heading)]">
+        Upload Transactions
+      </h1>
 
       {/* Shadcn UI Provider selection dropdown */}
       <div className="mb-4">
@@ -128,11 +130,11 @@ export default function UploadPage() {
       )}
 
       {/* SHOW ALL FILE LOGS FOR THIS USER */}
-      <h2 className="text-2xl font-semibold text-gray-800 mt-6 lg:mt-10 mb-4">
+      <h1 className="text-2xl font-bold lg:mb-6 mb-4 text-[var(--color-heading)] mt-8">
         Your Files
-      </h2>
+      </h1>
 
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 gap-4">
         {userFileLogs?.data?.length > 0 ? (
           userFileLogs.data.map((v, i) => (
             <div
@@ -146,22 +148,22 @@ export default function UploadPage() {
                   <RupeePddIcon />
                 </span>
               </div>
-              <div className="text-sm font-medium text-gray-900 truncate">
+              <div className="text-sm font-medium truncate text-[var(--color-heading)]">
                 {v.filename}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-[var(--color-para)] mt-1">
                 Balance: ₹{v.currentBalance}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-[var(--color-para)]">
                 Provider: {v.provider}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-[var(--color-para)]">
                 Totoal Transactions: {v.transactions.length}
               </div>
             </div>
           ))
         ) : (
-          <div className="col-span-full text-gray-500 text-sm">
+          <div className="col-span-full text-[var(--color-para)] text-sm">
             No files found.
           </div>
         )}

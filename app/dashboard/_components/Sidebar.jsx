@@ -35,9 +35,9 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`w-64 h-screen bg-[var(--color-primary)] text-white border-r border-gray-200 ${
+      className={`w-64 h-screen shadow-sm bg-[var(--color-primary)] text-white ${
         showSidebar ? "md:block" : "hidden"
-      } shadow-lg`}
+      } `}
     >
       <nav className="h-full flex flex-col">
         <h1 className="text-2xl font-bold p-6">FYNSERA</h1>
