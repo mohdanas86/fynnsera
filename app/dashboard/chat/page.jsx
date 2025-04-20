@@ -17,7 +17,7 @@ const financePrompts = [
 
 export default function ChatbotResponsive() {
   const { data: session, status } = useSession();
-  const { userTransaction } = useMyContext();
+  const { formatedData } = useMyContext();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -82,7 +82,11 @@ export default function ChatbotResponsive() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage.text, userId }),
+        body: JSON.stringify({
+          message: userMessage.text,
+          userId,
+          formatedData,
+        }),
       });
 
       if (!res.ok) {
