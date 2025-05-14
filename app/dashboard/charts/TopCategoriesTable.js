@@ -24,14 +24,15 @@ ChartJS.register(
 );
 
 function TopCategoriesBarChart({ transactions }) {
-  const data = Array.isArray(transactions) ? transactions : [];
-
-  // Aggregate and sort data
+  const data = Array.isArray(transactions) ? transactions : []; // Aggregate and sort data
   const aggregatedData = useMemo(() => {
     const totals = {};
     data.forEach((tx) => {
-      const category = tx.category || "Uncategorized";
-      totals[category] = (totals[category] || 0) + tx.amount;
+      // Focus on spending (DEBIT transactions) for categories
+      if (tx.transactionType?.toUpperCase() === "DEBIT" || tx.amount < 0) {
+        const category = tx.category || "Uncategorized";
+        totals[category] = (totals[category] || 0) + Math.abs(tx.amount);
+      }
     });
 
     return Object.entries(totals)
@@ -39,44 +40,59 @@ function TopCategoriesBarChart({ transactions }) {
       .sort((a, b) => b.total - a.total)
       .slice(0, 5);
   }, [data]);
-
   const chartColors = [
-    "#4F46E5", // Deep Indigo
-    "#14B8A6", // Teal
-    "#F59E0B", // Amber
-    "#EF4444", // Rose
-    "#3B82F6", // Sky
+    "#3B82F6", // Blue
+    "#8B5CF6", // Purple
+    "#EC4899", // Pink
+    "#6366F1", // Indigo
+    "#2563EB", // Dark Blue
   ];
 
-  const formatToK = (value) => {
-    return value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value;
+  // Create gradient colors for better visualization
+  function createGradients(ctx) {
+    const gradients = chartColors.map((color, index) => {
+      const gradient = ctx.createLinearGradient(0, 0, 300, 0);
+      gradient.addColorStop(0, color);
+      gradient.addColorStop(1, color + "99"); // Add alpha for gradient effect
+      return gradient;
+    });
+    return gradients;
+  }
+  const formatCurrency = (value) => {
+    if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
+    if (value >= 1000) return `₹${(value / 1000).toFixed(0)}K`;
+    return `₹${value}`;
   };
-
   const chartData = {
     labels: aggregatedData.map((item) => item.category),
     datasets: [
       {
         label: "Amount (₹)",
         data: aggregatedData.map((item) => item.total),
-        backgroundColor: chartColors.slice(0, aggregatedData.length),
+        backgroundColor: function (context) {
+          const chart = context.chart;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) {
+            return chartColors.slice(0, aggregatedData.length);
+          }
+          return createGradients(ctx);
+        },
         borderRadius: 8,
         borderSkipped: false,
-        barThickness: 36,
+        barThickness: 28,
+        hoverBackgroundColor: chartColors.map((color) => color + "CC"),
+        hoverBorderWidth: 2,
+        hoverBorderColor: "#FFF",
       },
     ],
   };
-
   const chartOptions = {
+    indexAxis: "y", // Horizontal bars
     maintainAspectRatio: false,
     responsive: true,
     plugins: {
       legend: {
-        display: true,
-        position: "top",
-        labels: {
-          color: "#1F2937", // Gray-800
-          font: { size: 12, weight: "600" },
-        },
+        display: false, // Hide the legend
       },
       title: {
         display: true,
@@ -90,27 +106,56 @@ function TopCategoriesBarChart({ transactions }) {
         titleColor: "#FFF",
         bodyColor: "#FFF",
         callbacks: {
-          label: (context) => `₹${formatToK(context.raw)}`,
+          title: (context) => {
+            const index = context[0].dataIndex;
+            return aggregatedData[index]?.category || "Category";
+          },
+          label: (context) => {
+            const value = context.raw;
+            let formattedValue;
+            if (value >= 1000000) {
+              formattedValue = `₹${(value / 1000000).toFixed(1)}M`;
+            } else if (value >= 1000) {
+              formattedValue = `₹${(value / 1000).toFixed(1)}K`;
+            } else {
+              formattedValue = `₹${value}`;
+            }
+            return `Amount: ${formattedValue}`;
+          },
+          afterLabel: (context) => {
+            const index = context.dataIndex;
+            const percent = (
+              (context.raw /
+                aggregatedData.reduce((sum, item) => sum + item.total, 0)) *
+              100
+            ).toFixed(1);
+            return `${percent}% of total spending`;
+          },
         },
       },
     },
     scales: {
       x: {
-        grid: { display: false },
-        ticks: {
-          color: "#4B5563", // Gray-600
-          font: { size: 13 },
-        },
-      },
-      y: {
         grid: {
-          color: "#E5E7EB", // Gray-200
+          display: true,
+          color: "#e5e7eb",
           borderDash: [4, 4],
         },
         ticks: {
-          color: "#6B7280", // Gray-500
+          color: "#6B7280",
           font: { size: 12 },
-          callback: (value) => `₹${formatToK(value)}`,
+          callback: (value) => {
+            if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
+            if (value >= 1000) return `₹${(value / 1000).toFixed(0)}K`;
+            return `₹${value}`;
+          },
+        },
+      },
+      y: {
+        grid: { display: false },
+        ticks: {
+          color: "#4B5563",
+          font: { size: 13, weight: "500" },
         },
       },
     },
