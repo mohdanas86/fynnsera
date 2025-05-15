@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { SparklesIcon } from "@heroicons/react/24/solid";
-import Loding from "../_components/Loding";
+import Loading from "../_components/Loading";
 import { SendHorizontal } from "lucide-react";
 import { useMyContext } from "@/context/MyContext";
 
@@ -39,9 +39,8 @@ export default function ChatbotResponsive() {
     }, 50);
     return () => clearTimeout(timer);
   }, [messages, loading]);
-
   if (status === "loading") {
-    return <Loding />;
+    return <Loading />;
   }
 
   if (!session) {

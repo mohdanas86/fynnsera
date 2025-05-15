@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -19,12 +19,25 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Format currency values consistently
 const formatCurrency = (value) => {
-  if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${value}`;
+  // Round the value to nearest integer
+  const roundedValue = Math.round(value);
+  if (roundedValue >= 1000000)
+    return `₹${(roundedValue / 1000000).toFixed(1)}M`;
+  if (roundedValue >= 1000) return `₹${(roundedValue / 1000).toFixed(1)}K`;
+  return `₹${roundedValue}`;
 };
 
 // Category colors - used for stacked bars
@@ -43,11 +56,38 @@ const CATEGORY_COLORS = {
   Others: "#64748b",
 };
 
-function MonthlyTrendChart({ transactions = [] }) {
+function MonthlyTrendChart({ transactions = [], isLoading = false }) {
+  const [loading, setLoading] = useState(isLoading);
+  const [viewMode, setViewMode] = useState("stacked"); // stacked, grouped
+  const [timeRange, setTimeRange] = useState("6"); // in months
+
+  // Simulate loading state if needed
+  useEffect(() => {
+    setLoading(isLoading);
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
   // Transform data for stacked bar chart
-  const { chartData, topCategories } = useMemo(() => {
-    if (!Array.isArray(transactions) || transactions.length === 0) {
-      return { chartData: [], topCategories: [] };
+  const {
+    chartData,
+    topCategories,
+    totalSpent,
+    monthlyAverage,
+    percentageChange,
+  } = useMemo(() => {
+    if (loading || !Array.isArray(transactions) || transactions.length === 0) {
+      return {
+        chartData: [],
+        topCategories: [],
+        totalSpent: 0,
+        monthlyAverage: 0,
+        percentageChange: 0,
+      };
     }
 
     // Filter for expense transactions only
@@ -76,7 +116,30 @@ function MonthlyTrendChart({ transactions = [] }) {
 
     // Group data by month and category
     const monthData = {};
+    const now = new Date();
+    const monthsToShow = parseInt(timeRange);
 
+    // Initialize with empty months for the last N months
+    for (let i = monthsToShow - 1; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const month = date.toLocaleString("default", { month: "short" });
+      const year = date.getFullYear();
+      const monthYear = `${month} ${year}`;
+
+      monthData[monthYear] = {
+        name: monthYear,
+        timestamp: date.getTime(),
+        total: 0,
+      };
+
+      // Initialize all categories with 0
+      top5Categories.forEach((category) => {
+        monthData[monthYear][category] = 0;
+      });
+      monthData[monthYear]["Others"] = 0;
+    }
+
+    // Fill with actual data
     expenses.forEach((tx) => {
       if (!tx.date) return;
 
@@ -85,22 +148,14 @@ function MonthlyTrendChart({ transactions = [] }) {
       const year = date.getFullYear();
       const monthYear = `${month} ${year}`;
 
-      if (!monthData[monthYear]) {
-        monthData[monthYear] = {
-          name: monthYear,
-          timestamp: date.getTime(),
-          total: 0,
-        };
-
-        // Initialize all categories with 0
-        top5Categories.forEach((category) => {
-          monthData[monthYear][category] = 0;
-        });
-        monthData[monthYear]["Others"] = 0;
-      }
+      // Skip if not in our range of months
+      if (!monthData[monthYear]) return;
 
       const category = tx.category || "Uncategorized";
       const amount = Math.abs(tx.amount);
+
+      // Add to total
+      monthData[monthYear].total += amount;
 
       // Add to specific category or "Others"
       if (top5Categories.includes(category)) {
@@ -108,23 +163,81 @@ function MonthlyTrendChart({ transactions = [] }) {
       } else {
         monthData[monthYear]["Others"] += amount;
       }
-
-      monthData[monthYear].total += amount;
     });
 
-    // Convert to array and sort by timestamp
-    const chartData = Object.values(monthData).sort(
+    // Convert to array and sort chronologically
+    const sortedData = Object.values(monthData).sort(
       (a, b) => a.timestamp - b.timestamp
     );
 
-    // Take last 12 months of data maximum
-    const last12Months = chartData.slice(-12);
+    // Calculate total spent and monthly average
+    const totalSpent = sortedData.reduce((sum, month) => sum + month.total, 0);
+    const monthlyAverage =
+      totalSpent / (sortedData.filter((m) => m.total > 0).length || 1);
+
+    // Calculate percentage change between last two months
+    let percentageChange = 0;
+    if (sortedData.length >= 2) {
+      const lastMonth = sortedData[sortedData.length - 1].total;
+      const secondLastMonth = sortedData[sortedData.length - 2].total;
+
+      if (secondLastMonth > 0) {
+        percentageChange =
+          ((lastMonth - secondLastMonth) / secondLastMonth) * 100;
+      }
+    }
 
     return {
-      chartData: last12Months,
+      chartData: sortedData,
       topCategories: [...top5Categories, "Others"],
+      totalSpent,
+      monthlyAverage,
+      percentageChange,
     };
-  }, [transactions]);
+  }, [transactions, loading, timeRange]);
+
+  // Custom tooltip to show detailed breakdown
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      // Sort categories by amount for this month
+      const categoriesInMonth = payload
+        .filter((p) => p.value > 0)
+        .sort((a, b) => b.value - a.value);
+
+      const totalForMonth = payload.reduce((sum, p) => sum + (p.value || 0), 0);
+
+      return (
+        <div className="bg-white border border-gray-200 shadow-lg rounded-lg p-3 text-sm">
+          <p className="font-semibold mb-2">{label}</p>
+          <p className="font-medium text-gray-900">
+            Total: {formatCurrency(totalForMonth)}
+          </p>
+          <div className="mt-2 space-y-1.5">
+            {categoriesInMonth.map((entry, i) => (
+              <div key={i} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: entry.color }}
+                  ></span>
+                  <span className="text-gray-700 text-xs">{entry.name}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-medium text-xs">
+                    {formatCurrency(entry.value)}
+                  </span>
+                  <span className="text-gray-500 text-xs">
+                    ({((entry.value / totalForMonth) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   // Animation variants
   const containerVariants = {
@@ -132,16 +245,9 @@ function MonthlyTrendChart({ transactions = [] }) {
     visible: {
       opacity: 1,
       transition: {
-        duration: 0.5,
+        duration: 0.4,
       },
     },
-  };
-
-  // Get colors for each category
-  const getCategoryColors = () => {
-    return topCategories.map(
-      (category) => CATEGORY_COLORS[category] || "#94a3b8" // default gray if not found
-    );
   };
 
   return (
@@ -151,87 +257,196 @@ function MonthlyTrendChart({ transactions = [] }) {
       animate="visible"
       variants={containerVariants}
     >
-      <Card className="w-full h-full">
+      <Card className="w-full h-full border-none shadow-md">
         <CardHeader className="pb-2">
-          <CardTitle className="text-xl font-bold text-gray-800">
-            Monthly Spending Pattern
-          </CardTitle>
-          <CardDescription className="text-sm text-gray-500">
-            Spending by category over time
-          </CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                <BarChart3 className="size-5 text-indigo-500" />
+                Monthly Spending Trends
+              </CardTitle>
+              <CardDescription>
+                Breakdown of your monthly expenses by category
+              </CardDescription>
+            </div>
+
+            <div className="flex gap-2">
+              {/* Time range selector */}
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="text-xs border border-gray-200 rounded-md bg-gray-50 px-2 py-1"
+              >
+                <option value="3">Last 3 months</option>
+                <option value="6">Last 6 months</option>
+                <option value="12">Last 12 months</option>
+              </select>
+
+              {/* View mode toggle */}
+              <div className="flex rounded-md border border-gray-200 text-xs">
+                <button
+                  onClick={() => setViewMode("stacked")}
+                  className={`px-2 py-1 ${
+                    viewMode === "stacked"
+                      ? "bg-indigo-100 text-indigo-700 font-medium"
+                      : "bg-white text-gray-600"
+                  }`}
+                >
+                  Stacked
+                </button>
+                <button
+                  onClick={() => setViewMode("grouped")}
+                  className={`px-2 py-1 ${
+                    viewMode === "grouped"
+                      ? "bg-indigo-100 text-indigo-700 font-medium"
+                      : "bg-white text-gray-600"
+                  }`}
+                >
+                  Grouped
+                </button>
+              </div>
+            </div>
+          </div>
         </CardHeader>
 
-        <CardContent className="pt-2 h-[calc(100%-80px)]">
-          {chartData.length === 0 ? (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-gray-500">No data available</p>
+        <CardContent className="h-[calc(100%-90px)] overflow-hidden">
+          {loading ? (
+            <div className="h-full w-full flex flex-col gap-4">
+              <div className="flex gap-4">
+                <Skeleton className="h-20 w-1/3" />
+                <Skeleton className="h-20 w-1/3" />
+                <Skeleton className="h-20 w-1/3" />
+              </div>
+              <Skeleton className="h-[calc(100%-80px)] w-full" />
+            </div>
+          ) : chartData.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center">
+              <div className="text-center">
+                <CalendarDays className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+                <p className="text-gray-500 font-medium">
+                  No spending data available
+                </p>
+                <p className="text-gray-400 text-sm">
+                  Add some transactions to see monthly trends
+                </p>
+              </div>
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#e5e7eb"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="name"
-                  tick={{ fill: "#6b7280", fontSize: 11 }}
-                  axisLine={{ stroke: "#d1d5db" }}
-                  tickMargin={8}
-                />
-                <YAxis
-                  tickFormatter={formatCurrency}
-                  tick={{ fill: "#6b7280", fontSize: 11 }}
-                  width={60}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  formatter={(value, name) => [formatCurrency(value), name]}
-                  contentStyle={{
-                    backgroundColor: "white",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "6px",
-                    padding: "8px 12px",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-                  }}
-                />
-                <Legend
-                  verticalAlign="top"
-                  height={36}
-                  iconType="circle"
-                  iconSize={8}
-                  formatter={(value) => (
-                    <span style={{ color: "#6b7280", fontSize: "12px" }}>
-                      {value}
-                    </span>
-                  )}
-                />
+            <div className="h-full w-full flex flex-col">
+              {/* Summary metrics */}
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="p-3 bg-indigo-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-indigo-100 rounded-full">
+                      <CalendarDays className="h-4 w-4 text-indigo-600" />
+                    </div>
+                    <span className="text-sm text-gray-600">Total Spent</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-900 mt-1">
+                    {formatCurrency(totalSpent)}
+                  </p>
+                </div>
 
-                {/* Create a Bar for each category */}
-                {topCategories.map((category, index) => (
-                  <Bar
-                    key={category}
-                    dataKey={category}
-                    name={category}
-                    stackId="a"
-                    fill={getCategoryColors()[index]}
-                    radius={[
-                      index === 0 ? 4 : 0,
-                      index === 0 ? 4 : 0,
-                      index === topCategories.length - 1 ? 4 : 0,
-                      index === topCategories.length - 1 ? 4 : 0,
-                    ]}
-                    animationDuration={1500}
-                    animationEasing="ease-out"
-                  />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
+                <div className="p-3 bg-teal-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-teal-100 rounded-full">
+                      <BarChart3 className="h-4 w-4 text-teal-600" />
+                    </div>
+                    <span className="text-sm text-gray-600">Monthly Avg</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-900 mt-1">
+                    {formatCurrency(monthlyAverage)}
+                  </p>
+                </div>
+
+                <div className="p-3 bg-purple-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-purple-100 rounded-full">
+                      {percentageChange > 0 ? (
+                        <TrendingUp className="h-4 w-4 text-red-600" />
+                      ) : (
+                        <TrendingDown className="h-4 w-4 text-green-600" />
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-600">Month/Month</span>
+                  </div>
+                  <p
+                    className={`text-lg font-bold mt-1 ${
+                      percentageChange > 0 ? "text-red-600" : "text-green-600"
+                    }`}
+                  >
+                    {percentageChange > 0 ? "+" : ""}
+                    {percentageChange.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Chart */}
+              <div className="grow">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
+                    barGap={viewMode === "grouped" ? 2 : 0}
+                    barCategoryGap={viewMode === "grouped" ? 6 : 10}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      opacity={0.3}
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 12 }}
+                      tickLine={false}
+                      axisLine={{ stroke: "#e5e7eb" }}
+                    />
+                    <YAxis
+                      tickFormatter={formatCurrency}
+                      tick={{ fontSize: 12 }}
+                      tickLine={false}
+                      axisLine={false}
+                      width={60}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend
+                      wrapperStyle={{ paddingTop: 10 }}
+                      iconType="circle"
+                      iconSize={8}
+                    />
+
+                    {viewMode === "stacked"
+                      ? // Stacked bars
+                        topCategories.map((category, index) => (
+                          <Bar
+                            key={category}
+                            dataKey={category}
+                            stackId="a"
+                            fill={CATEGORY_COLORS[category] || "#94a3b8"}
+                            name={category}
+                            radius={index === 0 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                            animationDuration={1000}
+                            animationEasing="ease-out"
+                          />
+                        ))
+                      : // Grouped bars (limit to top 3 + Others for readability)
+                        topCategories
+                          .slice(0, 4)
+                          .map((category) => (
+                            <Bar
+                              key={category}
+                              dataKey={category}
+                              fill={CATEGORY_COLORS[category] || "#94a3b8"}
+                              name={category}
+                              radius={[4, 4, 0, 0]}
+                              animationDuration={1000}
+                              animationEasing="ease-out"
+                            />
+                          ))}
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

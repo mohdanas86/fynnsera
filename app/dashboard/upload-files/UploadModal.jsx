@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { useMyContext } from "@/context/MyContext";
 import { useState, useEffect } from "react";
-import Loding from "../_components/Loding";
+import Loading from "../_components/Loading";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -247,8 +247,7 @@ export default function UploadModal({
       setLoading(false);
     }
   };
-
-  if (loading) return <Loding />;
+  if (loading) return <Loading />;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--model-bg)] bg-opacity-40">

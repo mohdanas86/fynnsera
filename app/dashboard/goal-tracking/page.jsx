@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Loding from "../_components/Loding";
+import Loading from "../_components/Loading";
 import Link from "next/link";
 import GoalModal from "./GoalModal";
 import { Pen, Trash } from "lucide-react";
@@ -209,7 +209,7 @@ export default function GoalTracking() {
     return "";
   };
 
-  if (loading) return <Loding />;
+  if (loading) return <Loading />;
 
   return (
     <div className=" lg:p-10 p-4 relative">

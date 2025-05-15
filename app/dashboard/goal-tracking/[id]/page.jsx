@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Loding from "../../_components/Loding";
+import Loading from "../../_components/Loading";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { MoveLeft } from "lucide-react";
@@ -122,7 +122,7 @@ export default function GoalDetail() {
     }
   };
 
-  if (loading) return <Loding />;
+  if (loading) return <Loading />;
   if (errorMsg)
     return <div className="text-red-500 text-center py-8">{errorMsg}</div>;
   if (!goal) return <div className="text-center py-8">Goal not found.</div>;
