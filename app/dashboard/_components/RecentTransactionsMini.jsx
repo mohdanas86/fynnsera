@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
@@ -26,7 +27,9 @@ import {
   Package2,
   ArrowDownRight,
   ArrowUpRight,
+  ChevronRight,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Format currency values consistently
 const formatCurrency = (value) => {
@@ -56,22 +59,67 @@ const CATEGORY_ICONS = {
   Others: Package2,
 };
 
-function RecentTransactionsMini({ transactions = [] }) {
+function RecentTransactionsMini({ transactions = [], isLoading = false }) {
   // State to track which transaction has tooltip visible
-  const [activeTooltipIndex, setActiveTooltipIndex] = React.useState(null);
+  const [activeTooltipIndex, setActiveTooltipIndex] = useState(null);
+
+  // Tooltip position adjustment for small screens
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200
+  );
+
+  // Event handler for window resize
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Memoized tooltip position style
+  const getTooltipStyle = useCallback(
+    (index) => {
+      // For small screens, position tooltip above the item
+      if (windowWidth < 768) {
+        return {
+          width: "260px",
+          bottom: "100%",
+          left: "50%",
+          transform: "translateX(-50%) translateY(-8px)",
+          maxHeight: "50vh",
+          overflowY: "auto",
+        };
+      }
+
+      // For larger screens, position to the right
+      return {
+        width: "260px",
+        top: "0",
+        right: "-8px",
+        transform: "translateX(100%)",
+        maxHeight: "90vh",
+        overflowY: "auto",
+      };
+    },
+    [windowWidth]
+  );
 
   // Function to handle mouse leave
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setActiveTooltipIndex(null);
-  };
+  }, []);
 
   // Function to handle mouse enter
-  const handleMouseEnter = (index) => {
+  const handleMouseEnter = useCallback((index) => {
     setActiveTooltipIndex(index);
-  };
+  }, []);
 
   // Format transaction time (for tooltip or expanded view)
-  const formatTransactionTime = (dateString) => {
+  const formatTransactionTime = useCallback((dateString) => {
     const date = new Date(dateString);
     const hours = date.getHours();
     const minutes = date.getMinutes();
@@ -80,10 +128,10 @@ function RecentTransactionsMini({ transactions = [] }) {
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
     return `${formattedHours}:${formattedMinutes} ${ampm}`;
-  };
+  }, []);
 
   // Format date nicely
-  const formatDate = (dateString) => {
+  const formatDate = useCallback((dateString) => {
     const date = new Date(dateString);
     const now = new Date();
     const yesterday = new Date(now);
@@ -104,11 +152,15 @@ function RecentTransactionsMini({ transactions = [] }) {
       month: "short",
       day: "numeric",
     });
-  };
+  }, []);
 
   // Process and sort transactions
   const recentTransactions = useMemo(() => {
-    if (!Array.isArray(transactions) || transactions.length === 0) {
+    if (
+      isLoading ||
+      !Array.isArray(transactions) ||
+      transactions.length === 0
+    ) {
       return [];
     }
 
@@ -135,7 +187,7 @@ function RecentTransactionsMini({ transactions = [] }) {
           formattedTime: formatTransactionTime(tx.date),
         };
       });
-  }, [transactions]);
+  }, [transactions, isLoading, formatTransactionTime]);
 
   // Animation variants
   const containerVariants = {
@@ -174,7 +226,21 @@ function RecentTransactionsMini({ transactions = [] }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-2 h-[calc(100%-80px)]">
-          {recentTransactions.length === 0 ? (
+          {isLoading ? (
+            // Loading skeleton
+            <div className="space-y-3">
+              {[...Array(5)].map((_, index) => (
+                <div key={index} className="flex items-center gap-3 p-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-5 w-16" />
+                </div>
+              ))}
+            </div>
+          ) : recentTransactions.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center">
               <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                 <Wallet size={24} className="text-gray-400" />
@@ -195,7 +261,7 @@ function RecentTransactionsMini({ transactions = [] }) {
                 {recentTransactions.map((tx, index) => (
                   <motion.div
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white hover:bg-gray-50 cursor-pointer transition-colors relative"
+                    className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white hover:bg-gray-50 cursor-pointer transition-colors relative group"
                     variants={itemVariants}
                     onMouseEnter={() => handleMouseEnter(index)}
                     onMouseLeave={handleMouseLeave}
@@ -204,17 +270,14 @@ function RecentTransactionsMini({ transactions = [] }) {
                     {activeTooltipIndex === index && (
                       <div
                         className="absolute bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-[100]"
-                        style={{
-                          width: "260px",
-                          top: "0",
-                          right: "-8px",
-                          transform: "translateX(100%)",
-                          maxHeight: "90vh",
-                          overflowY: "auto",
-                        }}
+                        style={getTooltipStyle(index)}
                       >
-                        {/* Pointer triangle */}
-                        <div className="absolute w-4 h-4 bg-white border-l border-t border-gray-200 transform -rotate-45 -left-2 top-6"></div>
+                        {/* Pointer triangle - conditionally rendered based on screen size */}
+                        {windowWidth >= 768 ? (
+                          <div className="absolute w-4 h-4 bg-white border-l border-t border-gray-200 transform -rotate-45 -left-2 top-6"></div>
+                        ) : (
+                          <div className="absolute w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45 bottom-[-8px] left-1/2 ml-[-4px]"></div>
+                        )}
 
                         <div className="relative z-10">
                           <div className="text-sm font-medium text-gray-800 mb-1">
@@ -272,7 +335,7 @@ function RecentTransactionsMini({ transactions = [] }) {
                               <span className="text-xs text-gray-500">
                                 Description
                               </span>
-                              <p className="text-sm text-gray-800 mt-1">
+                              <p className="text-sm text-gray-800 mt-1 break-words">
                                 {tx.description}
                               </p>
                             </div>
@@ -319,7 +382,7 @@ function RecentTransactionsMini({ transactions = [] }) {
                         <span className="font-medium text-gray-800 max-w-[160px] truncate">
                           {tx.description || "Unknown merchant"}
                         </span>
-                        <div className="flex items-center gap-1 text-xs">
+                        <div className="flex items-center gap-1 text-xs flex-wrap">
                           <span className="text-gray-500">
                             {formatDate(tx.date)}
                           </span>
@@ -333,7 +396,7 @@ function RecentTransactionsMini({ transactions = [] }) {
                           </span>
                         </div>
                         {tx.transactionId && (
-                          <span className="text-xs text-gray-400 hidden group-hover:block mt-0.5">
+                          <span className="text-xs text-gray-400 hidden group-hover:inline-block mt-0.5 truncate max-w-[160px]">
                             ID: {tx.transactionId.substring(0, 10)}...
                           </span>
                         )}
@@ -351,23 +414,13 @@ function RecentTransactionsMini({ transactions = [] }) {
                 ))}
               </div>
               <div className="mt-4 pt-2 text-center">
-                <button className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors flex items-center justify-center mx-auto">
+                <Link
+                  href="/dashboard/transactions"
+                  className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors flex items-center justify-center mx-auto"
+                >
                   View All Transactions
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 ml-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
+                  <ChevronRight size={16} className="ml-1" />
+                </Link>
               </div>
             </div>
           )}

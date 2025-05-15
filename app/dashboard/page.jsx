@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useMyContext } from "@/context/MyContext";
-import Loding from "./_components/Loding";
+import Loading from "./_components/Loading";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,14 +18,13 @@ import { Button } from "@/components/ui/button";
 import { DatePickerWithRange } from "@/components/ui/DatePickerWithRange";
 import * as XLSX from "xlsx";
 
-// Import new dashboard components
+// Import dashboard components
 import SummaryHeaderStats from "./_components/SummaryHeaderStats";
 import CashFlowLineChart from "./_components/CashFlowLineChart";
 import CategorySpendingDonut from "./_components/CategorySpendingDonut";
-// Import enhanced components
-import MonthlyTrendChart from "./_components/enhanced-MonthlyTrendChart";
-import TopCategoriesList from "./_components/enhanced-TopCategoriesList";
-import SpendingHeatmap from "./_components/enhanced-SpendingHeatmap";
+import MonthlyTrendChart from "./_components/MonthlyTrendChart";
+import TopCategoriesList from "./_components/TopCategoriesList";
+import SpendingHeatmap from "./_components/SpendingHeatmap";
 import RecentTransactionsMini from "./_components/RecentTransactionsMini";
 import AIInsightCards from "./_components/AIInsightCards";
 import DashboardSettings from "./_components/DashboardSettings";
@@ -133,11 +132,10 @@ export default function Home() {
   };
 
   console.log("filteredTransactions", filteredTransactions);
-
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loding />
+        <Loading />
       </div>
     );
   }

@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import TransactionsTable from "../_components/TransactionsTable";
 import { useMyContext } from "@/context/MyContext";
-import Loding from "../_components/Loding";
+import Loading from "../_components/Loading";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -13,7 +13,7 @@ export default function Home() {
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loding />
+        <Loading />
       </div>
     );
   }

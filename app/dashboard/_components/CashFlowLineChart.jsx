@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -22,13 +22,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import {
-  ArrowUp,
-  ArrowDown,
-  TrendingUp,
-  TrendingDown,
-  CalendarRange,
-} from "lucide-react";
+import { TrendingUp, TrendingDown, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Format currency values for display
@@ -49,13 +43,29 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
   const [showDebits, setShowDebits] = useState(true);
   const [showNetFlow, setShowNetFlow] = useState(true);
 
+  // Handle timeframe change
+  const handleTimeframeChange = useCallback((newTimeframe) => {
+    setTimeframe(newTimeframe);
+  }, []);
+
+  // Toggle data visibility
+  const toggleDataVisibility = useCallback((dataKey) => {
+    if (dataKey === "credit") {
+      setShowCredits((prev) => !prev);
+    } else if (dataKey === "debit") {
+      setShowDebits((prev) => !prev);
+    } else if (dataKey === "netFlow") {
+      setShowNetFlow((prev) => !prev);
+    }
+  }, []);
+
   // Simulate loading state if needed
   React.useEffect(() => {
     setLoading(isLoading);
     if (isLoading) {
       const timer = setTimeout(() => {
         setLoading(false);
-      }, 2000);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
@@ -166,7 +176,9 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
           groupedData[monthYear].debit += Math.abs(Number(tx.amount) || 0);
         }
       });
-    } // Convert to array and sort by timestamp
+    }
+
+    // Convert to array and sort by timestamp
     return Object.entries(groupedData)
       .map(([name, data]) => ({
         name,
@@ -176,7 +188,29 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
         timestamp: data.timestamp,
       }))
       .sort((a, b) => a.timestamp - b.timestamp);
-  }, [transactions, timeframe]);
+  }, [transactions, timeframe, loading]);
+
+  // Calculate summary statistics
+  const summaryStats = useMemo(() => {
+    if (chartData.length === 0) {
+      return {
+        avgCredit: 0,
+        avgDebit: 0,
+        avgNetFlow: 0,
+      };
+    }
+
+    return {
+      avgCredit:
+        chartData.reduce((sum, item) => sum + item.credit, 0) /
+        chartData.length,
+      avgDebit:
+        chartData.reduce((sum, item) => sum + item.debit, 0) / chartData.length,
+      avgNetFlow:
+        chartData.reduce((sum, item) => sum + item.netFlow, 0) /
+        chartData.length,
+    };
+  }, [chartData]);
 
   // Animation variables
   const containerVariants = {
@@ -200,6 +234,69 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
     },
   };
 
+  // Custom formatter for tooltip
+  const customTooltipFormatter = useCallback((value, name) => {
+    // Format the value as currency
+    const formattedValue = formatCurrency(value);
+
+    // Add "+" prefix for credit values
+    if (name === "credit") {
+      return [`+${formattedValue}`, "Income"];
+    }
+
+    // Add "-" prefix for debit values
+    if (name === "debit") {
+      return [`-${formattedValue}`, "Expense"];
+    }
+
+    // Format net flow with appropriate sign
+    if (name === "netFlow") {
+      return [`${value >= 0 ? "+" : ""}${formattedValue}`, "Net Flow"];
+    }
+
+    return [formattedValue, name];
+  }, []);
+
+  // Custom formatter for legend
+  const customLegendFormatter = useCallback(
+    (value) => {
+      let labelText = value;
+      let color = "#6b7280";
+      let opacity = 1;
+
+      // Customize legend labels and colors
+      if (value === "credit") {
+        labelText = "Income";
+        color = "#10b981"; // Green
+        opacity = showCredits ? 1 : 0.5;
+      } else if (value === "debit") {
+        labelText = "Expense";
+        color = "#ef4444"; // Red
+        opacity = showDebits ? 1 : 0.5;
+      } else if (value === "netFlow") {
+        labelText = "Net Cash Flow";
+        color = "#3b82f6"; // Blue
+        opacity = showNetFlow ? 1 : 0.5;
+      }
+
+      return (
+        <span
+          style={{
+            color,
+            fontSize: "12px",
+            fontWeight: "500",
+            opacity,
+            textDecoration: opacity < 1 ? "line-through" : "none",
+            cursor: "pointer",
+          }}
+        >
+          {labelText}
+        </span>
+      );
+    },
+    [showCredits, showDebits, showNetFlow]
+  );
+
   return (
     <motion.div
       className="w-full h-full"
@@ -207,7 +304,6 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
       animate="visible"
       variants={containerVariants}
     >
-      {" "}
       <Card className="w-full h-full overflow-hidden">
         <CardHeader className="pb-1">
           <div className="flex justify-between items-center">
@@ -221,32 +317,35 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
             </div>
             <div className="flex rounded-md border border-gray-200 overflow-hidden">
               <button
-                onClick={() => setTimeframe("weekly")}
+                onClick={() => handleTimeframeChange("weekly")}
                 className={`px-3 py-1 text-xs font-medium ${
                   timeframe === "weekly"
                     ? "bg-blue-600 text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
+                aria-label="Show weekly data"
               >
                 Weekly
               </button>
               <button
-                onClick={() => setTimeframe("monthly")}
+                onClick={() => handleTimeframeChange("monthly")}
                 className={`px-3 py-1 text-xs font-medium ${
                   timeframe === "monthly"
                     ? "bg-blue-600 text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
+                aria-label="Show monthly data"
               >
                 Monthly
               </button>
               <button
-                onClick={() => setTimeframe("quarterly")}
+                onClick={() => handleTimeframeChange("quarterly")}
                 className={`px-3 py-1 text-xs font-medium ${
                   timeframe === "quarterly"
                     ? "bg-blue-600 text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
+                aria-label="Show quarterly data"
               >
                 Quarterly
               </button>
@@ -255,271 +354,200 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
         </CardHeader>
 
         <CardContent className="pt-2 h-[calc(100%-80px)] overflow-hidden">
-          <motion.div
-            className="w-full h-full flex flex-col"
-            variants={itemVariants}
-          >
-            {chartData.length === 0 ? (
-              <div className="h-full flex items-center justify-center">
-                <p className="text-gray-500">
-                  No data available for the selected period
-                </p>
+          {loading ? (
+            <div className="w-full h-full flex flex-col">
+              <div className="h-8 flex items-center justify-center mb-4">
+                <Skeleton className="h-4 w-32 rounded-md" />
               </div>
-            ) : (
-              <>
-                <ResponsiveContainer
-                  width="100%"
-                  height="85%"
-                  className="overflow-visible"
-                >
-                  <ComposedChart
-                    data={chartData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e5e7eb"
-                      opacity={0.7}
-                    />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fill: "#6b7280", fontSize: 11 }}
-                      tickMargin={10}
-                      axisLine={{ stroke: "#d1d5db" }}
-                    />
-                    <YAxis
-                      tickFormatter={formatCurrency}
-                      tick={{ fill: "#6b7280", fontSize: 11 }}
-                      width={60}
-                      axisLine={{ stroke: "#d1d5db" }}
-                      tickLine={false}
-                    />{" "}
-                    <Tooltip
-                      formatter={(value, name) => {
-                        // Format the value as currency
-                        const formattedValue = formatCurrency(value);
-
-                        // Add "+" prefix for credit values
-                        if (name === "credit") {
-                          return [`+${formattedValue}`, "Income"];
-                        }
-
-                        // Add "-" prefix for debit values
-                        if (name === "debit") {
-                          return [`-${formattedValue}`, "Expense"];
-                        }
-
-                        // Format net flow with appropriate sign
-                        if (name === "netFlow") {
-                          return [
-                            `${value >= 0 ? "+" : ""}${formattedValue}`,
-                            "Net Flow",
-                          ];
-                        }
-
-                        return [formattedValue, name];
-                      }}
-                      contentStyle={{
-                        backgroundColor: "white",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "6px",
-                        padding: "8px 12px",
-                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-                      }}
-                      labelFormatter={(label) => `${label}`}
-                    />{" "}
-                    <Legend
-                      verticalAlign="top"
-                      height={36}
-                      iconType="circle"
-                      iconSize={8}
-                      formatter={(value) => {
-                        let labelText = value;
-                        let color = "#6b7280";
-                        let opacity = 1;
-
-                        // Customize legend labels and colors
-                        if (value === "credit") {
-                          labelText = "Income";
-                          color = "#10b981"; // Green
-                          opacity = showCredits ? 1 : 0.5;
-                        } else if (value === "debit") {
-                          labelText = "Expense";
-                          color = "#ef4444"; // Red
-                          opacity = showDebits ? 1 : 0.5;
-                        } else if (value === "netFlow") {
-                          labelText = "Net Cash Flow";
-                          color = "#3b82f6"; // Blue
-                          opacity = showNetFlow ? 1 : 0.5;
-                        }
-
-                        return (
-                          <span
-                            style={{
-                              color,
-                              fontSize: "12px",
-                              fontWeight: "500",
-                              opacity,
-                              textDecoration:
-                                opacity < 1 ? "line-through" : "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            {labelText}
-                          </span>
-                        );
-                      }}
-                      onClick={(e) => {
-                        // Handle legend clicks to toggle visibility
-                        if (e.dataKey === "credit") {
-                          setShowCredits(!showCredits);
-                        } else if (e.dataKey === "debit") {
-                          setShowDebits(!showDebits);
-                        } else if (e.dataKey === "netFlow") {
-                          setShowNetFlow(!showNetFlow);
-                        }
-                      }}
-                      wrapperStyle={{
-                        paddingTop: "4px",
-                      }}
-                    />
-                    {/* Shaded area for net cash flow */}
-                    <defs>
-                      <linearGradient
-                        id="netFlowGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#3b82f6"
-                          stopOpacity={0.1}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#3b82f6"
-                          stopOpacity={0.01}
-                        />
-                      </linearGradient>
-                    </defs>{" "}
-                    {/* Only show netFlow area if enabled */}
-                    {showNetFlow && (
-                      <Area
-                        type="monotone"
-                        dataKey="netFlow"
-                        fill="url(#netFlowGradient)"
-                        stroke="#3b82f6"
-                        strokeWidth={1.5}
-                        strokeDasharray="5 5"
-                        fillOpacity={0.6}
-                      />
-                    )}
-                    {/* Reference line at y=0 */}
-                    <ReferenceLine
-                      y={0}
-                      stroke="#64748b"
-                      strokeDasharray="3 3"
-                      strokeWidth={1}
-                    />
-                    {/* Lines for credit and debit */}
-                    {showCredits && (
-                      <Line
-                        type="monotone"
-                        dataKey="credit"
-                        stroke="#10b981"
-                        strokeWidth={2.5}
-                        dot={{
-                          r: 4,
-                          fill: "#10b981",
-                          strokeWidth: 1,
-                          stroke: "#fff",
-                        }}
-                        activeDot={{
-                          r: 6,
-                          fill: "#10b981",
-                          stroke: "#fff",
-                          strokeWidth: 2,
-                        }}
-                        animationDuration={1500}
-                      />
-                    )}
-                    {showDebits && (
-                      <Line
-                        type="monotone"
-                        dataKey="debit"
-                        stroke="#ef4444"
-                        strokeWidth={2.5}
-                        dot={{
-                          r: 4,
-                          fill: "#ef4444",
-                          strokeWidth: 1,
-                          stroke: "#fff",
-                        }}
-                        activeDot={{
-                          r: 6,
-                          fill: "#ef4444",
-                          stroke: "#fff",
-                          strokeWidth: 2,
-                        }}
-                        animationDuration={1500}
-                      />
-                    )}
-                  </ComposedChart>
-                </ResponsiveContainer>{" "}
-                {/* Summary statistics */}
-                <div className="mt-1 grid grid-cols-3 gap-2 overflow-hidden max-h-20">
-                  {" "}
-                  <div className="flex flex-col p-1.5 rounded-md bg-emerald-50 border border-emerald-100">
-                    <span className="text-xs text-emerald-800 font-medium">
-                      Avg. Income
-                    </span>
-                    <span className="text-xs font-bold text-emerald-600 truncate">
-                      {formatCurrency(
-                        chartData.length > 0
-                          ? chartData.reduce(
-                              (sum, item) => sum + item.credit,
-                              0
-                            ) / chartData.length
-                          : 0
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex flex-col p-1.5 rounded-md bg-red-50 border border-red-100">
-                    <span className="text-xs text-red-800 font-medium">
-                      Avg. Expense
-                    </span>
-                    <span className="text-xs font-bold text-red-600 truncate">
-                      {formatCurrency(
-                        chartData.length > 0
-                          ? chartData.reduce(
-                              (sum, item) => sum + item.debit,
-                              0
-                            ) / chartData.length
-                          : 0
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex flex-col p-1.5 rounded-md bg-blue-50 border border-blue-100">
-                    <span className="text-xs text-blue-800 font-medium">
-                      Avg. Net Flow
-                    </span>
-                    <span className="text-xs font-bold text-blue-600 truncate">
-                      {formatCurrency(
-                        chartData.length > 0
-                          ? chartData.reduce(
-                              (sum, item) => sum + item.netFlow,
-                              0
-                            ) / chartData.length
-                          : 0
-                      )}
-                    </span>
-                  </div>
+              <Skeleton className="w-full h-[calc(100%-60px)] rounded-lg" />
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <Skeleton className="h-12 rounded-md" />
+                <Skeleton className="h-12 rounded-md" />
+                <Skeleton className="h-12 rounded-md" />
+              </div>
+            </div>
+          ) : (
+            <motion.div
+              className="w-full h-full flex flex-col"
+              variants={itemVariants}
+            >
+              {chartData.length === 0 ? (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-gray-500">
+                    No data available for the selected period
+                  </p>
                 </div>
-              </>
-            )}
-          </motion.div>
+              ) : (
+                <>
+                  <ResponsiveContainer
+                    width="100%"
+                    height="85%"
+                    className="overflow-visible"
+                  >
+                    <ComposedChart
+                      data={chartData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#e5e7eb"
+                        opacity={0.7}
+                      />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fill: "#6b7280", fontSize: 11 }}
+                        tickMargin={10}
+                        axisLine={{ stroke: "#d1d5db" }}
+                      />
+                      <YAxis
+                        tickFormatter={formatCurrency}
+                        tick={{ fill: "#6b7280", fontSize: 11 }}
+                        width={60}
+                        axisLine={{ stroke: "#d1d5db" }}
+                        tickLine={false}
+                      />
+                      <Tooltip
+                        formatter={customTooltipFormatter}
+                        contentStyle={{
+                          backgroundColor: "white",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "6px",
+                          padding: "8px 12px",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                        }}
+                        labelFormatter={(label) => `${label}`}
+                      />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        iconType="circle"
+                        iconSize={8}
+                        formatter={customLegendFormatter}
+                        onClick={(e) => toggleDataVisibility(e.dataKey)}
+                        wrapperStyle={{
+                          paddingTop: "4px",
+                        }}
+                      />
+                      {/* Shaded area for net cash flow */}
+                      <defs>
+                        <linearGradient
+                          id="netFlowGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#3b82f6"
+                            stopOpacity={0.1}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#3b82f6"
+                            stopOpacity={0.01}
+                          />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Only show netFlow area if enabled */}
+                      {showNetFlow && (
+                        <Area
+                          type="monotone"
+                          dataKey="netFlow"
+                          fill="url(#netFlowGradient)"
+                          stroke="#3b82f6"
+                          strokeWidth={1.5}
+                          strokeDasharray="5 5"
+                          fillOpacity={0.6}
+                        />
+                      )}
+
+                      {/* Reference line at y=0 */}
+                      <ReferenceLine
+                        y={0}
+                        stroke="#64748b"
+                        strokeDasharray="3 3"
+                        strokeWidth={1}
+                      />
+
+                      {/* Lines for credit and debit */}
+                      {showCredits && (
+                        <Line
+                          type="monotone"
+                          dataKey="credit"
+                          stroke="#10b981"
+                          strokeWidth={2.5}
+                          dot={{
+                            r: 4,
+                            fill: "#10b981",
+                            strokeWidth: 1,
+                            stroke: "#fff",
+                          }}
+                          activeDot={{
+                            r: 6,
+                            fill: "#10b981",
+                            stroke: "#fff",
+                            strokeWidth: 2,
+                          }}
+                          animationDuration={1500}
+                        />
+                      )}
+                      {showDebits && (
+                        <Line
+                          type="monotone"
+                          dataKey="debit"
+                          stroke="#ef4444"
+                          strokeWidth={2.5}
+                          dot={{
+                            r: 4,
+                            fill: "#ef4444",
+                            strokeWidth: 1,
+                            stroke: "#fff",
+                          }}
+                          activeDot={{
+                            r: 6,
+                            fill: "#ef4444",
+                            stroke: "#fff",
+                            strokeWidth: 2,
+                          }}
+                          animationDuration={1500}
+                        />
+                      )}
+                    </ComposedChart>
+                  </ResponsiveContainer>
+
+                  {/* Summary statistics */}
+                  <div className="mt-1 grid grid-cols-3 gap-2 overflow-hidden max-h-20">
+                    <div className="flex flex-col p-1.5 rounded-md bg-emerald-50 border border-emerald-100">
+                      <span className="text-xs text-emerald-800 font-medium">
+                        Avg. Income
+                      </span>
+                      <span className="text-xs font-bold text-emerald-600 truncate">
+                        {formatCurrency(summaryStats.avgCredit)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col p-1.5 rounded-md bg-red-50 border border-red-100">
+                      <span className="text-xs text-red-800 font-medium">
+                        Avg. Expense
+                      </span>
+                      <span className="text-xs font-bold text-red-600 truncate">
+                        {formatCurrency(summaryStats.avgDebit)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col p-1.5 rounded-md bg-blue-50 border border-blue-100">
+                      <span className="text-xs text-blue-800 font-medium">
+                        Avg. Net Flow
+                      </span>
+                      <span className="text-xs font-bold text-blue-600 truncate">
+                        {formatCurrency(summaryStats.avgNetFlow)}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
