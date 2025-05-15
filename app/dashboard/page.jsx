@@ -22,10 +22,11 @@ import * as XLSX from "xlsx";
 import SummaryHeaderStats from "./_components/SummaryHeaderStats";
 import CashFlowLineChart from "./_components/CashFlowLineChart";
 import CategorySpendingDonut from "./_components/CategorySpendingDonut";
-import MonthlyTrendChart from "./_components/MonthlyTrendChart";
-import TopCategoriesList from "./_components/TopCategoriesList";
+// Import enhanced components
+import MonthlyTrendChart from "./_components/enhanced-MonthlyTrendChart";
+import TopCategoriesList from "./_components/enhanced-TopCategoriesList";
+import SpendingHeatmap from "./_components/enhanced-SpendingHeatmap";
 import RecentTransactionsMini from "./_components/RecentTransactionsMini";
-import SpendingHeatmap from "./_components/SpendingHeatmap";
 import AIInsightCards from "./_components/AIInsightCards";
 import DashboardSettings from "./_components/DashboardSettings";
 
@@ -307,46 +308,64 @@ export default function Home() {
                 transactions={filteredTransactions}
                 currentBalance={selectedFileData?.currentBalance || 0}
                 isLoading={isLoading}
-              />
+              />{" "}
               {/* AI Insight Cards */}
               <AIInsightCards
                 transactions={filteredTransactions}
                 enabled={aiInsightsEnabled}
+                isLoading={isLoading}
               />
               {/* Main Charts - 2 column layout */}
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 lg:gap-8">
+                {" "}
                 {/* Cash Flow Line Chart */}
                 <div className="w-full h-[350px] lg:h-[400px]">
-                  <CashFlowLineChart transactions={filteredTransactions} />
+                  <CashFlowLineChart
+                    transactions={filteredTransactions}
+                    isLoading={isLoading}
+                  />
                 </div>
-
                 {/* Category Spending Donut */}
                 <div className="w-full h-[350px] lg:h-[400px]">
-                  <CategorySpendingDonut transactions={filteredTransactions} />
+                  <CategorySpendingDonut
+                    transactions={filteredTransactions}
+                    isLoading={isLoading}
+                  />
                 </div>
               </div>
               {/* Secondary Charts - 2 column layout */}
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 lg:gap-8">
+                {" "}
                 {/* Monthly Trend Chart */}
                 <div className="w-full h-[350px] lg:h-[400px]">
-                  <MonthlyTrendChart transactions={filteredTransactions} />
+                  <MonthlyTrendChart
+                    transactions={filteredTransactions}
+                    isLoading={isLoading}
+                  />
                 </div>
-
                 {/* Top Categories List */}
                 <div className="w-full h-[350px] lg:h-[400px]">
-                  <TopCategoriesList transactions={filteredTransactions} />
+                  <TopCategoriesList
+                    transactions={filteredTransactions}
+                    isLoading={isLoading}
+                  />
                 </div>
               </div>
               {/* Bottom Row - 2 column layout */}
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 lg:gap-8">
-                {/* Recent Transactions Mini */}
+                {/* Recent Transactions Mini */}{" "}
                 <div className="w-full h-[350px] lg:h-[400px]">
-                  <RecentTransactionsMini transactions={filteredTransactions} />
+                  <RecentTransactionsMini
+                    transactions={filteredTransactions}
+                    isLoading={isLoading}
+                  />
                 </div>
-
                 {/* Spending Heatmap */}
                 <div className="w-full h-[350px] lg:h-[400px]">
-                  <SpendingHeatmap transactions={filteredTransactions} />
+                  <SpendingHeatmap
+                    transactions={filteredTransactions}
+                    isLoading={isLoading}
+                  />
                 </div>
               </div>
             </div>

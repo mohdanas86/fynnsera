@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
   Area,
   ComposedChart,
+  ReferenceLine,
 } from "recharts";
 import {
   Card,
@@ -21,21 +22,48 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import {
+  ArrowUp,
+  ArrowDown,
+  TrendingUp,
+  TrendingDown,
+  CalendarRange,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Format currency values for display
 const formatCurrency = (value) => {
   if (!value && value !== 0) return "";
-  if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${value}`;
+  // Round the value to nearest integer
+  const roundedValue = Math.round(value);
+  if (roundedValue >= 1000000)
+    return `₹${(roundedValue / 1000000).toFixed(1)}M`;
+  if (roundedValue >= 1000) return `₹${(roundedValue / 1000).toFixed(1)}K`;
+  return `₹${roundedValue}`;
 };
 
-function CashFlowLineChart({ transactions = [] }) {
+function CashFlowLineChart({ transactions = [], isLoading = false }) {
   const [timeframe, setTimeframe] = useState("monthly"); // weekly, monthly, quarterly
+  const [loading, setLoading] = useState(isLoading);
+  const [showCredits, setShowCredits] = useState(true);
+  const [showDebits, setShowDebits] = useState(true);
+  const [showNetFlow, setShowNetFlow] = useState(true);
+
+  // Simulate loading state if needed
+  React.useEffect(() => {
+    setLoading(isLoading);
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
 
   // Transform data based on selected timeframe
   const chartData = useMemo(() => {
-    if (!Array.isArray(transactions) || transactions.length === 0) return [];
+    if (loading || !Array.isArray(transactions) || transactions.length === 0)
+      return [];
 
     const sortedTransactions = [...transactions].sort(
       (a, b) => new Date(a.date) - new Date(b.date)
@@ -47,7 +75,6 @@ function CashFlowLineChart({ transactions = [] }) {
       // Group by week number
       sortedTransactions.forEach((tx) => {
         if (!tx.date) return;
-
         const date = new Date(tx.date);
         const year = date.getFullYear();
 
@@ -57,16 +84,24 @@ function CashFlowLineChart({ transactions = [] }) {
         const weekNumber = Math.ceil(
           (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
         );
-
         const key = `Week ${weekNumber}`;
 
         if (!groupedData[key]) {
           groupedData[key] = { credit: 0, debit: 0, timestamp: date.getTime() };
         }
 
-        if (tx.transactionType?.toUpperCase() === "CREDIT" || tx.amount > 0) {
+        // Determine if transaction is credit or debit based on type or amount
+        if (tx.transactionType?.toUpperCase() === "CREDIT") {
+          // Credit transaction - add to credit total
+          groupedData[key].credit += Math.abs(Number(tx.amount) || 0);
+        } else if (tx.transactionType?.toUpperCase() === "DEBIT") {
+          // Debit transaction - add to debit total
+          groupedData[key].debit += Math.abs(Number(tx.amount) || 0);
+        } else if (tx.amount > 0) {
+          // Positive amount without type, assume credit
           groupedData[key].credit += Math.abs(Number(tx.amount) || 0);
         } else {
+          // Negative amount without type, assume debit
           groupedData[key].debit += Math.abs(Number(tx.amount) || 0);
         }
       });
@@ -74,20 +109,27 @@ function CashFlowLineChart({ transactions = [] }) {
       // Group by quarter
       sortedTransactions.forEach((tx) => {
         if (!tx.date) return;
-
         const date = new Date(tx.date);
         const year = date.getFullYear();
         const quarter = Math.floor(date.getMonth() / 3) + 1;
-
         const key = `Q${quarter} ${year}`;
 
         if (!groupedData[key]) {
           groupedData[key] = { credit: 0, debit: 0, timestamp: date.getTime() };
         }
 
-        if (tx.transactionType?.toUpperCase() === "CREDIT" || tx.amount > 0) {
+        // Determine if transaction is credit or debit based on type or amount
+        if (tx.transactionType?.toUpperCase() === "CREDIT") {
+          // Credit transaction - add to credit total
+          groupedData[key].credit += Math.abs(Number(tx.amount) || 0);
+        } else if (tx.transactionType?.toUpperCase() === "DEBIT") {
+          // Debit transaction - add to debit total
+          groupedData[key].debit += Math.abs(Number(tx.amount) || 0);
+        } else if (tx.amount > 0) {
+          // Positive amount without type, assume credit
           groupedData[key].credit += Math.abs(Number(tx.amount) || 0);
         } else {
+          // Negative amount without type, assume debit
           groupedData[key].debit += Math.abs(Number(tx.amount) || 0);
         }
       });
@@ -95,7 +137,6 @@ function CashFlowLineChart({ transactions = [] }) {
       // Group by month (default)
       sortedTransactions.forEach((tx) => {
         if (!tx.date) return;
-
         const date = new Date(tx.date);
         const monthYear = date.toLocaleString("default", {
           month: "short",
@@ -110,15 +151,22 @@ function CashFlowLineChart({ transactions = [] }) {
           };
         }
 
-        if (tx.transactionType?.toUpperCase() === "CREDIT" || tx.amount > 0) {
+        // Determine if transaction is credit or debit based on type or amount
+        if (tx.transactionType?.toUpperCase() === "CREDIT") {
+          // Credit transaction - add to credit total
+          groupedData[monthYear].credit += Math.abs(Number(tx.amount) || 0);
+        } else if (tx.transactionType?.toUpperCase() === "DEBIT") {
+          // Debit transaction - add to debit total
+          groupedData[monthYear].debit += Math.abs(Number(tx.amount) || 0);
+        } else if (tx.amount > 0) {
+          // Positive amount without type, assume credit
           groupedData[monthYear].credit += Math.abs(Number(tx.amount) || 0);
         } else {
+          // Negative amount without type, assume debit
           groupedData[monthYear].debit += Math.abs(Number(tx.amount) || 0);
         }
       });
-    }
-
-    // Convert to array and sort by timestamp
+    } // Convert to array and sort by timestamp
     return Object.entries(groupedData)
       .map(([name, data]) => ({
         name,
@@ -159,8 +207,9 @@ function CashFlowLineChart({ transactions = [] }) {
       animate="visible"
       variants={containerVariants}
     >
-      <Card className="w-full h-full">
-        <CardHeader className="pb-2">
+      {" "}
+      <Card className="w-full h-full overflow-hidden">
+        <CardHeader className="pb-1">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-xl font-bold text-gray-800">
@@ -205,8 +254,11 @@ function CashFlowLineChart({ transactions = [] }) {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-2 h-[calc(100%-80px)]">
-          <motion.div className="w-full h-full" variants={itemVariants}>
+        <CardContent className="pt-2 h-[calc(100%-80px)] overflow-hidden">
+          <motion.div
+            className="w-full h-full flex flex-col"
+            variants={itemVariants}
+          >
             {chartData.length === 0 ? (
               <div className="h-full flex items-center justify-center">
                 <p className="text-gray-500">
@@ -214,117 +266,258 @@ function CashFlowLineChart({ transactions = [] }) {
                 </p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart
-                  data={chartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              <>
+                <ResponsiveContainer
+                  width="100%"
+                  height="85%"
+                  className="overflow-visible"
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#e5e7eb"
-                    opacity={0.7}
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: "#6b7280", fontSize: 11 }}
-                    tickMargin={10}
-                    axisLine={{ stroke: "#d1d5db" }}
-                  />
-                  <YAxis
-                    tickFormatter={formatCurrency}
-                    tick={{ fill: "#6b7280", fontSize: 11 }}
-                    width={60}
-                    axisLine={{ stroke: "#d1d5db" }}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    formatter={(value) => formatCurrency(value)}
-                    contentStyle={{
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "6px",
-                      padding: "8px 12px",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="top"
-                    height={36}
-                    iconType="circle"
-                    iconSize={8}
-                    formatter={(value) => (
-                      <span style={{ color: "#6b7280", fontSize: "12px" }}>
-                        {value}
-                      </span>
-                    )}
-                  />
+                  <ComposedChart
+                    data={chartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#e5e7eb"
+                      opacity={0.7}
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: "#6b7280", fontSize: 11 }}
+                      tickMargin={10}
+                      axisLine={{ stroke: "#d1d5db" }}
+                    />
+                    <YAxis
+                      tickFormatter={formatCurrency}
+                      tick={{ fill: "#6b7280", fontSize: 11 }}
+                      width={60}
+                      axisLine={{ stroke: "#d1d5db" }}
+                      tickLine={false}
+                    />{" "}
+                    <Tooltip
+                      formatter={(value, name) => {
+                        // Format the value as currency
+                        const formattedValue = formatCurrency(value);
 
-                  {/* Shaded area for net cash flow */}
-                  <defs>
-                    <linearGradient
-                      id="netFlowGradient"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
-                      <stop
-                        offset="95%"
-                        stopColor="#3b82f6"
-                        stopOpacity={0.01}
+                        // Add "+" prefix for credit values
+                        if (name === "credit") {
+                          return [`+${formattedValue}`, "Income"];
+                        }
+
+                        // Add "-" prefix for debit values
+                        if (name === "debit") {
+                          return [`-${formattedValue}`, "Expense"];
+                        }
+
+                        // Format net flow with appropriate sign
+                        if (name === "netFlow") {
+                          return [
+                            `${value >= 0 ? "+" : ""}${formattedValue}`,
+                            "Net Flow",
+                          ];
+                        }
+
+                        return [formattedValue, name];
+                      }}
+                      contentStyle={{
+                        backgroundColor: "white",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "6px",
+                        padding: "8px 12px",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                      }}
+                      labelFormatter={(label) => `${label}`}
+                    />{" "}
+                    <Legend
+                      verticalAlign="top"
+                      height={36}
+                      iconType="circle"
+                      iconSize={8}
+                      formatter={(value) => {
+                        let labelText = value;
+                        let color = "#6b7280";
+                        let opacity = 1;
+
+                        // Customize legend labels and colors
+                        if (value === "credit") {
+                          labelText = "Income";
+                          color = "#10b981"; // Green
+                          opacity = showCredits ? 1 : 0.5;
+                        } else if (value === "debit") {
+                          labelText = "Expense";
+                          color = "#ef4444"; // Red
+                          opacity = showDebits ? 1 : 0.5;
+                        } else if (value === "netFlow") {
+                          labelText = "Net Cash Flow";
+                          color = "#3b82f6"; // Blue
+                          opacity = showNetFlow ? 1 : 0.5;
+                        }
+
+                        return (
+                          <span
+                            style={{
+                              color,
+                              fontSize: "12px",
+                              fontWeight: "500",
+                              opacity,
+                              textDecoration:
+                                opacity < 1 ? "line-through" : "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {labelText}
+                          </span>
+                        );
+                      }}
+                      onClick={(e) => {
+                        // Handle legend clicks to toggle visibility
+                        if (e.dataKey === "credit") {
+                          setShowCredits(!showCredits);
+                        } else if (e.dataKey === "debit") {
+                          setShowDebits(!showDebits);
+                        } else if (e.dataKey === "netFlow") {
+                          setShowNetFlow(!showNetFlow);
+                        }
+                      }}
+                      wrapperStyle={{
+                        paddingTop: "4px",
+                      }}
+                    />
+                    {/* Shaded area for net cash flow */}
+                    <defs>
+                      <linearGradient
+                        id="netFlowGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#3b82f6"
+                          stopOpacity={0.1}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#3b82f6"
+                          stopOpacity={0.01}
+                        />
+                      </linearGradient>
+                    </defs>{" "}
+                    {/* Only show netFlow area if enabled */}
+                    {showNetFlow && (
+                      <Area
+                        type="monotone"
+                        dataKey="netFlow"
+                        fill="url(#netFlowGradient)"
+                        stroke="#3b82f6"
+                        strokeWidth={1.5}
+                        strokeDasharray="5 5"
+                        fillOpacity={0.6}
                       />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="netFlow"
-                    fill="url(#netFlowGradient)"
-                    stroke="none"
-                    fillOpacity={0.6}
-                  />
-
-                  {/* Lines for credit and debit */}
-                  <Line
-                    type="monotone"
-                    dataKey="credit"
-                    stroke="#10b981"
-                    strokeWidth={2.5}
-                    dot={{
-                      r: 4,
-                      fill: "#10b981",
-                      strokeWidth: 1,
-                      stroke: "#fff",
-                    }}
-                    activeDot={{
-                      r: 6,
-                      fill: "#10b981",
-                      stroke: "#fff",
-                      strokeWidth: 2,
-                    }}
-                    animationDuration={1500}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="debit"
-                    stroke="#ef4444"
-                    strokeWidth={2.5}
-                    dot={{
-                      r: 4,
-                      fill: "#ef4444",
-                      strokeWidth: 1,
-                      stroke: "#fff",
-                    }}
-                    activeDot={{
-                      r: 6,
-                      fill: "#ef4444",
-                      stroke: "#fff",
-                      strokeWidth: 2,
-                    }}
-                    animationDuration={1500}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
+                    )}
+                    {/* Reference line at y=0 */}
+                    <ReferenceLine
+                      y={0}
+                      stroke="#64748b"
+                      strokeDasharray="3 3"
+                      strokeWidth={1}
+                    />
+                    {/* Lines for credit and debit */}
+                    {showCredits && (
+                      <Line
+                        type="monotone"
+                        dataKey="credit"
+                        stroke="#10b981"
+                        strokeWidth={2.5}
+                        dot={{
+                          r: 4,
+                          fill: "#10b981",
+                          strokeWidth: 1,
+                          stroke: "#fff",
+                        }}
+                        activeDot={{
+                          r: 6,
+                          fill: "#10b981",
+                          stroke: "#fff",
+                          strokeWidth: 2,
+                        }}
+                        animationDuration={1500}
+                      />
+                    )}
+                    {showDebits && (
+                      <Line
+                        type="monotone"
+                        dataKey="debit"
+                        stroke="#ef4444"
+                        strokeWidth={2.5}
+                        dot={{
+                          r: 4,
+                          fill: "#ef4444",
+                          strokeWidth: 1,
+                          stroke: "#fff",
+                        }}
+                        activeDot={{
+                          r: 6,
+                          fill: "#ef4444",
+                          stroke: "#fff",
+                          strokeWidth: 2,
+                        }}
+                        animationDuration={1500}
+                      />
+                    )}
+                  </ComposedChart>
+                </ResponsiveContainer>{" "}
+                {/* Summary statistics */}
+                <div className="mt-1 grid grid-cols-3 gap-2 overflow-hidden max-h-20">
+                  {" "}
+                  <div className="flex flex-col p-1.5 rounded-md bg-emerald-50 border border-emerald-100">
+                    <span className="text-xs text-emerald-800 font-medium">
+                      Avg. Income
+                    </span>
+                    <span className="text-xs font-bold text-emerald-600 truncate">
+                      {formatCurrency(
+                        chartData.length > 0
+                          ? chartData.reduce(
+                              (sum, item) => sum + item.credit,
+                              0
+                            ) / chartData.length
+                          : 0
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex flex-col p-1.5 rounded-md bg-red-50 border border-red-100">
+                    <span className="text-xs text-red-800 font-medium">
+                      Avg. Expense
+                    </span>
+                    <span className="text-xs font-bold text-red-600 truncate">
+                      {formatCurrency(
+                        chartData.length > 0
+                          ? chartData.reduce(
+                              (sum, item) => sum + item.debit,
+                              0
+                            ) / chartData.length
+                          : 0
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex flex-col p-1.5 rounded-md bg-blue-50 border border-blue-100">
+                    <span className="text-xs text-blue-800 font-medium">
+                      Avg. Net Flow
+                    </span>
+                    <span className="text-xs font-bold text-blue-600 truncate">
+                      {formatCurrency(
+                        chartData.length > 0
+                          ? chartData.reduce(
+                              (sum, item) => sum + item.netFlow,
+                              0
+                            ) / chartData.length
+                          : 0
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </>
             )}
           </motion.div>
         </CardContent>

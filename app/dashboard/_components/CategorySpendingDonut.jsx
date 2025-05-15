@@ -11,15 +11,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { PieChart, ChevronLeft, Filter, Calendar } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Register required Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 // Format currency values consistently
 const formatCurrency = (value) => {
-  if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${value}`;
+  // First round the value to nearest integer
+  const roundedValue = Math.round(value);
+
+  if (roundedValue >= 1000000)
+    return `₹${(roundedValue / 1000000).toFixed(1)}M`;
+  if (roundedValue >= 1000) return `₹${(roundedValue / 1000).toFixed(1)}K`;
+  return `₹${roundedValue}`;
 };
 
 // Vibrant color palette for categories
@@ -38,25 +44,124 @@ const CATEGORY_COLORS = [
   "#f97316", // Orange
 ];
 
-function CategorySpendingDonut({ transactions = [] }) {
+function CategorySpendingDonut({ transactions = [], isLoading = false }) {
   // For drill-down functionality
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [timeframe, setTimeframe] = useState("all"); // "all", "monthly", "quarterly", "yearly"
+  const [loading, setLoading] = useState(isLoading);
 
-  // Transform data for pie chart
-  const { chartData, totalSpending, categories } = useMemo(() => {
-    // Filter for expense transactions only
-    const expenses = transactions.filter(
-      (tx) => tx.transactionType?.toUpperCase() === "DEBIT" || tx.amount < 0
+  // Simulate loading state if needed
+  React.useEffect(() => {
+    setLoading(isLoading);
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  // Function to determine current month and year
+  const getCurrentPeriod = () => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    return { month: currentMonth, year: currentYear };
+  };
+  // Filter transactions based on selected timeframe
+  const timeframeFilteredTransactions = useMemo(() => {
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return [];
+    }
+
+    console.log("Transactions before filtering:", transactions.length);
+
+    // Only process debit transactions (expenses)
+    const debitTransactions = transactions.filter(
+      (tx) =>
+        tx.transactionType?.toUpperCase() === "DEBIT" ||
+        parseFloat(tx.amount) < 0
     );
+
+    console.log("Debit transactions:", debitTransactions.length);
+
+    // If timeframe filter is set to "all", return all transactions
+    if (timeframe === "all") {
+      return debitTransactions;
+    }
+
+    const { month, year } = getCurrentPeriod();
+
+    const result = debitTransactions.filter((tx) => {
+      if (!tx.date) return false;
+
+      // Parse the date (handle both string and Date objects)
+      const txDate = new Date(tx.date);
+
+      // Skip invalid dates
+      if (isNaN(txDate.getTime())) {
+        return false;
+      }
+
+      if (timeframe === "yearly") {
+        return txDate.getFullYear() === year;
+      } else if (timeframe === "quarterly") {
+        const txQuarter = Math.floor(txDate.getMonth() / 3);
+        const currentQuarter = Math.floor(month / 3);
+        return txDate.getFullYear() === year && txQuarter === currentQuarter;
+      } else {
+        // Default: monthly
+        return txDate.getMonth() === month && txDate.getFullYear() === year;
+      }
+    });
+
+    console.log("After timeframe filtering:", result.length);
+
+    // If no transactions match the timeframe filter, return all debit transactions
+    if (result.length === 0) {
+      return debitTransactions;
+    }
+
+    return result;
+  }, [transactions, timeframe]); // Transform data for pie chart
+  const { chartData, totalSpending, categories } = useMemo(() => {
+    console.log("Chart useMemo running, loading:", loading);
+    console.log(
+      "Filtered transactions length:",
+      timeframeFilteredTransactions?.length || 0
+    );
+
+    if (
+      loading ||
+      !Array.isArray(timeframeFilteredTransactions) ||
+      timeframeFilteredTransactions.length === 0
+    ) {
+      console.log("Returning empty chart data");
+      return {
+        chartData: {
+          labels: ["No Data"],
+          datasets: [
+            {
+              data: [1],
+              backgroundColor: ["#e2e8f0"],
+              borderColor: ["#ffffff"],
+              borderWidth: 1,
+            },
+          ],
+        },
+        totalSpending: 0,
+        categories: [],
+      };
+    }
 
     // Group by category
     const categoryMap = {};
-    expenses.forEach((tx) => {
+    timeframeFilteredTransactions.forEach((tx) => {
       const category = tx.category || "Uncategorized";
       if (!categoryMap[category]) {
         categoryMap[category] = 0;
       }
-      categoryMap[category] += Math.abs(tx.amount);
+      categoryMap[category] += Math.abs(parseFloat(tx.amount) || 0);
     });
 
     // Sort categories by amount
@@ -108,7 +213,7 @@ function CategorySpendingDonut({ transactions = [] }) {
       totalSpending,
       categories: topCategories,
     };
-  }, [transactions]);
+  }, [timeframeFilteredTransactions, loading]);
 
   // Handle chart click for drill-down
   const handleChartClick = (event, elements) => {
@@ -120,9 +225,8 @@ function CategorySpendingDonut({ transactions = [] }) {
       );
     }
   };
-
   // Filter transactions for selected category (drill-down)
-  const filteredTransactions = useMemo(() => {
+  const categoryFilteredTransactions = useMemo(() => {
     if (!selectedCategory) return [];
 
     if (selectedCategory === "Others") {
@@ -154,15 +258,26 @@ function CategorySpendingDonut({ transactions = [] }) {
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 5);
     }
-  }, [selectedCategory, transactions, categories]);
-
-  // Configure chart options
+  }, [selectedCategory, transactions, categories]); // Configure chart options
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    cutout: "65%", // Make the donut hole bigger for better visual
+    onClick: handleChartClick,
+    animation: {
+      animateScale: true,
+      animateRotate: true,
+      duration: 500,
+      easing: "easeOutQuart",
+    },
+    elements: {
+      arc: {
+        hoverBorderColor: "#ffffff",
+      },
+    },
     plugins: {
       legend: {
-        display: true,
+        display: totalSpending > 0,
         position: "bottom",
         labels: {
           color: "#6b7280",
@@ -175,6 +290,7 @@ function CategorySpendingDonut({ transactions = [] }) {
         },
       },
       tooltip: {
+        enabled: totalSpending > 0,
         backgroundColor: "#ffffff",
         titleColor: "#111827",
         bodyColor: "#4b5563",
@@ -196,28 +312,15 @@ function CategorySpendingDonut({ transactions = [] }) {
           },
           label: (context) => {
             const value = context.raw;
-            const percentage = ((value / totalSpending) * 100).toFixed(1);
+            const percentage =
+              totalSpending > 0
+                ? ((value / totalSpending) * 100).toFixed(1)
+                : 0;
             return `${formatCurrency(value)} (${percentage}%)`;
           },
         },
       },
     },
-    // Enable onClick for drill-down
-    onClick: handleChartClick,
-    // Add hover effects
-    elements: {
-      arc: {
-        hoverBorderColor: "#ffffff",
-      },
-    },
-    // Animation settings for better visual feedback
-    animation: {
-      animateRotate: true,
-      animateScale: true,
-      duration: 1200,
-      easing: "easeOutQuart",
-    },
-    cutout: "65%",
   };
 
   const containerVariants = {
@@ -238,6 +341,7 @@ function CategorySpendingDonut({ transactions = [] }) {
       variants={containerVariants}
     >
       <Card className="w-full h-full">
+        {" "}
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center justify-between">
             <span className="text-xl font-bold text-gray-800">
@@ -252,10 +356,57 @@ function CategorySpendingDonut({ transactions = [] }) {
               </button>
             )}
           </CardTitle>
-          <CardDescription className="text-sm text-gray-500">
-            {selectedCategory
-              ? `Showing top transactions in ${selectedCategory}`
-              : "Distribution of your expenses"}
+          <CardDescription className="text-sm text-gray-500 flex justify-between items-center">
+            <span>
+              {selectedCategory
+                ? `Showing top transactions in ${selectedCategory}`
+                : "Distribution of your expenses"}
+            </span>
+
+            {!selectedCategory && (
+              <div className="flex text-xs mt-2 space-x-1">
+                <button
+                  onClick={() => setTimeframe("all")}
+                  className={`px-2 py-1 rounded ${
+                    timeframe === "all"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setTimeframe("monthly")}
+                  className={`px-2 py-1 rounded ${
+                    timeframe === "monthly"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setTimeframe("quarterly")}
+                  className={`px-2 py-1 rounded ${
+                    timeframe === "quarterly"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  Q{Math.floor(getCurrentPeriod().month / 3) + 1}
+                </button>
+                <button
+                  onClick={() => setTimeframe("yearly")}
+                  className={`px-2 py-1 rounded ${
+                    timeframe === "yearly"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {getCurrentPeriod().year}
+                </button>
+              </div>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="h-[calc(100%-90px)] overflow-hidden">
@@ -276,9 +427,8 @@ function CategorySpendingDonut({ transactions = [] }) {
                 <h3 className="text-sm font-medium text-gray-800">
                   {selectedCategory}
                 </h3>
-              </div>
-
-              {filteredTransactions.length > 0 ? (
+              </div>{" "}
+              {categoryFilteredTransactions.length > 0 ? (
                 <div className="grow overflow-auto">
                   <table className="w-full text-sm text-left">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -289,7 +439,7 @@ function CategorySpendingDonut({ transactions = [] }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredTransactions.map((tx, index) => (
+                      {categoryFilteredTransactions.map((tx, index) => (
                         <tr
                           key={index}
                           className="border-b border-gray-100 hover:bg-gray-50"
@@ -316,20 +466,38 @@ function CategorySpendingDonut({ transactions = [] }) {
             </div>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center">
-              <div className="h-[calc(100%-30px)] w-full max-w-[250px] mx-auto">
-                <Doughnut data={chartData} options={chartOptions} />
-              </div>
+              {totalSpending > 0 ? (
+                <div className="h-[calc(100%-30px)] w-full max-w-[250px] mx-auto">
+                  <Doughnut data={chartData} options={chartOptions} />
+                </div>
+              ) : (
+                <div className="h-[calc(100%-30px)] w-full flex flex-col items-center justify-center">
+                  <div className="rounded-full bg-gray-100 w-32 h-32 flex items-center justify-center mb-4">
+                    <PieChart className="w-12 h-12 text-gray-300" />
+                  </div>
+                  <p className="text-sm text-gray-500 mb-1">
+                    No spending data available
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Try another time period or upload transactions
+                  </p>
+                </div>
+              )}
 
               <div className="text-center mt-auto">
                 <p className="text-sm text-gray-500">
                   Total Expenses:{" "}
                   <span className="font-semibold text-gray-700">
-                    {formatCurrency(totalSpending)}
+                    {totalSpending > 0
+                      ? formatCurrency(totalSpending)
+                      : "No data"}
                   </span>
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Click on a segment to see details
-                </p>
+                {totalSpending > 0 && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Click on a segment to see details
+                  </p>
+                )}
               </div>
             </div>
           )}

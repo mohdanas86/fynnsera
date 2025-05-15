@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useMemo, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -8,6 +6,12 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
+  Wallet,
+  PiggyBank,
+  ArrowRight,
+  CreditCard,
+  Calendar,
+  Banknote,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,9 +25,13 @@ import {
 
 // Helper function to format currency values consistently
 const formatCurrency = (value) => {
-  if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${value}`;
+  // First round the value to nearest integer
+  const roundedValue = Math.round(value);
+
+  if (roundedValue >= 1000000)
+    return `₹${(roundedValue / 1000000).toFixed(1)}M`;
+  if (roundedValue >= 1000) return `₹${(roundedValue / 1000).toFixed(1)}K`;
+  return `₹${roundedValue}`;
 };
 
 // Animation variants for count-up effect
@@ -296,24 +304,35 @@ export default function SummaryHeaderStats({
                   </div>
                 ) : (
                   <div className="flex justify-between items-start">
+                    {" "}
                     <div>
                       <p className="text-sm text-gray-600 mb-1">
                         Current Balance
                       </p>
                       <div className="flex flex-col">
                         <p className="text-2xl font-bold text-blue-600">
-                          <CountUp
-                            end={stats.currentBalance}
-                            prefix="₹"
-                            separator=","
-                            duration={1}
-                            formattingFn={(value) => formatCurrency(value)}
-                          />
+                          {stats.currentBalance > 0 ? (
+                            <CountUp
+                              end={stats.currentBalance}
+                              prefix="₹"
+                              separator=","
+                              duration={1}
+                              formattingFn={(value) => formatCurrency(value)}
+                            />
+                          ) : (
+                            formatCurrency(stats.currentBalance)
+                          )}
                         </p>
+                        {stats.credited > 0 && stats.debited > 0 && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Net Flow: {stats.netCashFlow >= 0 ? "+" : ""}
+                            {formatCurrency(stats.netCashFlow)}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="bg-blue-100 p-2 rounded-full">
-                      <DollarSign className="size-5 text-blue-600" />
+                      <Wallet className="size-5 text-blue-600" />
                     </div>
                   </div>
                 )}
@@ -400,9 +419,9 @@ export default function SummaryHeaderStats({
                           </React.Suspense>
                         </div>
                       )}
-                    </div>
+                    </div>{" "}
                     <div className="bg-green-100 p-2 rounded-full">
-                      <ArrowUpRight className="size-5 text-green-600" />
+                      <PiggyBank className="size-5 text-green-600" />
                     </div>
                   </div>
                 )}
@@ -489,9 +508,9 @@ export default function SummaryHeaderStats({
                           </React.Suspense>
                         </div>
                       )}
-                    </div>
+                    </div>{" "}
                     <div className="bg-rose-100 p-2 rounded-full">
-                      <ArrowDownRight className="size-5 text-rose-600" />
+                      <CreditCard className="size-5 text-rose-600" />
                     </div>
                   </div>
                 )}
@@ -554,7 +573,7 @@ export default function SummaryHeaderStats({
                         {stats.netCashFlow >= 0
                           ? "You're earning more than spending"
                           : "Your expenses exceed your income"}
-                      </div>
+                      </div>{" "}
                     </div>
                     <div
                       className={`p-2 rounded-full ${
@@ -564,21 +583,9 @@ export default function SummaryHeaderStats({
                       }`}
                     >
                       {stats.netCashFlow >= 0 ? (
-                        <TrendingUp
-                          className={`size-5 ${
-                            stats.netCashFlow >= 0
-                              ? "text-emerald-600"
-                              : "text-amber-600"
-                          }`}
-                        />
+                        <Banknote className="size-5 text-emerald-600" />
                       ) : (
-                        <TrendingDown
-                          className={`size-5 ${
-                            stats.netCashFlow >= 0
-                              ? "text-emerald-600"
-                              : "text-amber-600"
-                          }`}
-                        />
+                        <Banknote className="size-5 text-amber-600" />
                       )}
                     </div>
                   </div>
@@ -708,10 +715,11 @@ export default function SummaryHeaderStats({
                           : "bg-amber-100"
                       }`}
                     >
+                      {" "}
                       {stats.spendingChange <= 0 ? (
-                        <TrendingDown className="size-5 text-blue-600" />
+                        <Calendar className="size-5 text-blue-600" />
                       ) : (
-                        <TrendingUp className="size-5 text-amber-600" />
+                        <Calendar className="size-5 text-amber-600" />
                       )}
                     </div>
                   </div>
