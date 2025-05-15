@@ -102,16 +102,14 @@ export function DatePickerWithRange({ defaultRange, onChange, className }) {
       setSelectedRange({ from: newFrom, to: newTo });
     }
   }, [defaultRange]);
-
   return (
     <input
       type="text"
       ref={inputRef}
       readOnly
-      className={`px-3 py-2 border border-gray-300 rounded-sm text-sm bg-white w-full lg:w-[200px] IbmFont ${
+      className={`px-3 py-2 border border-gray-300 rounded-sm text-sm bg-white w-full lg:w-[200px] h-[38px] IbmFont ${
         className || ""
       }`}
-      // style={{ minWidth: "200px" }}
       value={
         selectedRange.from && selectedRange.to
           ? `${selectedRange.from.format(

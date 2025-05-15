@@ -15,9 +15,12 @@ import { motion } from "framer-motion";
 
 // Format currency values consistently
 const formatCurrency = (value) => {
-  if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${value}`;
+  // Round the value to nearest integer
+  const roundedValue = Math.round(value);
+  if (roundedValue >= 1000000)
+    return `₹${(roundedValue / 1000000).toFixed(1)}M`;
+  if (roundedValue >= 1000) return `₹${(roundedValue / 1000).toFixed(1)}K`;
+  return `₹${roundedValue}`;
 };
 
 function AIInsightCards({ transactions = [], enabled = true }) {
