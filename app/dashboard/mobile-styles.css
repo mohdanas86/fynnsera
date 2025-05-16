@@ -1,0 +1,181 @@
+/* Mobile-specific styles for the finance dashboard */
+
+/* Variables for consistent spacing and breakpoints */
+:root {
+  --mobile-padding-x: 0.75rem;
+  --mobile-padding-y: 0.5rem;
+  --tablet-padding-x: 1rem;
+  --tablet-padding-y: 0.75rem;
+  --card-spacing-mobile: 0.5rem;
+  --card-spacing-tablet: 0.75rem;
+  --card-radius: 0.5rem;
+  --transition-speed: 0.3s;
+  --box-shadow-mobile: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --box-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Base responsive adjustments */
+@media (max-width: 640px) {
+  /* General container sizing */
+  .container {
+    padding-left: var(--mobile-padding-x);
+    padding-right: var(--mobile-padding-x);
+  }
+
+  /* Card component adjustments */
+  .card {
+    padding: var(--mobile-padding-y) var(--mobile-padding-x);
+    box-shadow: var(--box-shadow-mobile);
+  }
+
+  /* Typography scaling */
+  h1, .h1 {
+    font-size: 1.5rem; /* 24px */
+  }
+  
+  h2, .h2 {
+    font-size: 1.25rem; /* 20px */
+  }
+  
+  p, .body {
+    font-size: 0.875rem; /* 14px */
+  }
+  
+  .text-xs {
+    font-size: 0.75rem; /* 12px */
+  }
+  
+  /* Reduce icon sizes for mobile */
+  .icon-mobile-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  /* Adjust charts for better mobile viewing */
+  .chart-container {
+    height: 250px !important;
+  }
+  
+  /* Improve touch targets for mobile */
+  button, 
+  .button,
+  [role="button"] {
+    min-height: 2.5rem;
+  }
+  
+  /* Handle mobile tooltips */
+  .tooltip-mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    transform: none;
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
+    z-index: 100;
+  }
+  
+  /* Scrollable containers with fade indicators */
+  .scrollable-x {
+    overflow-x: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+  
+  .scrollable-x::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .scrollable-x::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+  
+  /* Improve date picker for touch */
+  .date-picker-mobile input {
+    padding: 0.75rem;
+  }
+  
+  /* Enhance card interactions on mobile */
+  .card:active {
+    transform: translateY(1px);
+    transition: transform 0.1s;
+  }
+  
+  /* Optimize modals for touch */
+  .modal-mobile {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+  
+  /* Improved spacing for mobile view */
+  .mobile-stack > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  /* Enhanced touch feedback */
+  .touch-feedback:active {
+    opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+}
+
+/* Tablet specific adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .card {
+    padding: var(--tablet-padding-y) var(--tablet-padding-x);
+  }
+  
+  .chart-container {
+    height: 300px !important;
+  }
+  
+  /* Tablet-optimized grids */
+  .grid-tablet-optimize {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+/* Add a special utility class for x-small screens */
+@media (max-width: 360px) {
+  .xs\:hidden {
+    display: none;
+  }
+  
+  .xs\:block {
+    display: block;
+  }
+  
+  .xs\:text-xs {
+    font-size: 0.7rem;
+  }
+  
+  .xs\:text-center {
+    text-align: center;
+  }
+  
+  .xs\:w-full {
+    width: 100%;
+  }
+  
+  .xs\:gap-1 {
+    gap: 0.25rem;
+  }
+}
+
+/* Improve touch experience with active states */
+@media (hover: none) {
+  button:active, 
+  .button:active, 
+  [role="button"]:active {
+    opacity: 0.8;
+    transition: opacity var(--transition-speed);
+  }
+  
+  /* Enlarge tap targets on touch screens */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

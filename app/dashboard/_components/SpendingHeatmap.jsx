@@ -399,14 +399,14 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
             </div>
           ) : (
             <div className="h-full w-full flex flex-col">
-              {/* Summary metrics */}
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="p-3 bg-teal-50 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">
+              {/* Summary metrics */}{" "}
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-2 sm:mb-4">
+                <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
+                  <div className="text-xs sm:text-sm text-gray-600 mb-0.5 sm:mb-1">
                     Monthly Total
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-base sm:text-lg font-bold text-gray-900">
                       {formatCurrency(totalMonthSpending)}
                     </p>
                     <div
@@ -423,62 +423,61 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                       )}
                       {Math.abs(monthOverMonthChange).toFixed(1)}%
                     </div>
-                  </div>
+                  </div>{" "}
                 </div>
 
-                <div className="p-3 bg-teal-50 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">
+                <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
+                  <div className="text-xs sm:text-sm text-gray-600 mb-0.5 sm:mb-1">
                     Avg Daily Spend
                   </div>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-base sm:text-lg font-bold text-gray-900">
                     {formatCurrency(avgDailySpend)}
                   </p>
                 </div>
 
-                <div className="p-3 bg-teal-50 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">Highest Day</div>
-                  <p className="text-lg font-bold text-gray-900">
+                <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
+                  <div className="text-xs sm:text-sm text-gray-600 mb-0.5 sm:mb-1">
+                    Highest Day
+                  </div>
+                  <p className="text-base sm:text-lg font-bold text-gray-900">
                     {highestSpendingDay
                       ? formatCurrency(highestSpendingDay.spending)
                       : "₹0"}
                   </p>
                 </div>
-              </div>
-
-              <div className="flex flex-col md:flex-row gap-4 h-[calc(100%-80px)]">
+              </div>{" "}
+              <div className="flex flex-col lg:flex-row gap-4 h-[calc(100%-80px)]">
                 {/* Calendar */}
                 <motion.div
-                  className="w-full md:w-3/5"
+                  className="w-full lg:w-3/5"
                   variants={calendarVariants}
                 >
                   {/* Day labels (S, M, T, etc.) */}
-                  <div className="grid grid-cols-7 mb-2">
+                  <div className="grid grid-cols-7 mb-1 sm:mb-2">
                     {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
                       <div
                         key={index}
-                        className="h-8 flex items-center justify-center text-sm font-medium text-gray-500"
+                        className="h-6 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-medium text-gray-500"
                       >
                         {day}
                       </div>
                     ))}
                   </div>
-
                   {/* Calendar grid */}
-                  <div className="grid grid-cols-7 gap-1.5">
+                  <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
                     {calendarData.map((day, index) => {
                       if (day.isEmpty) {
                         return (
                           <div
                             key={`empty-${index}`}
-                            className="h-12 rounded-md bg-transparent"
+                            className="h-8 sm:h-12 rounded-md bg-transparent"
                           ></div>
                         );
                       }
-
                       return (
                         <div
                           key={`day-${day.day}`}
-                          className={`h-12 p-1 rounded-md flex flex-col justify-between ${getHeatmapColor(
+                          className={`h-8 sm:h-12 p-0.5 sm:p-1 rounded-md flex flex-col justify-between ${getHeatmapColor(
                             day.intensity
                           )} cursor-pointer hover:ring-1 hover:ring-teal-600 transition-all
                             ${
@@ -489,12 +488,12 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                           `}
                           onClick={() => setSelectedDay(day)}
                         >
-                          <span className="text-xs font-medium text-gray-700">
+                          <span className="text-[10px] sm:text-xs font-medium text-gray-700">
                             {day.day}
                           </span>
                           {day.spending > 0 && (
                             <span
-                              className={`text-xs font-semibold ${
+                              className={`text-[10px] sm:text-xs font-semibold ${
                                 day.intensity > 5
                                   ? "text-white"
                                   : "text-gray-800"
@@ -506,23 +505,24 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                         </div>
                       );
                     })}
-                  </div>
-
+                  </div>{" "}
                   {/* Legend */}
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-sm bg-teal-50"></div>
-                      <span className="text-xs text-gray-500">No spending</span>
+                  <div className="mt-2 sm:mt-4 flex items-center justify-between">
+                    <div className="flex items-center gap-1 sm:gap-1.5">
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-50"></div>
+                      <span className="text-[10px] sm:text-xs text-gray-500">
+                        No spending
+                      </span>
                     </div>
                     <div className="flex gap-1">
-                      <div className="w-3 h-3 rounded-sm bg-teal-200"></div>
-                      <div className="w-3 h-3 rounded-sm bg-teal-400"></div>
-                      <div className="w-3 h-3 rounded-sm bg-teal-600"></div>
-                      <div className="w-3 h-3 rounded-sm bg-teal-800"></div>
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-200"></div>
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-400"></div>
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-600"></div>
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-800"></div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-sm bg-teal-800"></div>
-                      <span className="text-xs text-gray-500">
+                    <div className="flex items-center gap-1 sm:gap-1.5">
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-800"></div>
+                      <span className="text-[10px] sm:text-xs text-gray-500">
                         High spending
                       </span>
                     </div>
@@ -530,7 +530,7 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                 </motion.div>
 
                 {/* Details Section */}
-                <div className="w-full md:w-2/5 flex flex-col">
+                <div className="w-full lg:w-2/5 flex flex-col">
                   {selectedDay ? (
                     // Transactions for selected day
                     <div className="h-full flex flex-col border rounded-lg p-4">

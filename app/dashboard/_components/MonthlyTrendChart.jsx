@@ -205,29 +205,35 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
         .sort((a, b) => b.value - a.value);
 
       const totalForMonth = payload.reduce((sum, p) => sum + (p.value || 0), 0);
-
       return (
-        <div className="bg-white border border-gray-200 shadow-lg rounded-lg p-3 text-sm">
-          <p className="font-semibold mb-2">{label}</p>
-          <p className="font-medium text-gray-900">
+        <div className="bg-white border border-gray-200 shadow-lg rounded-lg p-2 sm:p-3 text-sm max-w-[180px] sm:max-w-none">
+          <p className="font-semibold mb-1 sm:mb-2 text-xs sm:text-sm">
+            {label}
+          </p>
+          <p className="font-medium text-gray-900 text-xs sm:text-sm">
             Total: {formatCurrency(totalForMonth)}
           </p>
-          <div className="mt-2 space-y-1.5">
+          <div className="mt-1 sm:mt-2 space-y-1 sm:space-y-1.5">
             {categoriesInMonth.map((entry, i) => (
-              <div key={i} className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5">
+              <div
+                key={i}
+                className="flex items-center justify-between gap-1 sm:gap-3"
+              >
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   <span
-                    className="w-2.5 h-2.5 rounded-full"
+                    className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full"
                     style={{ backgroundColor: entry.color }}
                   ></span>
-                  <span className="text-gray-700 text-xs">{entry.name}</span>
+                  <span className="text-gray-700 text-[10px] sm:text-xs truncate max-w-[80px] sm:max-w-none">
+                    {entry.name}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-xs">
+                  <span className="font-medium text-[10px] sm:text-xs">
                     {formatCurrency(entry.value)}
                   </span>
-                  <span className="text-gray-500 text-xs">
-                    ({((entry.value / totalForMonth) * 100).toFixed(1)}%)
+                  <span className="text-gray-500 text-[9px] sm:text-xs">
+                    ({((entry.value / totalForMonth) * 100).toFixed(0)}%)
                   </span>
                 </div>
               </div>
@@ -261,21 +267,21 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-xl font-semibold flex items-center gap-2">
-                <BarChart3 className="size-5 text-indigo-500" />
+              {" "}
+              <CardTitle className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+                <BarChart3 className="size-4 sm:size-5 text-indigo-500" />
                 Monthly Spending Trends
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Breakdown of your monthly expenses by category
               </CardDescription>
-            </div>
-
-            <div className="flex gap-2">
+            </div>{" "}
+            <div className="flex gap-1 sm:gap-2">
               {/* Time range selector */}
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
-                className="text-xs border border-gray-200 rounded-md bg-gray-50 px-2 py-1"
+                className="text-[10px] sm:text-xs border border-gray-200 rounded-md bg-gray-50 px-1 sm:px-2 py-1"
               >
                 <option value="3">Last 3 months</option>
                 <option value="6">Last 6 months</option>
@@ -283,10 +289,10 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
               </select>
 
               {/* View mode toggle */}
-              <div className="flex rounded-md border border-gray-200 text-xs">
+              <div className="flex rounded-md border border-gray-200 text-[10px] sm:text-xs">
                 <button
                   onClick={() => setViewMode("stacked")}
-                  className={`px-2 py-1 ${
+                  className={`px-1 sm:px-2 py-1 ${
                     viewMode === "stacked"
                       ? "bg-indigo-100 text-indigo-700 font-medium"
                       : "bg-white text-gray-600"
@@ -296,7 +302,7 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
                 </button>
                 <button
                   onClick={() => setViewMode("grouped")}
-                  className={`px-2 py-1 ${
+                  className={`px-1 sm:px-2 py-1 ${
                     viewMode === "grouped"
                       ? "bg-indigo-100 text-indigo-700 font-medium"
                       : "bg-white text-gray-600"
@@ -333,45 +339,52 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
             </div>
           ) : (
             <div className="h-full w-full flex flex-col">
+              {" "}
               {/* Summary metrics */}
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="p-3 bg-indigo-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-indigo-100 rounded-full">
-                      <CalendarDays className="h-4 w-4 text-indigo-600" />
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-3 sm:mb-4">
+                <div className="p-2 sm:p-3 bg-indigo-50 rounded-lg">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="p-1 sm:p-1.5 bg-indigo-100 rounded-full">
+                      <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4 text-indigo-600" />
                     </div>
-                    <span className="text-sm text-gray-600">Total Spent</span>
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      Total Spent
+                    </span>
                   </div>
-                  <p className="text-lg font-bold text-gray-900 mt-1">
+                  <p className="text-sm sm:text-lg font-bold text-gray-900 mt-1">
                     {formatCurrency(totalSpent)}
                   </p>
                 </div>
 
-                <div className="p-3 bg-teal-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-teal-100 rounded-full">
-                      <BarChart3 className="h-4 w-4 text-teal-600" />
+                <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="p-1 sm:p-1.5 bg-teal-100 rounded-full">
+                      <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-teal-600" />
                     </div>
-                    <span className="text-sm text-gray-600">Monthly Avg</span>
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      Monthly Avg
+                    </span>
                   </div>
-                  <p className="text-lg font-bold text-gray-900 mt-1">
+                  <p className="text-sm sm:text-lg font-bold text-gray-900 mt-1">
                     {formatCurrency(monthlyAverage)}
                   </p>
                 </div>
 
-                <div className="p-3 bg-purple-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-purple-100 rounded-full">
+                <div className="p-2 sm:p-3 bg-purple-50 rounded-lg">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="p-1 sm:p-1.5 bg-purple-100 rounded-full">
                       {percentageChange > 0 ? (
-                        <TrendingUp className="h-4 w-4 text-red-600" />
+                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
                       ) : (
-                        <TrendingDown className="h-4 w-4 text-green-600" />
+                        <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
                       )}
                     </div>
-                    <span className="text-sm text-gray-600">Month/Month</span>
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      Month/Month
+                    </span>
                   </div>
                   <p
-                    className={`text-lg font-bold mt-1 ${
+                    className={`text-sm sm:text-lg font-bold mt-1 ${
                       percentageChange > 0 ? "text-red-600" : "text-green-600"
                     }`}
                   >
@@ -380,15 +393,15 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
                   </p>
                 </div>
               </div>
-
               {/* Chart */}
               <div className="grow">
                 <ResponsiveContainer width="100%" height="100%">
+                  {" "}
                   <BarChart
                     data={chartData}
-                    margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
-                    barGap={viewMode === "grouped" ? 2 : 0}
-                    barCategoryGap={viewMode === "grouped" ? 6 : 10}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 15 }}
+                    barGap={viewMode === "grouped" ? 1 : 0}
+                    barCategoryGap={viewMode === "grouped" ? 4 : 8}
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
@@ -397,22 +410,26 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
                     />
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 10 }}
                       tickLine={false}
                       axisLine={{ stroke: "#e5e7eb" }}
+                      angle={-25}
+                      textAnchor="end"
+                      height={50}
                     />
                     <YAxis
                       tickFormatter={formatCurrency}
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 10 }}
                       tickLine={false}
                       axisLine={false}
-                      width={60}
+                      width={45}
                     />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend
-                      wrapperStyle={{ paddingTop: 10 }}
+                      wrapperStyle={{ paddingTop: 8 }}
                       iconType="circle"
-                      iconSize={8}
+                      iconSize={7}
+                      fontSize={11}
                     />
 
                     {viewMode === "stacked"

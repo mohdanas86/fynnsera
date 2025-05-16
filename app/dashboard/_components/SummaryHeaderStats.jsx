@@ -280,6 +280,7 @@ export default function SummaryHeaderStats({
 
   return (
     <TooltipProvider>
+      {" "}
       <div className="w-full mb-8">
         {/* Period indicator */}
         {stats.credited > 0 || stats.debited > 0 ? (
@@ -287,16 +288,16 @@ export default function SummaryHeaderStats({
             Showing data for: {getMonthName(stats.dataMonth)} {stats.dataYear}
           </p>
         ) : null}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Current Balance */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+          {/* Current Balance */}{" "}
           <motion.div
             className="col-span-1"
             initial="hidden"
             animate="visible"
             variants={countUpVariants}
           >
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-none shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 border-none shadow-sm hover:shadow-md transition-all duration-300 h-full">
+              <CardContent className="p-4 sm:p-6">
                 {loading ? (
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-24" />
@@ -304,13 +305,12 @@ export default function SummaryHeaderStats({
                   </div>
                 ) : (
                   <div className="flex justify-between items-start">
-                    {" "}
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1.5">
                         Current Balance
                       </p>
                       <div className="flex flex-col">
-                        <p className="text-2xl font-bold text-blue-600">
+                        <p className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
                           {stats.currentBalance > 0 ? (
                             <CountUp
                               end={stats.currentBalance}
@@ -324,22 +324,22 @@ export default function SummaryHeaderStats({
                           )}
                         </p>
                         {stats.credited > 0 && stats.debited > 0 && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
                             Net Flow: {stats.netCashFlow >= 0 ? "+" : ""}
                             {formatCurrency(stats.netCashFlow)}
                           </p>
                         )}
                       </div>
                     </div>
-                    <div className="bg-blue-100 p-2 rounded-full">
-                      <Wallet className="size-5 text-blue-600" />
+                    <div className="bg-blue-100 p-2 sm:p-2.5 rounded-full shadow-sm">
+                      <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
           </motion.div>
-          {/* This Month's Credited */}
+          {/* This Month's Credited */}{" "}
           <motion.div
             className="col-span-1"
             initial="hidden"
@@ -347,8 +347,8 @@ export default function SummaryHeaderStats({
             variants={countUpVariants}
             transition={{ delay: 0.1 }}
           >
-            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-none shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border-none shadow-sm hover:shadow-md transition-all duration-300 h-full">
+              <CardContent className="p-4 sm:p-6">
                 {loading ? (
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-24" />
@@ -357,12 +357,11 @@ export default function SummaryHeaderStats({
                 ) : (
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1.5">
                         Month's Credited
                       </p>
-                      <div className="flex items-center gap-2">
-                        {" "}
-                        <p className="text-2xl font-bold text-green-600">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">
                           {stats.credited > 0 ? (
                             <CountUp
                               end={stats.credited}
@@ -374,7 +373,7 @@ export default function SummaryHeaderStats({
                           ) : (
                             formatCurrency(0)
                           )}
-                        </p>{" "}
+                        </p>
                         {stats.credited > 0 && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -419,16 +418,16 @@ export default function SummaryHeaderStats({
                           </React.Suspense>
                         </div>
                       )}
-                    </div>{" "}
-                    <div className="bg-green-100 p-2 rounded-full">
-                      <PiggyBank className="size-5 text-green-600" />
+                    </div>
+                    <div className="bg-green-100 p-2 sm:p-2.5 rounded-full shadow-sm">
+                      <PiggyBank className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
-          </motion.div>{" "}
-          {/* This Month's Debited */}
+          </motion.div>
+          {/* This Month's Debited */}{" "}
           <motion.div
             className="col-span-1"
             initial="hidden"
@@ -436,8 +435,8 @@ export default function SummaryHeaderStats({
             variants={countUpVariants}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-gradient-to-r from-rose-50 to-pink-50 border-none shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-rose-50 via-pink-50 to-rose-50 border-none shadow-sm hover:shadow-md transition-all duration-300 h-full">
+              <CardContent className="p-4 sm:p-6">
                 {loading ? (
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-24" />
@@ -446,12 +445,11 @@ export default function SummaryHeaderStats({
                 ) : (
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1.5">
                         Month's Debited
                       </p>
-                      <div className="flex items-center gap-2">
-                        {" "}
-                        <p className="text-2xl font-bold text-rose-600">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <p className="text-xl sm:text-2xl md:text-3xl font-bold text-rose-600">
                           {stats.debited > 0 ? (
                             <CountUp
                               end={stats.debited}
@@ -463,7 +461,7 @@ export default function SummaryHeaderStats({
                           ) : (
                             formatCurrency(0)
                           )}
-                        </p>{" "}
+                        </p>
                         {stats.debited > 0 && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -508,16 +506,16 @@ export default function SummaryHeaderStats({
                           </React.Suspense>
                         </div>
                       )}
-                    </div>{" "}
-                    <div className="bg-rose-100 p-2 rounded-full">
-                      <CreditCard className="size-5 text-rose-600" />
+                    </div>
+                    <div className="bg-rose-100 p-2 sm:p-2.5 rounded-full shadow-sm">
+                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-rose-600" />
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
           </motion.div>
-          {/* Net Cash Flow */}
+          {/* Net Cash Flow */}{" "}
           <motion.div
             className="col-span-1"
             initial="hidden"
@@ -526,13 +524,13 @@ export default function SummaryHeaderStats({
             transition={{ delay: 0.3 }}
           >
             <Card
-              className={`bg-gradient-to-r ${
+              className={`bg-gradient-to-br ${
                 stats.netCashFlow >= 0
-                  ? "from-emerald-50 to-teal-50"
-                  : "from-amber-50 to-orange-50"
-              } border-none shadow-sm hover:shadow-md transition-shadow`}
+                  ? "from-emerald-50 via-teal-50 to-emerald-50"
+                  : "from-amber-50 via-orange-50 to-amber-50"
+              } border-none shadow-sm hover:shadow-md transition-all duration-300 h-full`}
             >
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 {loading ? (
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-24" />
@@ -541,13 +539,12 @@ export default function SummaryHeaderStats({
                 ) : (
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1.5">
                         Net Cash Flow
                       </p>
-                      <div className="flex items-center gap-2">
-                        {" "}
+                      <div className="flex items-center gap-1 sm:gap-2">
                         <p
-                          className={`text-2xl font-bold ${
+                          className={`text-xl sm:text-2xl md:text-3xl font-bold ${
                             stats.netCashFlow >= 0
                               ? "text-emerald-600"
                               : "text-amber-600"
@@ -556,7 +553,7 @@ export default function SummaryHeaderStats({
                           {stats.netCashFlow !== 0 ? (
                             <CountUp
                               end={Math.abs(stats.netCashFlow)}
-                              prefix="₹"
+                              prefix={stats.netCashFlow >= 0 ? "₹" : "-₹"}
                               separator=","
                               duration={1.5}
                               formattingFn={(value) => formatCurrency(value)}
@@ -573,60 +570,60 @@ export default function SummaryHeaderStats({
                         {stats.netCashFlow >= 0
                           ? "You're earning more than spending"
                           : "Your expenses exceed your income"}
-                      </div>{" "}
+                      </div>
                     </div>
                     <div
-                      className={`p-2 rounded-full ${
+                      className={`p-2 sm:p-2.5 rounded-full shadow-sm ${
                         stats.netCashFlow >= 0
                           ? "bg-emerald-100"
                           : "bg-amber-100"
                       }`}
                     >
                       {stats.netCashFlow >= 0 ? (
-                        <Banknote className="size-5 text-emerald-600" />
+                        <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
                       ) : (
-                        <Banknote className="size-5 text-amber-600" />
+                        <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
                       )}
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
-          </motion.div>{" "}
-          {/* Spending Trend */}
+          </motion.div>
+          {/* Spending Trend */}{" "}
           <motion.div
-            className="col-span-2"
+            className="col-span-1 sm:col-span-2"
             initial="hidden"
             animate="visible"
             variants={countUpVariants}
             transition={{ delay: 0.4 }}
           >
             <Card
-              className={`w-full bg-gradient-to-r ${
+              className={`w-full bg-gradient-to-br ${
                 stats.spendingChange <= 0
-                  ? "from-blue-50 to-indigo-50"
-                  : "from-amber-50 to-orange-50"
-              } border-none shadow-sm hover:shadow-md transition-shadow`}
+                  ? "from-blue-50 via-indigo-50 to-blue-50"
+                  : "from-amber-50 via-orange-50 to-amber-50"
+              } border-none shadow-sm hover:shadow-md transition-all duration-300 h-full`}
             >
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 {loading ? (
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-24" />
                     <Skeleton className="h-8 w-32" />
                     <div className="flex space-x-2 mt-2">
-                      <Skeleton className="h-20 w-20" />
-                      <Skeleton className="h-20 w-full" />
+                      <Skeleton className="h-16 sm:h-20 w-16 sm:w-20" />
+                      <Skeleton className="h-16 sm:h-20 w-full" />
                     </div>
                   </div>
                 ) : (
                   <div className="flex justify-between items-start">
                     <div className="w-full">
-                      <p className="text-sm text-gray-600 mb-1">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1.5">
                         Spending Trend
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         <p
-                          className={`text-2xl font-bold ${
+                          className={`text-xl sm:text-2xl md:text-3xl font-bold ${
                             stats.spendingChange <= 0
                               ? "text-blue-600"
                               : "text-amber-600"
@@ -635,10 +632,9 @@ export default function SummaryHeaderStats({
                           {stats.spendingChange > 0 ? "+" : ""}
                           {Math.abs(stats.spendingChange).toFixed(1)}%
                         </p>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-xs sm:text-sm text-gray-600">
                           vs last month
                         </span>
-
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="ml-2 cursor-help bg-gray-100 hover:bg-gray-200 p-1 rounded-full">
@@ -680,14 +676,13 @@ export default function SummaryHeaderStats({
                           </TooltipContent>
                         </Tooltip>
                       </div>
-
                       <div className="mt-4 w-full">
                         <React.Suspense
                           fallback={
                             <div className="h-10 w-full bg-gray-100 rounded animate-pulse" />
                           }
                         >
-                          <div className="relative h-10">
+                          <div className="relative h-8 sm:h-10">
                             <Sparkline
                               data={stats.sparklineData.reverse()}
                               color={
@@ -695,13 +690,13 @@ export default function SummaryHeaderStats({
                                   ? "#2563eb"
                                   : "#d97706"
                               }
-                              height={40}
-                              width={200}
+                              height={35}
+                              width={150}
                             />
-                            <div className="absolute bottom-0 left-0 text-[10px] text-gray-500">
+                            <div className="absolute bottom-0 left-0 text-[9px] sm:text-[10px] text-gray-500">
                               6 months ago
                             </div>
-                            <div className="absolute bottom-0 right-0 text-[10px] text-gray-500">
+                            <div className="absolute bottom-0 right-0 text-[9px] sm:text-[10px] text-gray-500">
                               Current
                             </div>
                           </div>
@@ -709,23 +704,22 @@ export default function SummaryHeaderStats({
                       </div>
                     </div>
                     <div
-                      className={`p-2 rounded-full ${
+                      className={`p-2 sm:p-2.5 rounded-full shadow-sm ${
                         stats.spendingChange <= 0
                           ? "bg-blue-100"
                           : "bg-amber-100"
                       }`}
                     >
-                      {" "}
                       {stats.spendingChange <= 0 ? (
-                        <Calendar className="size-5 text-blue-600" />
+                        <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                       ) : (
-                        <Calendar className="size-5 text-amber-600" />
+                        <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
                       )}
                     </div>
                   </div>
                 )}
               </CardContent>
-            </Card>{" "}
+            </Card>
           </motion.div>
         </div>
       </div>
