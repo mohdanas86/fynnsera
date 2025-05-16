@@ -214,14 +214,15 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
       variants={containerVariants}
     >
       <Card className="w-full h-full border-none shadow-md">
+        {" "}
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-xl font-semibold flex items-center gap-2">
-                <ListChecks className="size-5 text-violet-500" />
+              <CardTitle className="text-lg sm:text-xl font-semibold flex items-center gap-1 sm:gap-2">
+                <ListChecks className="size-4 sm:size-5 text-violet-500" />
                 Top Spending Categories
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 {selectedCategory
                   ? `Transactions in ${selectedCategory}`
                   : "Where your money is going the most"}
@@ -263,7 +264,6 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
             )}
           </div>
         </CardHeader>
-
         <CardContent className="p-3 h-[calc(100%-90px)] overflow-hidden">
           {loading ? (
             <div className="space-y-3">
@@ -367,41 +367,42 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
           ) : (
             // Main category list view
             <div className="h-full flex flex-col">
+              {" "}
               <div className="grow overflow-auto pr-2">
-                <div className="space-y-2">
+                <div className="space-y-1 sm:space-y-2">
                   {categories.map((category, index) => (
                     <motion.div
                       key={category.name}
-                      className="p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer"
+                      className="p-2 sm:p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer"
                       onClick={() => setSelectedCategory(category.name)}
                       custom={index}
                       variants={itemVariants}
                     >
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
                         {" "}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           <span
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-white"
+                            className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-white"
                             style={{ backgroundColor: category.color }}
                           >
                             {React.createElement(
                               CATEGORY_ICONS[category.name] || FileText,
-                              { size: 16 }
+                              { size: 14, className: "sm:size-16" }
                             )}
-                          </span>
-                          <h3 className="font-medium text-gray-800">
+                          </span>{" "}
+                          <h3 className="font-medium text-gray-800 text-xs sm:text-sm">
                             {category.name}
                           </h3>
                         </div>
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-gray-900 text-xs sm:text-sm">
                           {formatCurrency(category.amount)}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-1">
-                        <div className="h-1.5 bg-gray-100 rounded-full flex-grow">
+                        <div className="h-1 sm:h-1.5 bg-gray-100 rounded-full flex-grow">
                           <div
-                            className="h-1.5 rounded-full"
+                            className="h-1 sm:h-1.5 rounded-full"
                             style={{
                               width: `${category.percentage}%`,
                               backgroundColor: category.color,
@@ -423,7 +424,6 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
                   ))}
                 </div>
               </div>
-
               {/* Summary footer */}
               <div className="mt-3 pt-3 border-t text-center">
                 <div className="text-sm text-gray-500">

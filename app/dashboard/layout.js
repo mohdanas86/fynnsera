@@ -1,5 +1,6 @@
 import ClientLayout from "./_components/ClientLayout";
 import "../globals.css";
+import "./mobile-styles.css"; // Import mobile-specific styles
 
 export default function RootLayout({ children }) {
   return (

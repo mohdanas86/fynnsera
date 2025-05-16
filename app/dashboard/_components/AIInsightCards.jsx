@@ -31,7 +31,7 @@ function AIInsightCards({ transactions = [], enabled = true }) {
       description:
         "You spent 28% more on restaurants this month compared to last month. Consider setting a budget for dining out.",
       type: "spending",
-      icon: <BarChart3 className="size-5" />,
+      icon: <BarChart3 className="size-4 sm:size-5" />,
       color: "from-amber-50 to-orange-50",
       iconBg: "bg-amber-100",
       iconColor: "text-amber-600",
@@ -42,7 +42,7 @@ function AIInsightCards({ transactions = [], enabled = true }) {
       description:
         "Based on your income patterns, you could potentially save an additional ₹15K per month by optimizing utility bills.",
       type: "saving",
-      icon: <TrendingUp className="size-5" />,
+      icon: <TrendingUp className="size-4 sm:size-5" />,
       color: "from-green-50 to-emerald-50",
       iconBg: "bg-green-100",
       iconColor: "text-green-600",
@@ -53,7 +53,7 @@ function AIInsightCards({ transactions = [], enabled = true }) {
       description:
         "You have 5 active subscriptions totaling ₹2.4K monthly. Review them to identify services you may not be using.",
       type: "alert",
-      icon: <PieChart className="size-5" />,
+      icon: <PieChart className="size-4 sm:size-5" />,
       color: "from-blue-50 to-indigo-50",
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
@@ -89,46 +89,53 @@ function AIInsightCards({ transactions = [], enabled = true }) {
 
   return (
     <div className="w-full mb-8">
+      {" "}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Lightbulb className="size-5 text-blue-600" />
-          <h2 className="text-lg font-bold text-gray-800">
+          <Lightbulb className="size-4 sm:size-5 text-blue-600" />
+          <h2 className="text-base sm:text-lg font-bold text-gray-800">
             AI-Powered Insights
           </h2>
         </div>
         <Button
           variant="outline"
-          className="text-xs px-3 py-1 h-auto border border-gray-200 text-gray-600 hover:bg-gray-50"
+          className="text-[10px] sm:text-xs px-2 sm:px-3 py-1 h-auto border border-gray-200 text-gray-600 hover:bg-gray-50"
         >
           Refresh Insights
         </Button>
       </div>
-
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-3 gap-5"
+        className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-5"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
         {insights.map((insight) => (
           <motion.div key={insight.id} variants={itemVariants}>
+            {" "}
             <Card
               className={`bg-gradient-to-r ${insight.color} border-none shadow-sm hover:shadow-md transition-shadow`}
             >
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 pt-3 px-3 sm:p-6 sm:pb-2">
                 <div className="flex justify-between items-start">
-                  <div className={`${insight.iconBg} p-2 rounded-full mb-2`}>
-                    <div className={`${insight.iconColor}`}>{insight.icon}</div>
+                  <div
+                    className={`${insight.iconBg} p-1.5 sm:p-2 rounded-full mb-2`}
+                  >
+                    <div className={`${insight.iconColor}`}>
+                      {React.cloneElement(insight.icon, {
+                        className: "size-4 sm:size-5",
+                      })}
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
-                    className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 hover:bg-transparent"
+                    className="h-5 w-5 sm:h-6 sm:w-6 p-0 text-gray-400 hover:text-gray-600 hover:bg-transparent"
                     onClick={() => dismissInsight(insight.id)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -141,17 +148,17 @@ function AIInsightCards({ transactions = [], enabled = true }) {
                     </svg>
                   </Button>
                 </div>
-                <CardTitle className="text-lg font-bold text-gray-800">
+                <CardTitle className="text-base sm:text-lg font-bold text-gray-800">
                   {insight.title}
                 </CardTitle>
-                <CardDescription className="text-sm text-gray-600">
+                <CardDescription className="text-xs sm:text-sm text-gray-600">
                   {insight.description}
                 </CardDescription>
               </CardHeader>
-              <CardFooter className="pt-0">
+              <CardFooter className="pt-0 pb-3 px-3 sm:p-6 sm:pt-0">
                 <Button
                   variant="link"
-                  className="text-blue-600 p-0 h-auto hover:text-blue-800 hover:underline hover:bg-transparent"
+                  className="text-xs sm:text-sm text-blue-600 p-0 h-auto hover:text-blue-800 hover:underline hover:bg-transparent"
                 >
                   See details
                 </Button>

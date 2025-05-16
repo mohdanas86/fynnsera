@@ -147,27 +147,31 @@ export default function Home() {
       </div>
     );
   }
-
   return (
-    <div className="container mx-auto lg:p-8 p-4 max-w-7xl">
+    <div className="container mx-auto lg:p-8 md:p-6 p-3 max-w-7xl bg-[#0D0D0D]">
       {/* Header */}{" "}
-      <div className="mb-8 flex flex-col md:flex-row justify-between items-start">
+      <div className="mb-4 sm:mb-6 lg:mb-8 flex flex-col md:flex-row justify-between items-start">
         <div className="mb-4 md:mb-0">
-          <h1 className="text-2xl lg:text-3xl font-bold mb-2 text-[var(--color-heading)]">
+          {/* <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2 text-[var(--color-heading)]"> */}
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2 text-[#fff]">
             Welcome, {session.user.name}
           </h1>
-          <p className="text-[var(--color-para)]">
+          <p className="text-sm sm:text-base text-[var(--color-para)]">
             Your financial dashboard is ready.
           </p>
         </div>
         {hasOriginalData && (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-end gap-2 sm:gap-3 w-full md:w-auto">
             <DashboardSettings
               aiInsightsEnabled={aiInsightsEnabled}
               onToggleAIInsights={(value) => setAiInsightsEnabled(value)}
             />
-            <Link href="/dashboard/upload-files">
-              <Button className="bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] lg:w-[200px] w-[140px] shadow-sm hover:shadow-md transition-all">
+
+            <Link
+              href="/dashboard/upload-files"
+              className="flex-1 md:flex-none max-w-[180px] sm:max-w-[120px]"
+            >
+              <Button className="w-full md:w-auto bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] shadow-sm hover:shadow-md transition-all text-sm">
                 Upload File
               </Button>
             </Link>
@@ -208,12 +212,15 @@ export default function Home() {
           </div>{" "}
           {/* Desktop: Inline filter */}
           <div className="hidden lg:block mb-6">
-            <div className="bg-white rounded-lg shadow-sm p-5 flex flex-wrap justify-between items-center">
+            {/* <div className="bg-white rounded-lg shadow-sm p-5 flex flex-wrap justify-between items-center"> */}
+            <div className="bg-[#262626] rounded-lg shadow-sm p-5 flex flex-wrap justify-between items-center">
               <div className="flex gap-4 items-center">
                 {selectedFileData && (
-                  <div className="flex items-center bg-gray-50 px-4 py-2 rounded-md border border-gray-100">
+                  // <div className="flex items-center bg-gray-50 px-4 py-2 rounded-md border border-gray-100">
+                  <div className="flex items-center bg-[#0D0D0D] text-white px-4 py-2 rounded-md border border-[#606060]">
                     <span className="font-semibold mr-2">Current Balance:</span>{" "}
-                    <span className="IbmFont text-[var(--color-primary)] font-bold">
+                    {/* <span className="IbmFont text-[var(--color-primary)] font-bold"> */}
+                    <span className="IbmFont text-teal-400 font-bold">
                       ₹
                       {parseInt(selectedFileData.currentBalance).toLocaleString(
                         "en-IN"
@@ -299,50 +306,55 @@ export default function Home() {
           </div>{" "}
           {/* Redesigned Dashboard with New Components */}
           {hasFilteredData ? (
-            <div className="flex flex-col gap-8">
-              {" "}
+            <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8">
               {/* Summary Header Stats */}
-              <SummaryHeaderStats
-                transactions={filteredTransactions}
-                currentBalance={selectedFileData?.currentBalance || 0}
-                isLoading={isLoading}
-              />{" "}
+              <div className="w-full overflow-x-auto pb-2 -mb-2 sm:pb-0 sm:mb-0">
+                <div className="lg:min-w-[640px] sm:min-w-0">
+                  <SummaryHeaderStats
+                    transactions={filteredTransactions}
+                    currentBalance={selectedFileData?.currentBalance || 0}
+                    isLoading={isLoading}
+                  />
+                </div>
+              </div>
               {/* AI Insight Cards */}
-              <AIInsightCards
-                transactions={filteredTransactions}
-                enabled={aiInsightsEnabled}
-                isLoading={isLoading}
-              />
+              <div className="w-full overflow-x-auto pb-2 -mb-2 sm:pb-0 sm:mb-0">
+                <div className="min-w-[640px] sm:min-w-0">
+                  <AIInsightCards
+                    transactions={filteredTransactions}
+                    enabled={aiInsightsEnabled}
+                    isLoading={isLoading}
+                  />
+                </div>
+              </div>
               {/* Main Charts - 2 column layout */}
-              <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 lg:gap-8">
-                {" "}
+              <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
                 {/* Cash Flow Line Chart */}
-                <div className="w-full h-[350px] lg:h-[400px]">
+                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
                   <CashFlowLineChart
                     transactions={filteredTransactions}
                     isLoading={isLoading}
                   />
                 </div>
                 {/* Category Spending Donut */}
-                <div className="w-full h-[350px] lg:h-[400px]">
+                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
                   <CategorySpendingDonut
                     transactions={filteredTransactions}
                     isLoading={isLoading}
                   />
                 </div>
-              </div>
+              </div>{" "}
               {/* Secondary Charts - 2 column layout */}
-              <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 lg:gap-8">
-                {" "}
+              <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
                 {/* Monthly Trend Chart */}
-                <div className="w-full h-[350px] lg:h-[400px]">
+                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
                   <MonthlyTrendChart
                     transactions={filteredTransactions}
                     isLoading={isLoading}
                   />
                 </div>
                 {/* Top Categories List */}
-                <div className="w-full h-[350px] lg:h-[400px]">
+                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
                   <TopCategoriesList
                     transactions={filteredTransactions}
                     isLoading={isLoading}
@@ -350,16 +362,16 @@ export default function Home() {
                 </div>
               </div>
               {/* Bottom Row - 2 column layout */}
-              <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 lg:gap-8">
-                {/* Recent Transactions Mini */}{" "}
-                <div className="w-full h-[350px] lg:h-[400px]">
+              <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
+                {/* Recent Transactions Mini */}
+                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
                   <RecentTransactionsMini
                     transactions={filteredTransactions}
                     isLoading={isLoading}
                   />
                 </div>
                 {/* Spending Heatmap */}
-                <div className="w-full h-[350px] lg:h-[400px]">
+                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
                   <SpendingHeatmap
                     transactions={filteredTransactions}
                     isLoading={isLoading}
@@ -368,9 +380,9 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="bg-amber-50 p-6 rounded-lg shadow-sm border border-amber-100 mb-6 text-center">
+            <div className="bg-amber-50 p-4 sm:p-6 rounded-lg shadow-sm border border-amber-100 mb-4 sm:mb-6 text-center">
               <svg
-                className="w-12 h-12 text-amber-500 mx-auto mb-4"
+                className="w-8 h-8 sm:w-12 sm:h-12 text-amber-500 mx-auto mb-2 sm:mb-4"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -383,10 +395,10 @@ export default function Home() {
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              <h2 className="text-xl font-semibold mb-2 text-amber-800">
+              <h2 className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2 text-amber-800">
                 No Transactions Found
               </h2>
-              <p className="text-amber-700">
+              <p className="text-sm sm:text-base text-amber-700">
                 No transactions match your selected date range. Try adjusting
                 your filters.
               </p>
@@ -489,23 +501,24 @@ export function PhoneFilterModal({
         </Dialog.Overlay>
         {/* Animate the content */}
         <Dialog.Content asChild>
+          {" "}
           <motion.div
-            className="fixed inset-x-0 bottom-0 p-6 bg-white rounded-t-xl shadow-2xl max-h-[90vh] z-50 mx-auto transform transition-all duration-300 overflow-y-auto"
+            className="fixed inset-x-0 bottom-0 p-4 sm:p-6 bg-white rounded-t-xl shadow-2xl max-h-[90vh] z-50 mx-auto transform transition-all duration-300 overflow-y-auto"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="flex justify-between items-center mb-6">
-              <Dialog.Title className="text-xl font-bold text-gray-800">
+            <div className="flex justify-between items-center mb-4">
+              <Dialog.Title className="text-lg sm:text-xl font-bold text-gray-800">
                 Filter Transactions
               </Dialog.Title>
               <Dialog.Close asChild>
                 <button className="rounded-full p-1 hover:bg-gray-100 transition-colors">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -518,12 +531,11 @@ export function PhoneFilterModal({
                   </svg>
                 </button>
               </Dialog.Close>
-            </div>
-
-            <div className="flex flex-col gap-6">
+            </div>{" "}
+            <div className="flex flex-col gap-4 sm:gap-6">
               {selectedFileData && (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg shadow-sm">
-                  <span className="font-semibold text-lg text-gray-800">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 sm:p-4 rounded-lg shadow-sm">
+                  <span className="font-semibold text-base sm:text-lg text-gray-800">
                     Current Balance:{" "}
                     <span className="IbmFont text-[var(--color-primary)] font-bold">
                       ₹
@@ -543,22 +555,23 @@ export function PhoneFilterModal({
                       variant="outline"
                       className="w-full flex gap-2 items-center bg-white border rounded-md border-gray-200 px-4 py-3 text-gray-700 font-medium shadow-sm hover:bg-gray-50 hover:shadow-md transition-all duration-200"
                     >
-                      <Download className="w-5 h-5" /> Export
+                      {" "}
+                      <Download className="w-4 h-4 sm:w-5 sm:h-5" /> Export
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="start"
-                    className="bg-white border border-gray-200 rounded-lg shadow-xl p-2 w-56 z-50"
+                    className="bg-white border border-gray-200 rounded-lg shadow-xl p-2 w-full max-w-[250px] z-50"
                   >
                     <DropdownMenuItem
                       onClick={() => handleExport("csv")}
-                      className="cursor-pointer px-3 py-2 rounded-md hover:bg-indigo-50 text-sm text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                      className="cursor-pointer px-3 py-2 rounded-md hover:bg-indigo-50 text-xs sm:text-sm text-gray-700 hover:text-indigo-600 transition-colors duration-200"
                     >
                       Export as CSV
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleExport("xlsx")}
-                      className="cursor-pointer px-3 py-2 rounded-md hover:bg-indigo-50 text-sm text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+                      className="cursor-pointer px-3 py-2 rounded-md hover:bg-indigo-50 text-xs sm:text-sm text-gray-700 hover:text-indigo-600 transition-colors duration-200"
                     >
                       Export as XLSX
                     </DropdownMenuItem>

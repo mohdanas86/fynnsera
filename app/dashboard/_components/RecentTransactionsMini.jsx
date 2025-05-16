@@ -79,14 +79,13 @@ function RecentTransactionsMini({ transactions = [], isLoading = false }) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
   // Memoized tooltip position style
   const getTooltipStyle = useCallback(
     (index) => {
       // For small screens, position tooltip above the item
       if (windowWidth < 768) {
         return {
-          width: "260px",
+          width: windowWidth < 400 ? "230px" : "260px",
           bottom: "100%",
           left: "50%",
           transform: "translateX(-50%) translateY(-8px)",
@@ -216,12 +215,13 @@ function RecentTransactionsMini({ transactions = [], isLoading = false }) {
       animate="visible"
       variants={containerVariants}
     >
-      <Card className="w-full h-full">
+      {" "}
+      <Card className="w-full h-full bg-[#262626] border-[#606060]">
         <CardHeader className="pb-2">
-          <CardTitle className="text-xl font-bold text-gray-800">
+          <CardTitle className="text-lg sm:text-xl font-bold text-white">
             Recent Transactions
           </CardTitle>
-          <CardDescription className="text-sm text-gray-500">
+          <CardDescription className="text-xs sm:text-sm text-gray-50">
             Your latest financial activity
           </CardDescription>
         </CardHeader>
@@ -252,24 +252,25 @@ function RecentTransactionsMini({ transactions = [], isLoading = false }) {
             </div>
           ) : (
             <div
-              className="h-full overflow-y-auto pr-2 relative"
+              className="h-full overflow-y-auto pr-1 sm:pr-2 relative"
               style={{ position: "relative", zIndex: 0 }}
             >
               {/* Fade shadow at the bottom to indicate scroll */}
               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
-              <div className="space-y-3 pb-10">
+              <div className="space-y-2 sm:space-y-3 pb-10">
                 {recentTransactions.map((tx, index) => (
                   <motion.div
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white hover:bg-gray-50 cursor-pointer transition-colors relative group"
+                    className="flex items-center justify-between p-2 sm:p-3 rounded-lg border border-gray-100 bg-white hover:bg-gray-50 cursor-pointer transition-colors relative group"
                     variants={itemVariants}
                     onMouseEnter={() => handleMouseEnter(index)}
                     onMouseLeave={handleMouseLeave}
                   >
+                    {" "}
                     {/* Transaction details tooltip on hover - absolute position */}
                     {activeTooltipIndex === index && (
                       <div
-                        className="absolute bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-[100]"
+                        className="absolute bg-white p-2 sm:p-3 rounded-lg shadow-lg border border-gray-200 z-[100]"
                         style={getTooltipStyle(index)}
                       >
                         {/* Pointer triangle - conditionally rendered based on screen size */}
@@ -280,24 +281,25 @@ function RecentTransactionsMini({ transactions = [], isLoading = false }) {
                         )}
 
                         <div className="relative z-10">
-                          <div className="text-sm font-medium text-gray-800 mb-1">
+                          {" "}
+                          <div className="text-xs sm:text-sm font-medium text-gray-800 mb-1">
                             {new Date(tx.date).toLocaleDateString(undefined, {
                               year: "numeric",
                               month: "long",
                               day: "numeric",
                             })}
                           </div>
-                          <div className="text-sm text-gray-700 mb-2">
+                          <div className="text-xs sm:text-sm text-gray-700 mb-2">
                             {tx.formattedTime}
                           </div>
                           <div className="flex items-center mb-2">
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center bg-gray-100 mr-2">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center bg-gray-100 mr-2">
                               {React.createElement(
                                 CATEGORY_ICONS[tx.category] || FileText,
-                                { size: 14 }
+                                { size: windowWidth < 640 ? 12 : 14 }
                               )}
                             </div>
-                            <span className="text-sm font-medium">
+                            <span className="text-xs sm:text-sm font-medium">
                               {tx.category || "Uncategorized"}
                             </span>
                           </div>
@@ -329,13 +331,13 @@ function RecentTransactionsMini({ transactions = [], isLoading = false }) {
                                 }
                               )}
                             </span>
-                          </div>
+                          </div>{" "}
                           {tx.description && (
                             <div className="border-t border-gray-100 pt-2 mt-1">
                               <span className="text-xs text-gray-500">
                                 Description
                               </span>
-                              <p className="text-sm text-gray-800 mt-1 break-words">
+                              <p className="text-xs sm:text-sm text-gray-800 mt-1 break-words">
                                 {tx.description}
                               </p>
                             </div>
@@ -352,58 +354,62 @@ function RecentTransactionsMini({ transactions = [], isLoading = false }) {
                           )}
                         </div>
                       </div>
-                    )}
-                    <div className="flex items-center gap-3">
+                    )}{" "}
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div className="relative">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-gray-100">
                           {React.createElement(
                             CATEGORY_ICONS[tx.category] || FileText,
                             {
-                              size: 18,
+                              size: windowWidth < 640 ? 16 : 18,
                               className: "text-gray-700",
                             }
                           )}
-                        </div>
+                        </div>{" "}
                         <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center absolute -bottom-1 -right-1 shadow-sm ${
+                          className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center absolute -bottom-1 -right-1 shadow-sm ${
                             tx.isCredit
                               ? "bg-green-100 text-green-600"
                               : "bg-red-100 text-red-600"
                           }`}
                         >
                           {tx.isCredit ? (
-                            <ArrowUpRight size={12} />
+                            <ArrowUpRight size={windowWidth < 640 ? 10 : 12} />
                           ) : (
-                            <ArrowDownRight size={12} />
+                            <ArrowDownRight
+                              size={windowWidth < 640 ? 10 : 12}
+                            />
                           )}
                         </div>
-                      </div>
+                      </div>{" "}
                       <div className="flex flex-col">
-                        <span className="font-medium text-gray-800 max-w-[160px] truncate">
+                        <span className="text-sm sm:font-medium text-gray-800 max-w-[120px] sm:max-w-[160px] truncate">
                           {tx.description || "Unknown merchant"}
                         </span>
-                        <div className="flex items-center gap-1 text-xs flex-wrap">
+                        <div className="flex items-center gap-1 text-[10px] sm:text-xs flex-wrap">
                           <span className="text-gray-500">
                             {formatDate(tx.date)}
                           </span>
-                          <span className="text-gray-400">•</span>
-                          <span className="text-gray-500">
+                          <span className="text-gray-400 hidden xs:inline-block">
+                            •
+                          </span>
+                          <span className="text-gray-500 hidden xs:inline-block">
                             {tx.formattedTime}
                           </span>
                           <span className="text-gray-400">•</span>
-                          <span className="text-gray-500">
+                          <span className="text-gray-500 truncate max-w-[80px] sm:max-w-none">
                             {tx.category || "Uncategorized"}
                           </span>
-                        </div>
+                        </div>{" "}
                         {tx.transactionId && (
-                          <span className="text-xs text-gray-400 hidden group-hover:inline-block mt-0.5 truncate max-w-[160px]">
-                            ID: {tx.transactionId.substring(0, 10)}...
+                          <span className="text-[10px] sm:text-xs text-gray-400 hidden group-hover:inline-block mt-0.5 truncate max-w-[120px] sm:max-w-[160px]">
+                            ID: {tx.transactionId.substring(0, 8)}...
                           </span>
                         )}
                       </div>
-                    </div>
+                    </div>{" "}
                     <span
-                      className={`font-semibold ${
+                      className={`text-sm sm:text-base font-semibold ${
                         tx.isCredit ? "text-green-600" : "text-red-600"
                       } whitespace-nowrap`}
                     >
@@ -412,14 +418,17 @@ function RecentTransactionsMini({ transactions = [], isLoading = false }) {
                     </span>
                   </motion.div>
                 ))}
-              </div>
+              </div>{" "}
               <div className="mt-4 pt-2 text-center">
                 <Link
                   href="/dashboard/transactions"
-                  className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors flex items-center justify-center mx-auto"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors flex items-center justify-center mx-auto"
                 >
                   View All Transactions
-                  <ChevronRight size={16} className="ml-1" />
+                  <ChevronRight
+                    size={windowWidth < 640 ? 14 : 16}
+                    className="ml-1"
+                  />
                 </Link>
               </div>
             </div>

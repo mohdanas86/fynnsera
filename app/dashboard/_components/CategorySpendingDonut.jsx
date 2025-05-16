@@ -258,7 +258,9 @@ function CategorySpendingDonut({ transactions = [], isLoading = false }) {
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 5);
     }
-  }, [selectedCategory, transactions, categories]); // Configure chart options
+  }, [selectedCategory, transactions, categories]);
+
+  // Configure chart options
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -281,10 +283,14 @@ function CategorySpendingDonut({ transactions = [], isLoading = false }) {
         position: "bottom",
         labels: {
           color: "#6b7280",
-          font: { size: 11 },
-          boxWidth: 12,
-          boxHeight: 12,
-          padding: 10,
+          font: {
+            size: window?.innerWidth < 640 ? 9 : 11,
+            family:
+              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          },
+          boxWidth: 10,
+          boxHeight: 10,
+          padding: 8,
           usePointStyle: true,
           pointStyle: "circle",
         },
@@ -296,16 +302,16 @@ function CategorySpendingDonut({ transactions = [], isLoading = false }) {
         bodyColor: "#4b5563",
         borderColor: "#e5e7eb",
         borderWidth: 1,
-        padding: 10,
-        boxPadding: 4,
-        titleFont: { size: 12, weight: "bold" },
-        bodyFont: { size: 11 },
+        padding: 8,
+        boxPadding: 3,
+        titleFont: { size: 11, weight: "bold" },
+        bodyFont: { size: 10 },
         mode: "index",
-        caretSize: 6,
+        caretSize: 5,
         cornerRadius: 6,
         displayColors: true,
-        boxWidth: 8,
-        boxHeight: 8,
+        boxWidth: 7,
+        boxHeight: 7,
         callbacks: {
           title: (tooltipItems) => {
             return tooltipItems[0].label;
@@ -344,7 +350,7 @@ function CategorySpendingDonut({ transactions = [], isLoading = false }) {
         {" "}
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center justify-between">
-            <span className="text-xl font-bold text-gray-800">
+            <span className="text-lg sm:text-xl font-bold text-gray-800">
               Spending by Category
             </span>
             {selectedCategory && (
@@ -356,28 +362,29 @@ function CategorySpendingDonut({ transactions = [], isLoading = false }) {
               </button>
             )}
           </CardTitle>
-          <CardDescription className="text-sm text-gray-500 flex justify-between items-center">
-            <span>
+          <CardDescription className="text-xs sm:text-sm text-gray-500 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <span className="mb-2 sm:mb-0">
               {selectedCategory
                 ? `Showing top transactions in ${selectedCategory}`
                 : "Distribution of your expenses"}
             </span>
 
             {!selectedCategory && (
-              <div className="flex text-xs mt-2 space-x-1">
+              <div className="flex text-xs mt-1 sm:mt-0 space-x-1">
                 <button
                   onClick={() => setTimeframe("all")}
-                  className={`px-2 py-1 rounded ${
+                  className={`px-1.5 sm:px-2 py-1 rounded ${
                     timeframe === "all"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
+                  {" "}
                   All
                 </button>
                 <button
                   onClick={() => setTimeframe("monthly")}
-                  className={`px-2 py-1 rounded ${
+                  className={`px-1.5 sm:px-2 py-1 rounded ${
                     timeframe === "monthly"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -387,7 +394,7 @@ function CategorySpendingDonut({ transactions = [], isLoading = false }) {
                 </button>
                 <button
                   onClick={() => setTimeframe("quarterly")}
-                  className={`px-2 py-1 rounded ${
+                  className={`px-1.5 sm:px-2 py-1 rounded ${
                     timeframe === "quarterly"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -397,7 +404,7 @@ function CategorySpendingDonut({ transactions = [], isLoading = false }) {
                 </button>
                 <button
                   onClick={() => setTimeframe("yearly")}
-                  className={`px-2 py-1 rounded ${
+                  className={`px-1.5 sm:px-2 py-1 rounded ${
                     timeframe === "yearly"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"

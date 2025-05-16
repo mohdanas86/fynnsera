@@ -379,6 +379,7 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                 </div>
               ) : (
                 <>
+                  {" "}
                   <ResponsiveContainer
                     width="100%"
                     height="85%"
@@ -386,7 +387,7 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                   >
                     <ComposedChart
                       data={chartData}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                      margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
@@ -395,28 +396,34 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                       />
                       <XAxis
                         dataKey="name"
-                        tick={{ fill: "#6b7280", fontSize: 11 }}
+                        tick={{ fill: "#6b7280", fontSize: 10 }}
                         tickMargin={10}
                         axisLine={{ stroke: "#d1d5db" }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
                       />
                       <YAxis
                         tickFormatter={formatCurrency}
-                        tick={{ fill: "#6b7280", fontSize: 11 }}
-                        width={60}
+                        tick={{ fill: "#6b7280", fontSize: 10 }}
+                        width={45}
                         axisLine={{ stroke: "#d1d5db" }}
                         tickLine={false}
-                      />
+                      />{" "}
                       <Tooltip
                         formatter={customTooltipFormatter}
                         contentStyle={{
                           backgroundColor: "white",
                           border: "1px solid #e5e7eb",
                           borderRadius: "6px",
-                          padding: "8px 12px",
+                          padding: "8px 10px",
                           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                          fontSize: "12px",
                         }}
                         labelFormatter={(label) => `${label}`}
-                      />
+                        wrapperStyle={{ zIndex: 1000 }}
+                        allowEscapeViewBox={{ x: true, y: true }}
+                      />{" "}
                       <Legend
                         verticalAlign="top"
                         height={36}
@@ -426,6 +433,7 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                         onClick={(e) => toggleDataVisibility(e.dataKey)}
                         wrapperStyle={{
                           paddingTop: "4px",
+                          fontSize: window.innerWidth >= 640 ? "12px" : "10px",
                         }}
                       />
                       {/* Shaded area for net cash flow */}
@@ -449,7 +457,6 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                           />
                         </linearGradient>
                       </defs>
-
                       {/* Only show netFlow area if enabled */}
                       {showNetFlow && (
                         <Area
@@ -462,7 +469,6 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                           fillOpacity={0.6}
                         />
                       )}
-
                       {/* Reference line at y=0 */}
                       <ReferenceLine
                         y={0}
@@ -470,7 +476,6 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                         strokeDasharray="3 3"
                         strokeWidth={1}
                       />
-
                       {/* Lines for credit and debit */}
                       {showCredits && (
                         <Line
@@ -516,7 +521,6 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
                       )}
                     </ComposedChart>
                   </ResponsiveContainer>
-
                   {/* Summary statistics */}
                   <div className="mt-1 grid grid-cols-3 gap-2 overflow-hidden max-h-20">
                     <div className="flex flex-col p-1.5 rounded-md bg-emerald-50 border border-emerald-100">
