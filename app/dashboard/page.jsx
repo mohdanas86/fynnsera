@@ -148,12 +148,11 @@ export default function Home() {
     );
   }
   return (
-    <div className="container mx-auto lg:p-8 md:p-6 p-3 max-w-7xl bg-[#0D0D0D]">
+    <div className="container mx-auto lg:p-8 md:p-6 p-3 max-w-7xl">
       {/* Header */}{" "}
       <div className="mb-4 sm:mb-6 lg:mb-8 flex flex-col md:flex-row justify-between items-start">
         <div className="mb-4 md:mb-0">
-          {/* <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2 text-[var(--color-heading)]"> */}
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2 text-[#fff]">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2 text-[var(--color-title)]">
             Welcome, {session.user.name}
           </h1>
           <p className="text-sm sm:text-base text-[var(--color-para)]">
@@ -212,15 +211,12 @@ export default function Home() {
           </div>{" "}
           {/* Desktop: Inline filter */}
           <div className="hidden lg:block mb-6">
-            {/* <div className="bg-white rounded-lg shadow-sm p-5 flex flex-wrap justify-between items-center"> */}
-            <div className="bg-[#262626] rounded-lg shadow-sm p-5 flex flex-wrap justify-between items-center">
+            <div className="bg-white rounded-lg shadow-sm p-5 flex flex-wrap justify-between items-center">
               <div className="flex gap-4 items-center">
                 {selectedFileData && (
-                  // <div className="flex items-center bg-gray-50 px-4 py-2 rounded-md border border-gray-100">
-                  <div className="flex items-center bg-[#0D0D0D] text-white px-4 py-2 rounded-md border border-[#606060]">
+                  <div className="flex items-center bg-gray-50 px-4 py-2 rounded-md border border-gray-100">
                     <span className="font-semibold mr-2">Current Balance:</span>{" "}
-                    {/* <span className="IbmFont text-[var(--color-primary)] font-bold"> */}
-                    <span className="IbmFont text-teal-400 font-bold">
+                    <span className="IbmFont text-[var(--color-primary)] font-bold">
                       ₹
                       {parseInt(selectedFileData.currentBalance).toLocaleString(
                         "en-IN"
@@ -330,14 +326,14 @@ export default function Home() {
               {/* Main Charts - 2 column layout */}
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
                 {/* Cash Flow Line Chart */}
-                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
+                <div className="w-full h-auto sm:h-auto lg:h-[450px] border-b-2 lg:border-b-0">
                   <CashFlowLineChart
                     transactions={filteredTransactions}
                     isLoading={isLoading}
                   />
                 </div>
                 {/* Category Spending Donut */}
-                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
+                <div className="w-full h-auto sm:h-auto lg:h-[450px] border-b-2 lg:border-b-0">
                   <CategorySpendingDonut
                     transactions={filteredTransactions}
                     isLoading={isLoading}
@@ -347,14 +343,14 @@ export default function Home() {
               {/* Secondary Charts - 2 column layout */}
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
                 {/* Monthly Trend Chart */}
-                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
+                <div className="w-full h-auto sm:h-auto lg:h-[450px] border-b-2 lg:border-b-0">
                   <MonthlyTrendChart
                     transactions={filteredTransactions}
                     isLoading={isLoading}
                   />
                 </div>
                 {/* Top Categories List */}
-                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
+                <div className="w-full h-auto sm:h-auto lg:h-[450px] border-b-2 lg:border-b-0">
                   <TopCategoriesList
                     transactions={filteredTransactions}
                     isLoading={isLoading}
@@ -364,14 +360,14 @@ export default function Home() {
               {/* Bottom Row - 2 column layout */}
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
                 {/* Recent Transactions Mini */}
-                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
+                <div className="w-full h-auto sm:h-aut lg:h-[450px] border-b-2 lg:border-b-0">
                   <RecentTransactionsMini
                     transactions={filteredTransactions}
                     isLoading={isLoading}
                   />
                 </div>
                 {/* Spending Heatmap */}
-                <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
+                <div className="w-full h-auto sm:h-aut lg:h-[450px]">
                   <SpendingHeatmap
                     transactions={filteredTransactions}
                     isLoading={isLoading}

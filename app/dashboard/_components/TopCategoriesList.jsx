@@ -213,9 +213,9 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
       animate="visible"
       variants={containerVariants}
     >
-      <Card className="w-full h-full border-none shadow-md">
+      <Card className="w-full h-full border-0 shadow-none lg:border lg:bg-white bg-transparent">
         {" "}
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 lg:px-4 px-2">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-lg sm:text-xl font-semibold flex items-center gap-1 sm:gap-2">
@@ -264,7 +264,7 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
             )}
           </div>
         </CardHeader>
-        <CardContent className="p-3 h-[calc(100%-90px)] overflow-hidden">
+        <CardContent className="h-[calc(100%-90px)] overflow-hidden lg:px-4 px-2">
           {loading ? (
             <div className="space-y-3">
               {Array(5)
@@ -369,7 +369,7 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
             <div className="h-full flex flex-col">
               {" "}
               <div className="grow overflow-auto pr-2">
-                <div className="space-y-1 sm:space-y-2">
+                <div className="space-y-1 sm:space-y-2 h-[300px] lg:h-full">
                   {categories.map((category, index) => (
                     <motion.div
                       key={category.name}
@@ -387,7 +387,7 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
                           >
                             {React.createElement(
                               CATEGORY_ICONS[category.name] || FileText,
-                              { size: 14, className: "sm:size-16" }
+                              { size: 14 }
                             )}
                           </span>{" "}
                           <h3 className="font-medium text-gray-800 text-xs sm:text-sm">

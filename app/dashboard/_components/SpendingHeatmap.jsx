@@ -292,42 +292,46 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
       dayOfWeekSpending: dayOfWeekInsights,
     };
   }, [transactions, currentMonth, loading]);
-
-  // Color scale for heat intensity (from light to dark)
+  // Enhanced color scale for heat intensity (from light to dark)
   const getHeatmapColor = (intensity) => {
     const colors = [
-      "bg-teal-50", // 0 - No spending
-      "bg-teal-100", // 1 - Very low spending
-      "bg-teal-200", // 2
-      "bg-teal-300", // 3
-      "bg-teal-400", // 4
-      "bg-teal-500", // 5
-      "bg-teal-600", // 6
-      "bg-teal-700", // 7
-      "bg-teal-800", // 8 - Highest spending
+      "bg-teal-50 hover:bg-teal-100", // 0 - No spending
+      "bg-teal-100 hover:bg-teal-200", // 1 - Very low spending
+      "bg-teal-200 hover:bg-teal-300", // 2
+      "bg-teal-300 hover:bg-teal-400", // 3
+      "bg-teal-400 hover:bg-teal-500", // 4
+      "bg-teal-500 hover:bg-teal-600 text-white", // 5
+      "bg-teal-600 hover:bg-teal-700 text-white", // 6
+      "bg-teal-700 hover:bg-teal-800 text-white", // 7
+      "bg-teal-800 hover:bg-teal-900 text-white", // 8 - Highest spending
     ];
     return colors[intensity];
   };
 
-  // Animation variants
+  // Enhanced animation variants for better user experience
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        duration: 0.4,
+        duration: 0.5,
+        ease: "easeOut",
+        staggerChildren: 0.1,
       },
     },
   };
 
   const calendarVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
     visible: {
       opacity: 1,
       y: 0,
+      scale: 1,
       transition: {
-        delay: 0.2,
-        duration: 0.5,
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+        delay: 0.1,
       },
     },
   };
@@ -339,9 +343,10 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
       animate="visible"
       variants={containerVariants}
     >
-      <Card className="w-full h-full border-none shadow-md">
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
+      {" "}
+      <Card className="w-full h-full border-0 shadow-none lg:border lg:bg-white bg-transparent">
+        <CardHeader className="pb-2 lg:px-4 px-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <CardTitle className="text-xl font-semibold flex items-center gap-2">
                 <Calendar className="size-5 text-teal-500" />
@@ -353,56 +358,68 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
             </div>
 
             {/* Month navigation */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-1 py-1 bg-gray-50 rounded-md">
               <button
                 onClick={goToPreviousMonth}
-                className="p-1 rounded-full hover:bg-gray-100"
+                className="p-1.5 rounded-full hover:bg-gray-200 transition-colors"
                 aria-label="Previous month"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-500" />
+                <ChevronLeft className="w-4 h-4 text-gray-600" />
               </button>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-gray-700 min-w-[90px] text-center">
                 {monthName} {year}
               </span>
               <button
                 onClick={goToNextMonth}
-                className="p-1 rounded-full hover:bg-gray-100"
+                className="p-1.5 rounded-full hover:bg-gray-200 transition-colors"
                 aria-label="Next month"
               >
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-4 h-4 text-gray-600" />
               </button>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="h-[calc(100%-90px)] overflow-hidden">
+        <CardContent className="h-[calc(100%-90px)] overflow-y-auto overflow-x-hidden lg:px-4 px-2 pb-6">
+          {" "}
           {loading ? (
-            <div className="h-full w-full flex flex-col gap-4">
-              <div className="flex gap-4">
-                <Skeleton className="h-20 w-1/3" />
-                <Skeleton className="h-20 w-1/3" />
-                <Skeleton className="h-20 w-1/3" />
+            <div className="h-full w-full flex flex-col gap-4 p-2 sm:p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
               </div>
-              <Skeleton className="h-[calc(100%-80px)] w-full" />
+              <div className="flex flex-col lg:flex-row gap-4 mt-4 h-[calc(100%-100px)]">
+                <Skeleton className="h-64 lg:h-auto lg:w-1/3 w-full" />
+                <Skeleton className="h-48 lg:h-auto lg:w-2/3 w-full" />
+              </div>
             </div>
           ) : calendarData.length === 0 ? (
-            <div className="h-full w-full flex items-center justify-center">
-              <div className="text-center">
-                <Calendar className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-                <p className="text-gray-500 font-medium">
+            <div className="h-full w-full flex items-center justify-center p-4">
+              <div className="text-center bg-white rounded-lg border border-gray-100 shadow-sm p-6 max-w-xs">
+                <div className="rounded-full bg-teal-50 p-4 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="h-8 w-8 text-teal-500" />
+                </div>
+                <p className="text-gray-700 font-semibold mb-2">
                   No spending data available
                 </p>
-                <p className="text-gray-400 text-sm">
-                  Add some transactions to see your spending patterns
+                <p className="text-gray-500 text-sm">
+                  Add some transactions to see your spending patterns visualized
+                  on this heatmap
+                </p>
+                <p className="mt-4 text-xs text-gray-400">
+                  Your spending data will be displayed as a color-coded calendar
+                  once available
                 </p>
               </div>
             </div>
           ) : (
             <div className="h-full w-full flex flex-col">
-              {/* Summary metrics */}{" "}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-2 sm:mb-4">
-                <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
-                  <div className="text-xs sm:text-sm text-gray-600 mb-0.5 sm:mb-1">
+              {" "}
+              {/* Summary metrics */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
+                <div className="p-3 bg-teal-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="text-xs sm:text-sm text-gray-600 mb-1">
                     Monthly Total
                   </div>
                   <div className="flex items-center justify-between">
@@ -410,10 +427,10 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                       {formatCurrency(totalMonthSpending)}
                     </p>
                     <div
-                      className={`flex items-center gap-0.5 text-xs font-medium ${
+                      className={`flex items-center gap-0.5 text-xs font-medium rounded-full px-2 py-0.5 ${
                         monthOverMonthChange > 0
-                          ? "text-red-600"
-                          : "text-green-600"
+                          ? "text-red-700 bg-red-100"
+                          : "text-green-700 bg-green-100"
                       }`}
                     >
                       {monthOverMonthChange > 0 ? (
@@ -423,11 +440,11 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                       )}
                       {Math.abs(monthOverMonthChange).toFixed(1)}%
                     </div>
-                  </div>{" "}
+                  </div>
                 </div>
 
-                <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
-                  <div className="text-xs sm:text-sm text-gray-600 mb-0.5 sm:mb-1">
+                <div className="p-3 bg-teal-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="text-xs sm:text-sm text-gray-600 mb-1">
                     Avg Daily Spend
                   </div>
                   <p className="text-base sm:text-lg font-bold text-gray-900">
@@ -435,8 +452,8 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                   </p>
                 </div>
 
-                <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
-                  <div className="text-xs sm:text-sm text-gray-600 mb-0.5 sm:mb-1">
+                <div className="p-3 bg-teal-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="text-xs sm:text-sm text-gray-600 mb-1">
                     Highest Day
                   </div>
                   <p className="text-base sm:text-lg font-bold text-gray-900">
@@ -447,95 +464,98 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                 </div>
               </div>{" "}
               <div className="flex flex-col lg:flex-row gap-4 h-[calc(100%-80px)]">
-                {/* Calendar */}
+                {/* Mini Calendar */}
                 <motion.div
-                  className="w-full lg:w-3/5"
+                  className="w-full lg:min-w-[280px] lg:w-[320px] mb-4 lg:mb-0"
                   variants={calendarVariants}
                 >
-                  {/* Day labels (S, M, T, etc.) */}
-                  <div className="grid grid-cols-7 mb-1 sm:mb-2">
-                    {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-                      <div
-                        key={index}
-                        className="h-6 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-medium text-gray-500"
-                      >
-                        {day}
-                      </div>
-                    ))}
-                  </div>
-                  {/* Calendar grid */}
-                  <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
-                    {calendarData.map((day, index) => {
-                      if (day.isEmpty) {
+                  <div className="rounded-lg border border-gray-100 shadow-sm p-3 sm:p-4 bg-white">
+                    {/* Month name on mobile */}
+                    <div className="block sm:hidden text-center mb-2 font-medium text-sm text-gray-700">
+                      {monthName} {year}
+                    </div>
+
+                    {/* Day Labels */}
+                    <div className="grid grid-cols-7 mb-2">
+                      {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
+                        <div
+                          key={index}
+                          className="h-6 flex items-center justify-center text-xs text-gray-600 font-medium"
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Calendar Grid */}
+                    <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                      {calendarData.map((day, index) => {
+                        if (day.isEmpty) {
+                          return (
+                            <div
+                              key={`empty-${index}`}
+                              className="aspect-square sm:h-9 rounded-md bg-transparent"
+                            ></div>
+                          );
+                        }
                         return (
                           <div
-                            key={`empty-${index}`}
-                            className="h-8 sm:h-12 rounded-md bg-transparent"
-                          ></div>
-                        );
-                      }
-                      return (
-                        <div
-                          key={`day-${day.day}`}
-                          className={`h-8 sm:h-12 p-0.5 sm:p-1 rounded-md flex flex-col justify-between ${getHeatmapColor(
-                            day.intensity
-                          )} cursor-pointer hover:ring-1 hover:ring-teal-600 transition-all
-                            ${
-                              selectedDay?.day === day.day
-                                ? "ring-2 ring-teal-600"
-                                : ""
-                            }
-                          `}
-                          onClick={() => setSelectedDay(day)}
-                        >
-                          <span className="text-[10px] sm:text-xs font-medium text-gray-700">
-                            {day.day}
-                          </span>
-                          {day.spending > 0 && (
-                            <span
-                              className={`text-[10px] sm:text-xs font-semibold ${
-                                day.intensity > 5
-                                  ? "text-white"
-                                  : "text-gray-800"
-                              }`}
-                            >
-                              {formatCurrency(day.spending)}
+                            key={`day-${day.day}`}
+                            className={`aspect-square sm:h-9 rounded-md flex flex-col items-center justify-center text-center ${getHeatmapColor(
+                              day.intensity
+                            )} cursor-pointer hover:ring-1 hover:ring-teal-600 hover:shadow-md transition-all
+              ${
+                selectedDay?.day === day.day
+                  ? "ring-2 ring-teal-600 shadow-md"
+                  : ""
+              }
+            `}
+                            onClick={() => setSelectedDay(day)}
+                          >
+                            <span className="text-[10px] sm:text-xs font-medium text-gray-700 leading-none">
+                              {day.day}
                             </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>{" "}
-                  {/* Legend */}
-                  <div className="mt-2 sm:mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-1 sm:gap-1.5">
-                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-50"></div>
-                      <span className="text-[10px] sm:text-xs text-gray-500">
-                        No spending
-                      </span>
+                            {day.spending > 0 && (
+                              <span
+                                className={`text-[9px] sm:text-[10px] font-semibold ${
+                                  day.intensity > 5
+                                    ? "text-white"
+                                    : "text-gray-800"
+                                } leading-none mt-0.5`}
+                              >
+                                {formatCurrency(day.spending)}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-200"></div>
-                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-400"></div>
-                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-600"></div>
-                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-800"></div>
-                    </div>
-                    <div className="flex items-center gap-1 sm:gap-1.5">
-                      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-sm bg-teal-800"></div>
-                      <span className="text-[10px] sm:text-xs text-gray-500">
-                        High spending
-                      </span>
+
+                    {/* Legend */}
+                    <div className="mt-4 flex justify-center items-center gap-2 text-[10px] sm:text-xs text-gray-600 border-t pt-3 border-gray-100">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-teal-50 rounded-sm"></div>
+                        <span>Low</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-teal-400 rounded-sm"></div>
+                        <span>Medium</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-teal-800 rounded-sm"></div>
+                        <span>High</span>
+                      </div>
                     </div>
                   </div>
-                </motion.div>
-
+                </motion.div>{" "}
                 {/* Details Section */}
-                <div className="w-full lg:w-2/5 flex flex-col">
+                <div className="w-full lg:flex-1 flex flex-col lg:h-[310px]">
                   {selectedDay ? (
                     // Transactions for selected day
-                    <div className="h-full flex flex-col border rounded-lg p-4">
+                    <div className="h-full w-full flex flex-col border border-gray-100 rounded-lg p-3 sm:p-4 shadow-sm bg-white">
                       <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-medium text-gray-800">
+                        <h3 className="font-semibold text-gray-800 flex items-center gap-1.5">
+                          <Calendar className="size-4 text-teal-600" />
                           {selectedDay.date.toLocaleDateString(undefined, {
                             weekday: "long",
                             month: "short",
@@ -544,26 +564,36 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                         </h3>
                         <button
                           onClick={() => setSelectedDay(null)}
-                          className="text-xs px-2 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          className="text-xs px-2.5 py-1.5 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                         >
-                          Close
+                          Back
                         </button>
                       </div>
 
-                      <div className="p-3 bg-teal-50 rounded-lg mb-3">
-                        <div className="text-xs text-gray-500">Total Spent</div>
+                      <div className="p-3 bg-teal-50 rounded-lg mb-3 shadow-sm">
+                        <div className="text-xs text-gray-600">Total Spent</div>
                         <div className="text-xl font-bold text-gray-900">
                           {formatCurrency(selectedDay.spending)}
                         </div>
                       </div>
 
-                      <div className="text-sm font-medium text-gray-500 mb-2">
-                        {selectedDay.transactions.length} Transactions
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm font-medium text-gray-600">
+                          {selectedDay.transactions.length}{" "}
+                          {selectedDay.transactions.length === 1
+                            ? "Transaction"
+                            : "Transactions"}
+                        </div>
+                        {selectedDay.transactions.length > 0 && (
+                          <div className="text-xs text-gray-500">
+                            Sorted by amount
+                          </div>
+                        )}
                       </div>
 
-                      <div className="grow overflow-auto">
+                      <div className="grow overflow-y-auto pr-1 custom-scrollbar">
                         {selectedDay.transactions.length > 0 ? (
-                          <div className="space-y-2">
+                          <div className="space-y-2.5">
                             {selectedDay.transactions
                               .sort(
                                 (a, b) =>
@@ -572,13 +602,13 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                               .map((tx, i) => (
                                 <div
                                   key={i}
-                                  className="p-2 rounded-md border border-gray-100 hover:bg-gray-50"
+                                  className="p-2.5 rounded-md border border-gray-100 hover:bg-gray-50 shadow-sm transition-all"
                                 >
-                                  <div className="font-medium text-gray-800 text-sm">
+                                  <div className="font-medium text-gray-800 text-sm truncate">
                                     {tx.description || "No description"}
                                   </div>
-                                  <div className="flex justify-between items-center mt-1">
-                                    <div className="text-xs text-gray-500">
+                                  <div className="flex justify-between items-center mt-1.5">
+                                    <div className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
                                       {tx.category || "Uncategorized"}
                                     </div>
                                     <div className="text-sm font-semibold text-red-600">
@@ -590,56 +620,86 @@ function SpendingHeatmap({ transactions = [], isLoading = false }) {
                           </div>
                         ) : (
                           <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-500">
-                              No transactions on this day
-                            </p>
+                            <div className="text-center">
+                              <p className="text-gray-500">
+                                No transactions on this day
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                Select another date with spending
+                              </p>
+                            </div>
                           </div>
                         )}
                       </div>
                     </div>
                   ) : (
                     // Day of week spending patterns
-                    <div className="h-full flex flex-col border rounded-lg p-4">
-                      <h3 className="font-medium text-gray-800 mb-3 flex items-center gap-1">
+                    <div className="h-full w-full flex flex-col border border-gray-100 rounded-lg p-3 sm:p-4 shadow-sm bg-white">
+                      <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-1.5">
+                        <Calendar className="size-4 text-teal-600" />
                         Day of Week Insights
                         <div
-                          className="tooltip"
+                          className="tooltip ml-1"
                           data-tip="Average spending by day of week"
                         >
                           <Info className="size-3.5 text-gray-400" />
                         </div>
                       </h3>
 
-                      <div className="grow">
-                        {dayOfWeekSpending.map((data, i) => (
-                          <div key={i} className="mb-3">
-                            <div className="flex justify-between text-sm mb-1">
-                              <span className="font-medium text-gray-700">
-                                {data.day}
-                              </span>
-                              <span className="text-gray-900">
-                                {formatCurrency(data.average)}
-                              </span>
+                      <div className="grow overflow-y-auto custom-scrollbar pr-1">
+                        <div className="pb-8">
+                          {" "}
+                          {/* Added bottom padding buffer for better scrolling */}
+                          {dayOfWeekSpending.map((data, i) => (
+                            <div key={i} className="mb-4">
+                              <div className="flex justify-between text-sm mb-1.5">
+                                <span className="font-medium text-gray-700">
+                                  {data.day}
+                                </span>
+                                <span className="text-gray-900 font-semibold">
+                                  {formatCurrency(data.average)}
+                                </span>
+                              </div>
+                              <div className="h-2.5 bg-gray-100 rounded-full w-full overflow-hidden">
+                                <div
+                                  className="h-full bg-teal-500 rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${Math.max(data.percentage, 3)}%`,
+                                  }}
+                                ></div>
+                              </div>
                             </div>
-                            <div className="h-2 bg-gray-100 rounded-full w-full">
-                              <div
-                                className="h-2 bg-teal-500 rounded-full"
-                                style={{ width: `${data.percentage}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
 
-                      <div className="p-3 bg-gray-50 rounded-lg mt-2">
-                        <p className="text-xs text-gray-500">
-                          Click on any date to see transactions from that day
+                      <div className="p-3 bg-teal-50 rounded-lg mt-2 text-center shadow-sm">
+                        <p className="text-sm text-gray-600 font-medium">
+                          Click on any date to see transactions
                         </p>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
+              {/* Add custom scrollbar styles */}
+              <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                  width: 5px;
+                  height: 5px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                  background: #f1f1f1;
+                  border-radius: 5px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                  background: #ccc;
+                  border-radius: 5px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                  background: #aaa;
+                }
+              `}</style>
             </div>
           )}
         </CardContent>

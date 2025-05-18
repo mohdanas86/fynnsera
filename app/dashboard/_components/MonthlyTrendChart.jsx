@@ -263,9 +263,9 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
       animate="visible"
       variants={containerVariants}
     >
-      <Card className="w-full h-full border-none shadow-md">
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
+      <Card className="w-full h-full border-0 shadow-none lg:border lg:bg-white bg-transparent">
+        <CardHeader className="pb-2 lg:px-4 px-2">
+          <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center items-start gap-3">
             <div>
               {" "}
               <CardTitle className="text-lg sm:text-xl font-semibold flex items-center gap-2">
@@ -315,13 +315,13 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
           </div>
         </CardHeader>
 
-        <CardContent className="h-[calc(100%-90px)] overflow-hidden">
+        <CardContent className="h-[calc(100%-90px)] overflow-hidden lg:px-4 px-2 pb-4">
           {loading ? (
             <div className="h-full w-full flex flex-col gap-4">
-              <div className="flex gap-4">
-                <Skeleton className="h-20 w-1/3" />
-                <Skeleton className="h-20 w-1/3" />
-                <Skeleton className="h-20 w-1/3" />
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <Skeleton className="h-20 w-full sm:w-1/3" />
+                <Skeleton className="h-20 w-full sm:w-1/3" />
+                <Skeleton className="h-20 w-full sm:w-1/3" />
               </div>
               <Skeleton className="h-[calc(100%-80px)] w-full" />
             </div>
@@ -338,10 +338,9 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
               </div>
             </div>
           ) : (
-            <div className="h-full w-full flex flex-col">
-              {" "}
-              {/* Summary metrics */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-3 sm:mb-4">
+            <div className="h-full w-full flex flex-col overflow-hidden">
+              {/* Responsive Summary Metrics */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-3 sm:mb-4">
                 <div className="p-2 sm:p-3 bg-indigo-50 rounded-lg">
                   <div className="flex items-center gap-1 sm:gap-2">
                     <div className="p-1 sm:p-1.5 bg-indigo-100 rounded-full">
@@ -355,7 +354,6 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
                     {formatCurrency(totalSpent)}
                   </p>
                 </div>
-
                 <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
                   <div className="flex items-center gap-1 sm:gap-2">
                     <div className="p-1 sm:p-1.5 bg-teal-100 rounded-full">
@@ -369,7 +367,6 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
                     {formatCurrency(monthlyAverage)}
                   </p>
                 </div>
-
                 <div className="p-2 sm:p-3 bg-purple-50 rounded-lg">
                   <div className="flex items-center gap-1 sm:gap-2">
                     <div className="p-1 sm:p-1.5 bg-purple-100 rounded-full">
@@ -393,13 +390,13 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
                   </p>
                 </div>
               </div>
+
               {/* Chart */}
-              <div className="grow">
+              <div className="grow min-h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  {" "}
                   <BarChart
                     data={chartData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 15 }}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
                     barGap={viewMode === "grouped" ? 1 : 0}
                     barCategoryGap={viewMode === "grouped" ? 4 : 8}
                   >
@@ -431,35 +428,21 @@ function MonthlyTrendChart({ transactions = [], isLoading = false }) {
                       iconSize={7}
                       fontSize={11}
                     />
-
-                    {viewMode === "stacked"
-                      ? // Stacked bars
-                        topCategories.map((category, index) => (
-                          <Bar
-                            key={category}
-                            dataKey={category}
-                            stackId="a"
-                            fill={CATEGORY_COLORS[category] || "#94a3b8"}
-                            name={category}
-                            radius={index === 0 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-                            animationDuration={1000}
-                            animationEasing="ease-out"
-                          />
-                        ))
-                      : // Grouped bars (limit to top 3 + Others for readability)
-                        topCategories
-                          .slice(0, 4)
-                          .map((category) => (
-                            <Bar
-                              key={category}
-                              dataKey={category}
-                              fill={CATEGORY_COLORS[category] || "#94a3b8"}
-                              name={category}
-                              radius={[4, 4, 0, 0]}
-                              animationDuration={1000}
-                              animationEasing="ease-out"
-                            />
-                          ))}
+                    {(viewMode === "stacked"
+                      ? topCategories
+                      : topCategories.slice(0, 4)
+                    ).map((category, index) => (
+                      <Bar
+                        key={category}
+                        dataKey={category}
+                        stackId={viewMode === "stacked" ? "a" : undefined}
+                        fill={CATEGORY_COLORS[category] || "#94a3b8"}
+                        name={category}
+                        radius={[4, 4, 0, 0]}
+                        animationDuration={1000}
+                        animationEasing="ease-out"
+                      />
+                    ))}
                   </BarChart>
                 </ResponsiveContainer>
               </div>
