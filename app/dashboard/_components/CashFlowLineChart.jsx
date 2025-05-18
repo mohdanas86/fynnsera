@@ -304,9 +304,9 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
       animate="visible"
       variants={containerVariants}
     >
-      <Card className="w-full h-full overflow-hidden">
-        <CardHeader className="pb-1">
-          <div className="flex justify-between items-center">
+      <Card className="w-full h-full overflow-hidden border-0 shadow-none lg:border lg:px-4 px-0 lg:bg-white bg-transparent">
+        <CardHeader className="pb-1 lg:px-4 px-2">
+          <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center items-start gap-3">
             <div>
               <CardTitle className="text-xl font-bold text-gray-800">
                 Cash Flow Trend
@@ -353,7 +353,7 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-2 h-[calc(100%-80px)] overflow-hidden">
+        <CardContent className="pt-2 h-[calc(100%-80px)] overflow-hidden lg:px-4 px-2">
           {loading ? (
             <div className="w-full h-full flex flex-col">
               <div className="h-8 flex items-center justify-center mb-4">
