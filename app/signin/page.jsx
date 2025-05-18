@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import Loding from "../dashboard/_components/Loding";
+import Loading from "../dashboard/_components/Loading";
 import { toast } from "sonner";
 
 // Define Zod schema for sign in validation
@@ -58,8 +58,7 @@ export default function SignIn() {
       setIsLoading(false);
     }
   };
-
-  if (isLoading) return <Loding />;
+  if (isLoading) return <Loading />;
 
   return (
     <div className="lg:min-h-screen flex items-center justify-center lg:bg-gray-50">

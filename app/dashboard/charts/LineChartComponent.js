@@ -1,6 +1,5 @@
-// "use client";
-
-// import React, { useMemo } from "react";
+// // components/LineChartComponent.jsx
+// import { transformData, formatLabel } from "@/lib/chartHelpers";
 // import {
 //   LineChart,
 //   Line,
@@ -9,7 +8,6 @@
 //   CartesianGrid,
 //   Tooltip,
 //   ResponsiveContainer,
-//   LabelList,
 // } from "recharts";
 // import {
 //   Card,
@@ -19,86 +17,70 @@
 //   CardContent,
 // } from "@/components/ui/card";
 
-// // Helper to transform data
-// const transformData = (transactions = []) => {
-//   const groups = {};
-//   transactions.forEach((tx) => {
-//     if (!tx.date || typeof tx.amount !== "number") return;
-//     const month = new Date(tx.date)
-//       .toLocaleString("default", { month: "short" })
-//       .toLowerCase();
-//     groups[month] = (groups[month] || 0) + tx.amount;
-//   });
-
-//   const monthOrder = [
-//     "jan",
-//     "feb",
-//     "mar",
-//     "apr",
-//     "may",
-//     "jun",
-//     "jul",
-//     "aug",
-//     "sep",
-//     "oct",
-//     "nov",
-//     "dec",
-//   ];
-
-//   return monthOrder.map((month) => ({
-//     month: month.charAt(0).toUpperCase() + month.slice(1),
-//     value: groups[month] || 0,
-//   }));
-// };
-
-// function LineChartComponent({ userTransaction = [] }) {
-//   const chartData = useMemo(
-//     () => transformData(userTransaction),
-//     [userTransaction]
-//   );
+// function LineChartComponent({ transactions }) {
+//   const { chartData, interval, showYear } = transformData(transactions);
 
 //   return (
-//     <Card className="w-full h-[430px]">
+//     <Card className="w-full max-w-full h-auto">
 //       <CardHeader>
-//         <CardTitle>Monthly Transaction Overview</CardTitle>
-//         <CardDescription>
-//           Line graph tracking your transaction trends.
+//         <CardTitle className="text-base sm:text-lg md:text-xl">
+//           Transaction Overview
+//         </CardTitle>
+//         <CardDescription className="text-sm sm:text-base">
+//           {interval === "day"
+//             ? "Daily"
+//             : interval === "week"
+//             ? "Weekly"
+//             : "Monthly"}{" "}
+//           trends
 //         </CardDescription>
 //       </CardHeader>
 
-//       <CardContent className="h-full">
-//         <div className="w-full h-[350px]">
+//       <CardContent className="h-full space-y-4 pb-6">
+//         <div className="w-full h-[250px] sm:h-[350px]">
 //           <ResponsiveContainer width="100%" height="100%">
 //             <LineChart
 //               data={chartData}
-//               margin={{ top: 30, right: 30, left: 0, bottom: 50 }}
+//               margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
 //             >
-//               <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+//               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
 //               <XAxis
-//                 dataKey="month"
-//                 tick={{ fontSize: 13, fill: "#6b7280" }}
-//                 axisLine={{ stroke: "#d1d5db" }}
-//                 tickLine={false}
+//                 dataKey="timestamp"
+//                 type="number"
+//                 scale="time"
+//                 domain={["dataMin", "dataMax"]}
+//                 tickFormatter={(ts) =>
+//                   formatLabel(new Date(ts), interval, showYear)
+//                 }
+//                 tick={{ fontSize: 12, fill: "#6b7280" }}
+//                 angle={interval === "day" ? -45 : 0}
+//                 interval="preserveStartEnd"
 //               />
 //               <YAxis
 //                 tickFormatter={(value) =>
-//                   value >= 1000 ? `${Math.round(value / 1000)}K` : value
+//                   new Intl.NumberFormat("en-IN", {
+//                     style: "currency",
+//                     currency: "INR",
+//                     notation: "compact",
+//                   }).format(value)
 //                 }
-//                 tick={{ fontSize: 13, fill: "#6b7280" }}
-//                 axisLine={{ stroke: "#d1d5db" }}
-//                 tickLine={false}
+//                 tick={{ fontSize: 12, fill: "#6b7280" }}
 //               />
 //               <Tooltip
-//                 formatter={(value) =>
-//                   value >= 1000 ? `${Math.round(value / 1000)}K` : value
-//                 }
-//                 contentStyle={{
-//                   fontSize: "14px",
-//                   backgroundColor: "#fff",
-//                   border: "1px solid #d1d5db",
-//                   borderRadius: "8px",
-//                   boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-//                 }}
+//                 content={({ payload }) => (
+//                   <div className="bg-white p-3 rounded-lg shadow-lg border">
+//                     <p className="font-semibold">
+//                       {payload?.[0]?.payload.label}
+//                     </p>
+//                     <p>
+//                       Total:{" "}
+//                       {new Intl.NumberFormat("en-IN", {
+//                         style: "currency",
+//                         currency: "INR",
+//                       }).format(payload?.[0]?.value)}
+//                     </p>
+//                   </div>
+//                 )}
 //               />
 //               <Line
 //                 type="monotone"
@@ -106,16 +88,7 @@
 //                 stroke="#3b82f6"
 //                 strokeWidth={2}
 //                 dot={{ r: 4 }}
-//               >
-//                 <LabelList
-//                   dataKey="value"
-//                   position="top"
-//                   formatter={(val) =>
-//                     val >= 1000 ? `${Math.round(val / 1000)}K` : val
-//                   }
-//                   style={{ fontSize: 12, fill: "#111827", fontWeight: 500 }}
-//                 />
-//               </Line>
+//               />
 //             </LineChart>
 //           </ResponsiveContainer>
 //         </div>
@@ -126,18 +99,16 @@
 
 // export default LineChartComponent;
 
-"use client";
-
-import React, { useMemo } from "react";
+import { transformData, formatLabel } from "@/lib/chartHelpers";
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LabelList,
+  Legend,
 } from "recharts";
 import {
   Card,
@@ -147,108 +118,105 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-// ✅ Transform data with accurate month+year grouping
-const transformData = (transactions = []) => {
-  const groups = {};
-
-  transactions.forEach((tx) => {
-    if (!tx.date || typeof tx.amount !== "number") return;
-
-    const dateObj = new Date(tx.date);
-    const year = dateObj.getFullYear();
-    const month = dateObj.toLocaleString("default", { month: "short" }); // e.g., Apr
-    const label = `${month} ${year}`; // e.g., Apr 2025
-
-    groups[label] = (groups[label] || 0) + tx.amount;
-  });
-
-  // ✅ Convert to array and sort by actual date
-  const sortedData = Object.keys(groups)
-    .map((key) => {
-      const [monthName, year] = key.split(" ");
-      const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
-      const date = new Date(year, monthIndex, 1);
-      return { label: key, value: groups[key], date };
-    })
-    .sort((a, b) => a.date - b.date);
-
-  return sortedData.map(({ label, value }) => ({ month: label, value }));
-};
-
-function LineChartComponent({ userTransaction = [] }) {
-  const chartData = useMemo(
-    () => transformData(userTransaction),
-    [userTransaction]
-  );
+function LineChartComponent({ transactions }) {
+  const { chartData, interval, showYear } = transformData(transactions);
 
   return (
-    <Card className="w-full h-[430px]">
-      <CardHeader>
-        <CardTitle>Monthly Transaction Overview</CardTitle>
-        <CardDescription>Accurate totals by month & year.</CardDescription>
-      </CardHeader>
-
-      <CardContent className="h-full">
-        <div className="w-full h-[350px]">
+    <Card className="w-full h-full overflow-hidden">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base sm:text-lg md:text-xl">
+          Transaction Overview
+        </CardTitle>
+        <CardDescription className="text-sm sm:text-base">
+          {interval === "day"
+            ? "Daily"
+            : interval === "week"
+            ? "Weekly"
+            : "Monthly"}{" "}
+          breakdown
+        </CardDescription>
+      </CardHeader>{" "}
+      <CardContent className="pt-2 h-[calc(100%-80px)]">
+        <div className="w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+            <BarChart
               data={chartData}
-              margin={{ top: 30, right: 30, left: 0, bottom: 50 }}
+              margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+              barGap={8}
+              barSize={interval === "day" ? 10 : interval === "week" ? 15 : 24}
             >
-              <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#e5e7eb"
+                opacity={0.6}
+              />
               <XAxis
-                dataKey="month"
-                tick={{ fontSize: 13, fill: "#6b7280" }}
-                angle={-35}
-                textAnchor="end"
-                interval={0}
-                height={60}
+                dataKey="timestamp"
+                type="number"
+                scale="time"
+                domain={["dataMin", "dataMax"]}
+                tickFormatter={(ts) =>
+                  formatLabel(new Date(ts), interval, showYear)
+                }
+                tick={{ fontSize: 11, fill: "#6b7280" }}
+                angle={interval === "day" ? -45 : 0}
+                tickMargin={interval === "day" ? 10 : 5}
+                height={50}
+                minTickGap={15}
               />
               <YAxis
                 tickFormatter={(value) =>
-                  value >= 1000000
-                    ? `${Math.round(value / 1000000)}M`
-                    : value >= 1000
-                    ? `${Math.round(value / 1000)}K`
-                    : value
+                  new Intl.NumberFormat("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                    notation: "compact",
+                  }).format(value)
                 }
-                tick={{ fontSize: 13, fill: "#6b7280" }}
-                axisLine={{ stroke: "#d1d5db" }}
+                tick={{ fontSize: 11, fill: "#6b7280" }}
+                width={60}
+                axisLine={false}
                 tickLine={false}
               />
               <Tooltip
-                formatter={(value) =>
-                  value >= 1000000
-                    ? `${Math.round(value / 1000000)}M`
-                    : value >= 1000
-                    ? `${Math.round(value / 1000)}K`
-                    : value
-                }
-                contentStyle={{
-                  fontSize: "14px",
-                  backgroundColor: "#fff",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "8px",
-                  boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                cursor={{ fill: "rgba(79, 70, 229, 0.1)" }}
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+                        <p className="font-semibold text-sm mb-1">
+                          {payload[0].payload.label}
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          <span className="font-medium">Total: </span>
+                          {new Intl.NumberFormat("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                          }).format(payload[0].value)}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
                 }}
               />
-              <Line
-                type="monotone"
+              <Bar
                 dataKey="value"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              >
-                <LabelList
-                  dataKey="value"
-                  position="top"
-                  formatter={(val) =>
-                    val >= 1000 ? `${Math.round(val / 1000)}K` : val
-                  }
-                  style={{ fontSize: 12, fill: "#111827", fontWeight: 500 }}
-                />
-              </Line>
-            </LineChart>
+                fill="#4f46e5"
+                radius={[4, 4, 0, 0]}
+                animationDuration={1500}
+              />
+              <Legend
+                wrapperStyle={{ bottom: 0 }}
+                content={() => (
+                  <div className="flex items-center justify-center mt-2">
+                    <div className="flex items-center space-x-2 text-xs text-gray-600">
+                      <div className="w-3 h-3 bg-indigo-600 rounded-sm" />
+                      <span>Transaction Amount</span>
+                    </div>
+                  </div>
+                )}
+              />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
@@ -257,3 +225,5 @@ function LineChartComponent({ userTransaction = [] }) {
 }
 
 export default LineChartComponent;
+
+// export default LineChartComponent;

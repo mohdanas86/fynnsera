@@ -146,9 +146,9 @@
   --color-primary-dark: #2c7a7b; 
   --color-lightgreen-dark: #00fbff;
 
-  --color-black: #151718; 
+  --color-title: #262626; 
   --color-heading: #303031; 
-  --color-para: #848484; 
+  --color-para: #606060; 
   /* --number-font: "IBM Plex Sans", sans-serif; */
 
   --color-secondary: #e2e8f0; /* Example gray color */
@@ -192,4 +192,25 @@
 .IbmFont{
   /* font-family: "Space Grotesk", sans-serif; */
   font-family: "IBM Plex Sans", sans-serif; 
+}
+
+/* Transaction tooltip styles */
+:root {
+  --tooltip-pointer-position: bottom;
+}
+
+.tooltip-pointer {
+  position: absolute;
+  left: 20px;
+  z-index: 1;
+  /* Default position (bottom) */
+  bottom: -8px;
+  transition: all 0.2s ease;
+}
+
+/* When pointer should be at the top */
+:root[style*="--tooltip-pointer-position: top"] .tooltip-pointer {
+  bottom: auto;
+  top: -8px;
+  transform: rotate(225deg);
 }

@@ -14,6 +14,7 @@ export const metadata = {
   creator: "FYNSERA",
   applicationName: "FYNSERA",
   robots: "index, follow",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   metadataBase: new URL("https://fynsera.netlify.app"), // live Netlify URL
   icons: {
     icon: "/favicon.ico",

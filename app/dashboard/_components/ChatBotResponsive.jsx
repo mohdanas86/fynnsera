@@ -6,7 +6,7 @@ import {
   PaperAirplaneIcon,
   ChatBubbleBottomCenterIcon,
 } from "@heroicons/react/24/solid";
-import Loding from "../_components/Loding";
+import Loading from "../_components/Loading";
 import { SendHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +17,6 @@ export default function ChatBotResponsive({ setShowChatBot }) {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-
   // Memoize messages to avoid unnecessary recomputation during re-renders.
   const memoizedMessages = useMemo(() => messages, [messages]);
 
@@ -27,7 +26,7 @@ export default function ChatBotResponsive({ setShowChatBot }) {
   }, [memoizedMessages]);
 
   if (status === "loading") {
-    return <Loding />;
+    return <Loading />;
   }
 
   if (!session) {

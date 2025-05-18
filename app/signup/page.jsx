@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
-import Loding from "../dashboard/_components/Loding";
+import Loading from "../dashboard/_components/Loading";
 import { toast } from "sonner";
 
 // Define Zod schema for front-end validation
@@ -70,8 +70,7 @@ export default function SignUp() {
   const handleGoogleSignup = () => {
     signIn("google", { callbackUrl: "https://fynsera.netlify.app/dashboard" });
   };
-
-  if (isLoading) return <Loding />;
+  if (isLoading) return <Loading />;
 
   return (
     <div className="lg:min-h-screen flex items-center justify-center lg:bg-gray-50">
