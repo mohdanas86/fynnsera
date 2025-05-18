@@ -33,7 +33,7 @@ const ClientLayout = ({ children }) => {
           </div>
           <main className="w-full overflow-auto scrollable-section">
             <Header />
-            <div className="bg-[#F9F9F9]">{children}</div>
+            <div className="bg-white">{children}</div>
           </main>
         </div>
 
