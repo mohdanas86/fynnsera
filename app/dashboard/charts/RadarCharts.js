@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import {
   RadarChart,
   Radar,
@@ -8,8 +8,6 @@ import {
   PolarAngleAxis,
   Tooltip,
   ResponsiveContainer,
-  defs,
-  RadialBar,
 } from "recharts";
 import {
   Card,
@@ -18,108 +16,109 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChartContainer } from "@/components/ui/chart";
-import { TrendingUp } from "lucide-react";
 
-// Modern gradient color
-const GRADIENT_ID = "radarGradient";
-
-const chartConfig = {
-  value: { label: "Spending", color: "#4F46E5" }, // Indigo
-};
-
+// Improved data transformation for consistent display
 const transformData = (transactions) => {
   if (!Array.isArray(transactions) || transactions.length === 0) return [];
 
-  const groups = {};
-  transactions.forEach((transaction) => {
-    if (!transaction.date) return;
-    const dateObj = new Date(transaction.date);
-    const month = dateObj
-      .toLocaleString("default", { month: "short" })
-      .toLowerCase();
-    groups[month] = (groups[month] || 0) + transaction.amount;
+  // Get categories with transactions
+  const categories = {};
+
+  transactions.forEach((tx) => {
+    if (!tx.category) return;
+
+    const category = tx.category.trim();
+    if (!category) return;
+
+    if (!categories[category]) {
+      categories[category] = 0;
+    }
+
+    // Sum the absolute value for better visualization
+    categories[category] += Math.abs(tx.amount || 0);
   });
 
-  const monthOrder = [
-    "jan",
-    "feb",
-    "mar",
-    "apr",
-    "may",
-    "jun",
-    "jul",
-    "aug",
-    "sep",
-    "oct",
-    "nov",
-    "dec",
-  ];
+  // Convert to array and sort by value
+  let result = Object.entries(categories)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
 
-  return monthOrder
-    .filter((month) => groups[month] !== undefined)
-    .map((month) => ({ month, value: groups[month] }));
+  // Limit to top 6 categories for better visualization on radar chart
+  result = result.slice(0, 6);
+
+  return result;
 };
 
-function RadarCharts({ userTransaction = [] }) {
-  const chartData = useMemo(
-    () => transformData(userTransaction),
-    [userTransaction]
-  );
-
-  useEffect(() => {
-    console.log("Radar Chart data:", chartData);
-  }, [chartData]);
+function RadarCharts({ transactions = [] }) {
+  const chartData = transformData(transactions);
+  // Format currency consistently
+  const formatCurrency = (value) => {
+    if (value >= 1000000) return `₹${(value / 1000000).toFixed(1)}M`;
+    if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+    return `₹${value}`;
+  };
 
   return (
-    <Card className="p-4 sm:p-6 bg-white rounded-xl border max-w-4xl w-full  mx-auto">
-      <CardHeader className="items-center">
-        <CardTitle className="text-xl font-semibold text-gray-800">
-          Monthly Spending Patterns
+    <Card className="w-full h-full overflow-hidden">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base sm:text-lg font-semibold">
+          Category Distribution
         </CardTitle>
-        <CardDescription className="text-sm text-gray-500">
-          Visual breakdown of spending habits across months.
+        <CardDescription className="text-sm">
+          Top spending categories
         </CardDescription>
-      </CardHeader>
-      <CardContent className="pb-6">
-        {chartData.length === 0 ? (
-          <div className="text-center text-gray-400">No data to display</div>
+      </CardHeader>{" "}
+      <CardContent className="pt-2 h-[calc(100%-80px)]">
+        {chartData.length < 3 ? (
+          <div className="h-full flex items-center justify-center text-center text-gray-500">
+            <p>Not enough category data</p>
+          </div>
         ) : (
-          <div className="aspect-square max-h-[340px] mx-auto">
+          <div className="h-full w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
-                {/* Gradient for radar fill */}
                 <defs>
-                  <radialGradient id={GRADIENT_ID} cx="50%" cy="50%" r="50%">
+                  <linearGradient
+                    id="radarGradient"
+                    x1="0"
+                    y1="0"
+                    x2="1"
+                    y2="1"
+                  >
                     <stop offset="0%" stopColor="#6366F1" stopOpacity={0.8} />
                     <stop offset="100%" stopColor="#6366F1" stopOpacity={0.2} />
-                  </radialGradient>
+                  </linearGradient>
                 </defs>
-
-                <PolarGrid stroke="#E5E7EB" />
+                <PolarGrid stroke="#e5e7eb" />
                 <PolarAngleAxis
-                  dataKey="month"
-                  tick={{ fill: "#4B5563", fontSize: 12 }}
-                />
-                <Radar
-                  name="Spending"
-                  dataKey="value"
-                  fill={`url(#${GRADIENT_ID})`}
-                  stroke="#6366F1"
-                  strokeWidth={2}
-                  animationBegin={300}
-                  animationDuration={1000}
+                  dataKey="name"
+                  tick={{
+                    fontSize: 10,
+                    fill: "#4B5563",
+                    dy: 1,
+                  }}
+                  tickSize={5}
                 />
                 <Tooltip
-                  formatter={(value) => `₹${Number(value).toFixed(2)}`}
+                  formatter={(value) => formatCurrency(value)}
                   contentStyle={{
-                    fontSize: "14px",
-                    backgroundColor: "#ffffff",
-                    color: "#111827",
-                    border: "1px solid #E5E7EB",
+                    backgroundColor: "#fff",
+                    border: "1px solid #e5e7eb",
                     borderRadius: "0.5rem",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    padding: "8px 12px",
+                    fontSize: "12px",
                   }}
+                />
+                <Radar
+                  name="Amount"
+                  dataKey="value"
+                  fill="url(#radarGradient)"
+                  stroke="#6366F1"
+                  strokeWidth={2}
+                  fillOpacity={0.6}
+                  animationDuration={1200}
+                  animationEasing="ease-in-out"
                 />
               </RadarChart>
             </ResponsiveContainer>
@@ -131,3 +130,5 @@ function RadarCharts({ userTransaction = [] }) {
 }
 
 export default RadarCharts;
+
+// export default RadarCharts;
