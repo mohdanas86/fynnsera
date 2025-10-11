@@ -84,13 +84,13 @@ export function MyContextProvider({ children }) {
             transactionType: txn.transactionType
               ? txn.transactionType
               : (() => {
-                  const desc = txn.description.toLowerCase();
-                  const isCredit =
-                    desc.includes("from") ||
-                    desc.includes("credit") ||
-                    desc.includes("salary");
-                  return isCredit ? "Credit" : "Debit";
-                })(),
+                const desc = txn.description.toLowerCase();
+                const isCredit =
+                  desc.includes("from") ||
+                  desc.includes("credit") ||
+                  desc.includes("salary");
+                return isCredit ? "Credit" : "Debit";
+              })(),
           };
         }
         return null;
@@ -98,9 +98,8 @@ export function MyContextProvider({ children }) {
       .filter(Boolean); // remove nulls
 
     try {
-      const url = `${
-        process.env.NEXT_PUBLIC_CATOGERY_MODEL || process.env.CATOGERY_MODEL
-      }`;
+      const url = `${process.env.NEXT_PUBLIC_CATOGERY_MODEL || process.env.CATOGERY_MODEL
+        }`;
       const response = await axios.post(url, {
         transactions: formatted,
       });
@@ -120,7 +119,7 @@ export function MyContextProvider({ children }) {
       setUserFileLogs(response.data);
       // Access filesArray from response.data.data
       const filesArray = response.data.data || []; // Correct extraction
-      console.log("filesArray : ", filesArray);
+
       if (filesArray.length > 0) {
         setFileList(filesArray);
         handleSelect(filesArray[0]); // Auto-select the first file
@@ -157,9 +156,7 @@ export function MyContextProvider({ children }) {
           }),
         });
         const response = await formatData.json();
-        // console.log("response", response.data.formattedData);
         setFormatedData(response.data.formattedData);
-        console.log("formated data : ", formatedData);
       } catch (err) {
         console.error("Error formatting file data:", err);
       }

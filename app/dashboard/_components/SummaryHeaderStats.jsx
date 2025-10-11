@@ -82,16 +82,10 @@ export default function SummaryHeaderStats({
       };
     }
 
-    console.log("Processing transactions:", transactions.length);
-
     // Get current month and year (May 2025)
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-
-    console.log(
-      `Current date: ${now.toISOString()}, Month: ${currentMonth}, Year: ${currentYear}`
-    );
 
     // Get last month
     const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
@@ -105,8 +99,6 @@ export default function SummaryHeaderStats({
         txDate.getFullYear() === currentYear
       );
     });
-
-    console.log(`Current month transactions found: ${currentMonthTxs.length}`);
 
     // If we don't have current month data, check if we have any transactions
     // and use the most recent month with data instead
@@ -144,10 +136,6 @@ export default function SummaryHeaderStats({
           year: recentYear,
           transactions: recentMonthTxs,
         };
-
-        console.log(
-          `Using most recent month with data: ${recentMonth}/${recentYear}, transactions: ${recentMonthTxs.length}`
-        );
       }
     } // Get previous month relative to our month with data
     const prevMonth = monthWithData.month === 0 ? 11 : monthWithData.month - 1;
@@ -165,8 +153,6 @@ export default function SummaryHeaderStats({
       );
     });
 
-    console.log(`Previous month transactions found: ${lastMonthTxs.length}`);
-
     // Calculate credited and debited amounts for current month
     const credited = monthWithData.transactions
       .filter((tx) => tx.transactionType?.toUpperCase() === "CREDIT")
@@ -176,7 +162,7 @@ export default function SummaryHeaderStats({
       .filter((tx) => tx.transactionType?.toUpperCase() === "DEBIT")
       .reduce((total, tx) => total + (parseFloat(tx.amount) || 0), 0);
 
-    console.log(`Current month - Credited: ${credited}, Debited: ${debited}`); // Calculate net cash flow for current month
+    // Calculate net cash flow for current month
     const netCashFlow = credited - debited;
 
     // Calculate last month's debited for comparison
@@ -188,10 +174,6 @@ export default function SummaryHeaderStats({
     const lastMonthCredited = lastMonthTxs
       .filter((tx) => tx.transactionType?.toUpperCase() === "CREDIT")
       .reduce((total, tx) => total + (parseFloat(tx.amount) || 0), 0);
-
-    console.log(
-      `Last month - Credited: ${lastMonthCredited}, Debited: ${lastMonthDebited}`
-    );
 
     // Calculate spending change percentage
     let spendingChange = 0;
@@ -238,8 +220,6 @@ export default function SummaryHeaderStats({
 
       sparklineData.push(monthSpent > 0 ? monthSpent : 0);
     }
-
-    console.log("Sparkline data:", sparklineData);
 
     return {
       currentBalance,

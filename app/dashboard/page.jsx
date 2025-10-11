@@ -84,6 +84,7 @@ export default function Home() {
 
   const filteredTransactions = useMemo(() => {
     if (!userTransaction || !userTransaction.length) return [];
+
     return userTransaction.filter((tx) => {
       if (!tx.date) return false;
       const txDate = new Date(tx.date);
@@ -131,7 +132,6 @@ export default function Home() {
     }
   };
 
-  console.log("filteredTransactions", filteredTransactions);
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center h-screen">

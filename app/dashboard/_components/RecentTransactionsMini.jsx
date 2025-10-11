@@ -214,23 +214,35 @@ export default function RecentTransactionsMini({
   }, []);
 
   const recentTransactions = useMemo(() => {
-    if (loading || !Array.isArray(transactions) || transactions.length === 0)
+    if (loading || !Array.isArray(transactions) || transactions.length === 0) {
       return [];
+    }
 
-    return [...transactions]
-      .filter((tx) => tx.date && tx.amount && !isNaN(new Date(tx.date)))
+    const validTransactions = [...transactions]
+      .filter((tx) => {
+        const hasDate = !!tx.date;
+        const hasAmount =
+          tx.amount !== undefined && tx.amount !== null && tx.amount !== "";
+        const isValidDate = hasDate && !isNaN(new Date(tx.date));
+
+        return hasDate && hasAmount && isValidDate;
+      })
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 7)
       .map((tx) => {
+        // Safely determine if transaction is credit
+        const amountValue = parseFloat(tx.amount) || 0;
         const isCredit = tx.transactionType
           ? tx.transactionType.toUpperCase() === "CREDIT"
-          : parseFloat(tx.amount) > 0;
+          : amountValue > 0;
         return {
           ...tx,
           isCredit,
           formattedTime: formatTransactionTime(tx.date),
         };
       });
+
+    return validTransactions;
   }, [transactions, loading, formatTransactionTime]);
 
   const containerVariants = {

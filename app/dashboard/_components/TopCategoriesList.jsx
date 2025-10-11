@@ -108,9 +108,19 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
     }
 
     // Filter for expense transactions only
-    const expenses = transactions.filter(
-      (tx) => tx.transactionType?.toUpperCase() === "DEBIT" || tx.amount < 0
-    );
+    const expenses = transactions.filter((tx) => {
+      const hasAmount =
+        tx.amount !== undefined && tx.amount !== null && tx.amount !== "";
+      const amountValue = parseFloat(tx.amount);
+      const isDebit =
+        tx.transactionType?.toUpperCase() === "DEBIT" || amountValue < 0;
+
+      if (!hasAmount) {
+        return false;
+      }
+
+      return isDebit;
+    });
 
     // Group by category
     const categoryMap = {};
@@ -122,7 +132,9 @@ function TopCategoriesList({ transactions = [], isLoading = false }) {
         categoryMap[category] = 0;
         transactionsByCategory[category] = [];
       }
-      categoryMap[category] += Math.abs(tx.amount);
+      // Ensure amount is treated as a number
+      const amountValue = Math.abs(parseFloat(tx.amount) || 0);
+      categoryMap[category] += amountValue;
       transactionsByCategory[category].push(tx);
     });
 

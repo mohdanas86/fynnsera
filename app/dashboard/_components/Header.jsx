@@ -34,13 +34,6 @@ export default function Header() {
   // Handle closing the mobile sheet when a navigation link is clicked
   const handleLinkClick = () => setSheetOpen(false);
 
-  // Logging the user image for debugging
-  useEffect(() => {
-    if (session?.user) {
-      console.log("session.user.image:", session.user.image);
-    }
-  }, [session]);
-
   return (
     <header className="flex items-center justify-between px-4 py-4 bg-white border-b">
       {/* Left: Sidebar toggle and Logo */}

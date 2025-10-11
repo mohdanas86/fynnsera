@@ -72,8 +72,9 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
 
   // Transform data based on selected timeframe
   const chartData = useMemo(() => {
-    if (loading || !Array.isArray(transactions) || transactions.length === 0)
+    if (loading || !Array.isArray(transactions) || transactions.length === 0) {
       return [];
+    }
 
     const sortedTransactions = [...transactions].sort(
       (a, b) => new Date(a.date) - new Date(b.date)
@@ -179,7 +180,7 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
     }
 
     // Convert to array and sort by timestamp
-    return Object.entries(groupedData)
+    const result = Object.entries(groupedData)
       .map(([name, data]) => ({
         name,
         credit: data.credit,
@@ -188,6 +189,8 @@ function CashFlowLineChart({ transactions = [], isLoading = false }) {
         timestamp: data.timestamp,
       }))
       .sort((a, b) => a.timestamp - b.timestamp);
+
+    return result;
   }, [transactions, timeframe, loading]);
 
   // Calculate summary statistics
