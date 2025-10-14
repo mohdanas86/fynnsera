@@ -155,10 +155,25 @@ export function MyContextProvider({ children }) {
             transactions: userTransaction,
           }),
         });
+
+        if (!formatData.ok) {
+          throw new Error(`API error: ${formatData.status}`);
+        }
+
         const response = await formatData.json();
-        setFormatedData(response.data.formattedData);
+
+        // Better error handling - check if response and nested data exist
+        if (response?.data?.formattedData) {
+          setFormatedData(response.data.formattedData);
+        } else if (response?.formattedData) {
+          setFormatedData(response.formattedData);
+        } else {
+          console.warn("No formatted data found in response:", response);
+          setFormatedData(null);
+        }
       } catch (err) {
         console.error("Error formatting file data:", err);
+        setFormatedData(null);
       }
     }
 

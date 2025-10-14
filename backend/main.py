@@ -1,13 +1,19 @@
 
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import List, Optional
 import pdfplumber
 import tempfile
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
+import joblib
+import numpy as np
+from sentence_transformers import SentenceTransformer
 
-app = FastAPI()
+# Initialize FastAPI app
+app = FastAPI(title="Finance Management Backend API")
 
 # Allow CORS from your frontend
 app.add_middleware(
@@ -17,6 +23,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Load ML model and embedder on startup
+print("🚀 Loading ML model...")
+try:
+    clf = joblib.load("ml_models/model/classifier.pkl")
+    embedder = SentenceTransformer("ml_models/model/embedder")
+    print("✅ ML model loaded successfully")
+except Exception as e:
+    print(f"⚠️ Warning: Could not load ML model: {e}")
+    print("   ML prediction endpoints will not work until model is trained")
+    clf = None
+    embedder = None
+
+# Pydantic models for ML prediction
+class Transaction(BaseModel):
+    description: str
+    transactionType: Optional[str] = "Debit"
+    amount: Optional[float] = None
+    date: Optional[str] = None
+    userId: Optional[str] = None
+    transactionId: Optional[str] = None
+
+class BulkPredictRequest(BaseModel):
+    transactions: List[Transaction]
 
 def pdf_to_json(file_path, userId=""):
     transactions = []
@@ -116,16 +146,24 @@ def pdf_to_json(file_path, userId=""):
 # Root endpoint
 @app.get("/")
 def home():
-    return {"msg": "FastAPI is working!"}
+    return {
+        "msg": "Finance Management Backend API is working!",
+        "endpoints": {
+            "pdf_extraction": "/extract-text",
+            "ml_prediction": "/predict",
+            "ml_bulk_prediction": "/bulk_predict"
+        },
+        "ml_model_loaded": clf is not None
+    }
+
+# ==================== PDF EXTRACTION ENDPOINT ====================
 
 @app.post("/extract-text")
 async def extract_text(
     file: UploadFile = File(...),
     userId: str = Form("")
 ):
-    print(f"Received userId: {userId}")  # Debug log
-    print(f"no userId: {userId}")
-
+    print(f"Received userId: {userId}")
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp:
         temp.write(await file.read())
@@ -138,4 +176,99 @@ async def extract_text(
         return JSONResponse(content={"error": str(e)}, status_code=500)
     finally:
         os.remove(temp_path)
+
+# ==================== ML PREDICTION ENDPOINTS ====================
+
+@app.post("/predict")
+async def predict(transaction: Transaction):
+    """
+    Predict category for a single transaction
+    """
+    if clf is None or embedder is None:
+        return JSONResponse(
+            content={"error": "ML model not loaded. Please train the model first."},
+            status_code=503
+        )
+    
+    desc = transaction.description
+    tx_type = transaction.transactionType or "Debit"
+
+    if not desc:
+        return JSONResponse(content={"error": "Missing description"}, status_code=400)
+
+    input_text = f"{desc} | {tx_type}"
+    vec = embedder.encode([input_text])
+    proba = clf.predict_proba(vec)[0]
+    confidence = float(np.max(proba))
+    category = clf.classes_[np.argmax(proba)]
+
+    if confidence < 0.6:
+        category = "Other"
+
+    # Merge original data with prediction results
+    result = {
+        **transaction.dict(),
+        "category": category,
+        "confidence": round(confidence, 3)
+    }
+    return JSONResponse(content=result)
+
+@app.post("/bulk_predict")
+async def bulk_predict(request: BulkPredictRequest):
+    """
+    Predict categories for multiple transactions in batch
+    """
+    if clf is None or embedder is None:
+        return JSONResponse(
+            content={"error": "ML model not loaded. Please train the model first."},
+            status_code=503
+        )
+    
+    transactions = request.transactions
+    
+    if not transactions:
+        return JSONResponse(
+            content={"error": "Expected a list of transactions"},
+            status_code=400
+        )
+
+    input_texts = []
+    for txn in transactions:
+        desc = txn.description
+        tx_type = txn.transactionType or "Debit"
+        if not desc:
+            return JSONResponse(
+                content={"error": "Each transaction must include a 'description'"},
+                status_code=400
+            )
+        input_texts.append(f"{desc} | {tx_type}")
+
+    # Batch encode all transaction texts
+    embeddings = embedder.encode(input_texts)
+
+    # 🔒 Fix: Ensure embeddings is a proper 2D array
+    if len(embeddings) == 0:
+        return JSONResponse(content={"error": "Empty input after encoding"}, status_code=400)
+    if isinstance(embeddings, np.ndarray) and embeddings.ndim == 1:
+        embeddings = embeddings.reshape(1, -1)
+
+    probas = clf.predict_proba(embeddings)
+    predictions = clf.classes_[np.argmax(probas, axis=1)]
+    confidences = np.max(probas, axis=1)
+
+    results = []
+    for i, txn in enumerate(transactions):
+        pred = predictions[i]
+        conf = float(confidences[i])
+        if conf < 0.6:
+            pred = "Other"
+        # Return all original fields plus prediction results
+        txn_result = {
+            **txn.dict(),
+            "category": pred,
+            "confidence": round(conf, 3)
+        }
+        results.append(txn_result)
+
+    return JSONResponse(content={"predictions": results})
 

@@ -26,12 +26,12 @@ def train_and_save():
     data_file = "synthetic_data.csv"
     df = load_synthetic_data(data_file)
 
-    # Prepare training input: combine Description, Type, and Amount for richer context.
-    # We assume that the synthetic data already contains columns "Description", "Type", and "Amount"
+    # Prepare training input: combine description, transactionType, and amount for richer context.
+    # The CSV contains columns "description", "transactionType", and "amount"
     X_text = df.apply(
-        lambda row: f"{normalize_text(row['Description'])} | {row['Type'].lower()} | amount: {row['Amount']}", axis=1
+        lambda row: f"{normalize_text(row['description'])} | {row['transactionType'].lower()} | amount: {row['amount']}", axis=1
     ).tolist()
-    y = df['Category']
+    y = df['category']
 
     print("🔍 Loading SentenceTransformer embedding model...")
     embedder = SentenceTransformer('all-MiniLM-L6-v2')
